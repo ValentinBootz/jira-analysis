@@ -1,5 +1,8 @@
 # Team 1 – Jira Analysis Plugins
 
+This project consists of a Jira Plugin Application containing custom Dashboard Items for the analysis of the project
+state on Jira.
+
 ## Getting started
 
 Before you begin, you'll need [Oracle Java SE Development Kit 8 (JDK)](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
@@ -10,7 +13,7 @@ systems.
 
 Make sure the Maven home directory of your IDE is pointing to the one included in the Atlassian SDK.
 
-## Running the plugins
+## Running Jira locally
 
 After you set up the Atlassian SDK, the following steps will start up Jira with the plugin installed:
 
@@ -25,12 +28,16 @@ Here are SDK commands you'll find useful:
 * atlas-debug -- same as atlas-run, but allows a debugger to attach at port 5005
 * atlas-help  -- prints description for all commands in the SDK
 
+## Installing Dashboard Items / Gadgets
+
+ 1. After logging in to Jira, create or open a project
+ 2. At the top right of the page, click `Dashboard > Manage dashboards`
+ 3. Create or open a dashboard and click `Add gadget` button
+ 4. Select and add your dashboard item
+
 ## Developers
 
-- Joonas Palm (Team Lead - 27.04.20 to 24.05.20) (joonas.palm@tum.de)
-
-- Katharina Stetter (Team Lead - 24.05.20 to 21.06.20) (ga26jal@mytum.de)
-
-- Valentin Bootz (v.bootz@tum.de)
-
-- Ali Gharaee (ali.gharaee@tum.de)
+* Joonas Palm (Team Lead - 27.04.20 to 24.05.20) (joonas.palm@tum.de)
+* Katharina Stetter (Team Lead - 24.05.20 to 21.06.20) (ga26jal@mytum.de)
+* Valentin Bootz (v.bootz@tum.de)
+* Ali Gharaee (ali.gharaee@tum.de)
