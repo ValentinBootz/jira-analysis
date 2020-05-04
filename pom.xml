@@ -10,12 +10,12 @@
     <version>1.0.0-SNAPSHOT</version>
 
     <organization>
-        <name>Example Company</name>
-        <url>http://www.example.com/</url>
+        <name>TUM</name>
+        <url>https://www.tum.de/</url>
     </organization>
 
     <name>dashboard-plugin</name>
-    <description>This is the org.pit.jira:dashboard-plugin plugin for Atlassian JIRA.</description>
+    <description>This is the project state analysis plugin for Atlassian JIRA.</description>
     <packaging>atlassian-plugin</packaging>
 
     <dependencies>
