@@ -17,10 +17,9 @@ Make sure the Maven home directory of your IDE is pointing to the one included i
 
 After you set up the Atlassian SDK, the following steps will start up Jira with the plugin installed:
 
- 1. Change to the dashboard-plugin directory via terminal
- 2. Use the `atlas-run` command to install the plugin and run Jira on localhost
- 3. Navigate to http://localhost:2990/jira via your browser
- 4. As login credentials, use `admin` for Username and Password
+ 1. Use the `atlas-run` command to install the plugin and run Jira on localhost
+ 2. Navigate to http://localhost:2990/jira via your browser
+ 3. As login credentials, use `admin` for Username and Password
 
 Here are SDK commands you'll find useful:
 
@@ -31,7 +30,7 @@ Here are SDK commands you'll find useful:
 ## Installing Dashboard Items / Gadgets
 
  1. After logging in to Jira, create or open a project
- 2. At the top right of the page, click `Dashboard > Manage dashboards`
+ 2. At the top left of the page, click `Dashboard > Manage dashboards`
  3. Create or open a dashboard and click `Add gadget` button
  4. Select and add your dashboard item
 
