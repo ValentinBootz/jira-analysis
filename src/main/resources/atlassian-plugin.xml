@@ -2,28 +2,32 @@
     <plugin-info>
         <description>${project.description}</description>
         <version>${project.version}</version>
-        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+        <vendor name="${project.organization.name}" url="${project.organization.url}" />
         <param name="plugin-icon">images/pluginIcon.png</param>
         <param name="plugin-logo">images/pluginLogo.png</param>
     </plugin-info>
 
     <!-- add our i18n resource -->
-    <resource type="i18n" name="i18n" location="dashboard-plugin"/>
+    <resource type="i18n" name="i18n" location="dashboard-plugin" />
 
     <!-- add our web resources -->
     <web-resource key="dashboard-plugin-resources" name="dashboard-plugin Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <transformation extension="soy">
-            <transformer key="soyTransformer"/>
+            <transformer key="soyTransformer" />
         </transformation>
 
-        <resource type="download" name="dashboard-plugin.css" location="/css/dashboard-plugin.css"/>
-        <resource type="download" name="dashboard-plugin.js" location="/js/dashboard-plugin.js"/>
-        <resource type="download" name="images/" location="/images"/>
+        <resource type="download" name="dashboard-plugin.css" location="/css/dashboard-plugin.css" />
+        <resource type="download" name="dashboard-plugin.js" location="/js/dashboard-plugin.js" />
+        <resource type="download" name="images/" location="/images" />
 
         <!-- Example Dashboard Item resources -->
-        <resource type="download" location="soy/example-dashboard-item.soy" name="soy/example-dashboard-item.soy.js"/>
-        <resource type="soy" location="/soy/example-dashboard-item.soy" name="Example.Dashboard.Item.Templates.Static"/>
+        <resource type="download" location="soy/example-dashboard-item.soy" name="soy/example-dashboard-item.soy.js" />
+        <resource type="soy" location="/soy/example-dashboard-item.soy" name="Example.Dashboard.Item.Templates.Static" />
+
+        <!-- Leaderboard Dashboard Item resources -->
+        <resource type="download" location="soy/leaderboard-dashboard-item.soy" name="soy/leaderboard-dashboard-item.soy.js" />
+        <resource type="soy" location="/soy/leaderboard-dashboard-item.soy" name="Leaderboard.Dashboard.Item.Templates.Static" />
 
         <context>dashboard-plugin</context>
     </web-resource>
@@ -31,20 +35,35 @@
     <!-- Example Dashboard Item -->
     <dashboard-item key="example-dashboard-item" i18n-name-key="example.dashboard.item.title">
         <definition>
-            <title key="example.dashboard.item.title"/>
+            <title key="example.dashboard.item.title" />
             <categories>
                 <category>Jira</category>
             </categories>
             <author>
                 <name>TUM</name>
             </author>
-            <thumbnail
-                    location="/download/resources/${atlassian.plugin.key}:dashboard-plugin-resources/images/pluginLogo.png"/>
+            <thumbnail location="/download/resources/${atlassian.plugin.key}:dashboard-plugin-resources/images/pluginLogo.png" />
         </definition>
-        <description key="example.dashboard.item.description"/>
-        <resource name="view" type="soy"
-                  location=":dashboard-plugin-resources/Example.Dashboard.Item.Templates.Static"/>
-        <context-provider class="org.pit.jira.ExampleDashboardItemContextProvider"/>
+        <description key="example.dashboard.item.description" />
+        <resource name="view" type="soy" location=":dashboard-plugin-resources/Example.Dashboard.Item.Templates.Static" />
+        <context-provider class="org.pit.jira.ExampleDashboardItemContextProvider" />
+    </dashboard-item>
+
+    <!-- Leaderboard Dashboard Item -->
+    <dashboard-item key="leaderboard-dashboard-item" i18n-name-key="leaderboard.dashboard.item.title">
+        <definition>
+            <title key="leaderboard.dashboard.item.title" />
+            <categories>
+                <category>Jira</category>
+            </categories>
+            <author>
+                <name>Valentin Bootz</name>
+            </author>
+            <thumbnail location="/download/resources/${atlassian.plugin.key}:dashboard-plugin-resources/images/pluginLogo.png" />
+        </definition>
+        <description key="leaderboard.dashboard.item.description" />
+        <resource name="view" type="soy" location=":dashboard-plugin-resources/Leaderboard.Dashboard.Item.Templates.Static" />
+        <context-provider class="org.pit.jira.LeaderboardDashboardItemContextProvider" />
     </dashboard-item>
 
 </atlassian-plugin>
