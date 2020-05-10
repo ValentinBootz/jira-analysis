@@ -27,6 +27,11 @@ Here are SDK commands you'll find useful:
 * atlas-debug -- same as atlas-run, but allows a debugger to attach at port 5005
 * atlas-help  -- prints description for all commands in the SDK
 
+#### Generating mock data for Jira
+To generate the test you can use the [Data Generator for Jira](https://marketplace.atlassian.com/apps/1210725/data-generator-for-jira) plugin.
+More details about the installation and usage is on the Confluence, [Data Generator for Jira](https://iwiki.sse.in.tum.de/display/PIT/Data+Generator+for+Jira).
+##### Clean Data
+Script [atlas-clean](https://developer.atlassian.com/server/framework/atlassian-sdk/atlas-clean/) removes the target folder, so if you use this script please be aware of it.
 ## Installing Dashboard Items / Gadgets
 
  1. After logging in to Jira, create or open a project
