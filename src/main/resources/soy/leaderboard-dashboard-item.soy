@@ -1,11 +1,40 @@
 {namespace Leaderboard.Dashboard.Item.Templates}
 
 /**
- * Leaderboard dashboard item.
- *
- * @param pluginName
- * @param version
- */
+* @param pluginName
+* @param version
+*/
 {template .Static}
     <div>Welcome to <span class="aui-lozenge aui-lozenge-success">{$pluginName}</span> v{$version}!</div>
+    <div id="dynamic-content"/>
+{/template}
+
+/**
+* @param issues
+*/
+{template .IssueList}
+   <table class="aui">
+       <thead>
+           <tr>
+               <th id="key">Key</th>
+               <th id="issue">Issue</th>
+               <th id="description">Description</th>
+           </tr>
+       </thead>
+              <tbody>
+       {foreach $issue in $issues}
+                    <tr>
+                        <td headers="key">{$issue.key}</td>
+                        <td headers="issue">{$issue.fields.issuetype.name}</td>
+                        <td headers="description">{$issue.fields.issuetype.description}</td>
+                    </tr>
+       {/foreach}
+       </tbody>
+   </table>
+{/template}
+/**
+*   Use this template if there is no issues in response
+*/
+{template .Empty}
+    No issues yet.
 {/template}
