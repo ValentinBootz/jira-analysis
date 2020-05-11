@@ -34,6 +34,14 @@ Here are SDK commands you'll find useful:
  3. Create or open a dashboard and click `Add gadget` button
  4. Select and add your dashboard item
 
+## Analysis Features
+
+The following dashboard items are part of this plugin. They provide analysis on Jira data and are implemented based on Inverse Transparency concepts.
+
+### Leaderboard [in Progress]
+
+The leaderboard displays a ranking of developers based on the amount of tasks they completed.
+
 ## Developers
 
 * Joonas Palm (Team Lead - 27.04.20 to 24.05.20) (joonas.palm@tum.de)
