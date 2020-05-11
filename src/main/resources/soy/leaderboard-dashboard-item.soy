@@ -10,31 +10,36 @@
 {/template}
 
 /**
-* @param issues
+* @param leaderboard
 */
-{template .IssueList}
-   <table class="aui">
+{template .Leaderboard}
+   <table id="leaderboard-table" class="aui aui-table-sortable">
        <thead>
            <tr>
-               <th id="key">Key</th>
-               <th id="issue">Issue</th>
-               <th id="description">Description</th>
+               <th id="name">Developer</th>
+               <th id="issuecount">Completed Tasks</th>
            </tr>
        </thead>
               <tbody>
-       {foreach $issue in $issues}
+       {foreach $element in $leaderboard}
                     <tr>
-                        <td headers="key">{$issue.key}</td>
-                        <td headers="issue">{$issue.fields.issuetype.name}</td>
-                        <td headers="description">{$issue.fields.issuetype.description}</td>
+                        <td headers="name">
+                            <span class="aui-avatar aui-avatar-xsmall">
+                                <span class="aui-avatar-inner">
+                                    <img src={$element.avatar} alt="" role="presentation"/>
+                                </span>
+                            </span>
+                            {$element.name}
+                        </td>
+                        <td headers="issuecount">{$element.issuecount}</td>
                     </tr>
        {/foreach}
        </tbody>
    </table>
 {/template}
 /**
-*   Use this template if there is no issues in response
+*   Use this template if there are no issues with status 'Done' yet
 */
 {template .Empty}
-    No issues yet.
+    No tasks done yet.
 {/template}
