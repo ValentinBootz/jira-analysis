@@ -1,0 +1,45 @@
+{namespace Leaderboard.Dashboard.Item.Templates}
+
+/**
+* @param pluginName
+* @param version
+*/
+{template .Static}
+    <div>Welcome to <span class="aui-lozenge aui-lozenge-success">{$pluginName}</span> v{$version}!</div>
+    <div id="dynamic-content"/>
+{/template}
+
+/**
+* @param leaderboard
+*/
+{template .Leaderboard}
+   <table id="leaderboard-table" class="aui aui-table-sortable">
+       <thead>
+           <tr>
+               <th id="name">Developer</th>
+               <th id="issuecount">Completed Tasks</th>
+           </tr>
+       </thead>
+              <tbody>
+       {foreach $element in $leaderboard}
+                    <tr>
+                        <td headers="name">
+                            <span class="aui-avatar aui-avatar-xsmall">
+                                <span class="aui-avatar-inner">
+                                    <img src={$element.avatar} alt="" role="presentation"/>
+                                </span>
+                            </span>
+                            {$element.name}
+                        </td>
+                        <td headers="issuecount">{$element.issuecount}</td>
+                    </tr>
+       {/foreach}
+       </tbody>
+   </table>
+{/template}
+/**
+*   Use this template if there are no issues with status 'Done' yet
+*/
+{template .Empty}
+    No tasks done yet.
+{/template}
