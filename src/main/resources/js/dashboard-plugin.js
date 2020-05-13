@@ -25,13 +25,16 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                 $element.empty().html(Leaderboard.Dashboard.Item.Templates.Empty());
             }
             /**
-            * Otherwise populate leaderboard array with assignees of issues in response
+            * Otherwise populate array with data for .Leaderboard template
             */
             else {
                 self.leaderboard = [];
                 self.issues.forEach(issue => {
-                    var assignee = issue.fields.assignee;
-                    name = assignee ? assignee.name : "Unassigned"
+                    /**
+                    * Accumulate completed tasks. Credited is author who changed from 'In Progress' to 'Ready for Review'
+                    */
+                    var developer = getDeveloper(issue.changelog);
+                    name = developer ? developer.name : "Unspecified"
                     var index = self.leaderboard.findIndex(element => element.name == name);
                     if (index == -1) {
                         try {
@@ -39,7 +42,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                         } catch (error) {
                             avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
                         }
-                        self.leaderboard.push(new Developer(avatar, name, 1));
+                        self.leaderboard.push(new User(avatar, name, 1));
                     } else {
                         self.leaderboard[index].issuecount++;
                     }
@@ -58,25 +61,36 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     };
 
     /**
-    * REST call requesting all issues with status 'Done'
+    * REST call requesting all issues with status 'Done' with expanded changelog
     */
     DashboardItem.prototype.requestData = function () {
         return $.ajax({
             method: "GET",
-            url: contextPath() + "/rest/api/latest/search?jql=status%3Ddone"
+            url: contextPath() + "/rest/api/latest/search?jql=status%3Ddone&expand=changelog"
         });
     };
 
     /**
-    * Developer class for leaderbaord items
+    * Developer class for leaderboard items
     */
-    class Developer {
+    class User {
         constructor(avatar, name, issuecount) {
           this.avatar = avatar;
           this.name = name;
           this.issuecount = issuecount;
         };
-      };
+    };
+
+    /**
+    * Gets developer from issue changelog. Credited is the user who changed status to 'Ready for review'
+    * 
+    * @param changelog
+    */
+    function getDeveloper(changelog) {
+        return changelog.histories.filter(
+            function(histories){ return histories.items[0].toString == 'In Progress' }
+        ).slice(-1)[0].author;
+    }
 
     return DashboardItem;
 });

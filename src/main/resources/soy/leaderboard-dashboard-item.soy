@@ -16,22 +16,22 @@
    <table id="leaderboard-table" class="aui aui-table-sortable">
        <thead>
            <tr>
-               <th id="name">Developer</th>
+               <th id="name">User</th>
                <th id="issuecount">Completed Tasks</th>
            </tr>
        </thead>
               <tbody>
-       {foreach $element in $leaderboard}
+       {foreach $user in $leaderboard}
                     <tr>
                         <td headers="name">
                             <span class="aui-avatar aui-avatar-xsmall">
                                 <span class="aui-avatar-inner">
-                                    <img src={$element.avatar} alt="" role="presentation"/>
+                                    <img src={$user.avatar} alt="" role="presentation"/>
                                 </span>
                             </span>
-                            {$element.name}
+                            {$user.name}
                         </td>
-                        <td headers="issuecount">{$element.issuecount}</td>
+                        <td headers="issuecount">{$user.issuecount}</td>
                     </tr>
        {/foreach}
        </tbody>
