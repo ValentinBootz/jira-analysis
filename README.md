@@ -34,22 +34,16 @@ More details about the installation and usage can be found on [Confluence](https
 
 ### Cleaning mock data
 
-Use the command [atlas-clean](https://developer.atlassian.com/server/framework/atlassian-sdk/atlas-clean/) to remove the target folder (be aware that all Jira data will be lost).
+Use the command `atlas-clean` to remove the target folder (be aware that all Jira data will be lost).
 
-## Installing Dashboard Items / Gadgets
+## Installing Dashboard Items
+
+The documentation for all implemented Dashboard Items can be found in [Confluence](https://iwiki.sse.in.tum.de/x/dwCP).
 
  1. After logging in to Jira, create or open a project
  2. At the top left of the page, click `Dashboard > Manage dashboards`
  3. Create or open a dashboard and click `Add gadget` button
  4. Select and add your dashboard item
-
-## Analysis Features
-
-The following dashboard items are part of this plugin. They provide analysis on Jira data and are implemented based on Inverse Transparency concepts.
-
-### Leaderboard [in Progress]
-
-The leaderboard displays a ranking of developers based on the amount of tasks they completed.
 
 ## Developers
 
