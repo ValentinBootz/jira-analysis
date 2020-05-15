@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.net.URI;
-
 /**
  * The developer object.
  */
@@ -16,7 +14,7 @@ public class Developer {
 
     private String name;
 
-    private URI avatarUrl;
+    private String avatarUrl;
 
     /**
      * Number of issues that are not with the status "COMPLETE".

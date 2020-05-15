@@ -1,5 +1,6 @@
 package org.pit.jira;
 
+import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.issue.Issue;
@@ -7,7 +8,6 @@ import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchResults;
 import com.atlassian.jira.issue.status.category.StatusCategory;
 import com.atlassian.jira.jql.builder.JqlQueryBuilder;
-import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.plugin.PluginParseException;
@@ -18,6 +18,7 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.pit.jira.model.Developer;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -30,16 +31,12 @@ import java.util.Map;
 @Slf4j
 public class WhoNeedsHelpDashboardItemContextProvider implements ContextProvider {
 
-    private final JiraAuthenticationContext authenticationContext;
-
     private final SearchService searchService;
 
     private final AvatarService avatarService;
 
-    public WhoNeedsHelpDashboardItemContextProvider(@ComponentImport JiraAuthenticationContext authenticationContext,
-                                                    @ComponentImport SearchService searchService,
+    public WhoNeedsHelpDashboardItemContextProvider(@ComponentImport SearchService searchService,
                                                     @ComponentImport AvatarService avatarService) {
-        this.authenticationContext = authenticationContext;
         this.searchService = searchService;
         this.avatarService = avatarService;
     }
@@ -80,7 +77,7 @@ public class WhoNeedsHelpDashboardItemContextProvider implements ContextProvider
                     .orElse(null);
 
             if (developer != null) {
-                // Increment open issue count.
+                // Increment open issues count.
                 developer.setOpenIssueCount(developer.getOpenIssueCount() + 1);
             } else {
                 // Create and add new developer.
@@ -130,9 +127,27 @@ public class WhoNeedsHelpDashboardItemContextProvider implements ContextProvider
         Developer developer = new Developer();
 
         developer.setName(assignee.getName());
-        developer.setAvatarUrl(avatarService.getAvatarURL(authenticationContext.getLoggedInUser(), assignee));
+        developer.setAvatarUrl(getAvatarUrl(assignee));
         developer.setOpenIssueCount(1);
 
         return developer;
+    }
+
+    /**
+     * Retrieve the URL for the small avatar of the assignee
+     *
+     * @param assignee the assignee
+     * @return the avatar URL as String
+     */
+    private String getAvatarUrl(ApplicationUser assignee) {
+        String avatarUrl = "";
+
+        try {
+            avatarUrl = avatarService.getAvatarUrlNoPermCheck(assignee, Avatar.Size.SMALL).toURL().toString();
+        } catch (MalformedURLException e) {
+            log.error("Failed to retrieve avatar URL", e);
+        }
+
+        return avatarUrl;
     }
 }
