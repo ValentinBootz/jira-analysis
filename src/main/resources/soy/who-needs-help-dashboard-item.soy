@@ -6,30 +6,31 @@
  * @param developers the list of assignees and their open issues
  */
 {template .Static}
-    <table id="who-needs-help-table" class="aui aui-table-sortable">
-        <thead>
-        <tr>
-            <th id="name">Developer</th>
-            <th id="open-issue-count">Open Tasks</th>
-        </tr>
-        </thead>
-        <tbody>
-            {foreach $dev in $developers}
+    {if length($developers) == 0}
+        <div class="no-content">No open tasks yet.</div>
+    {else}
+        <table id="who-needs-help-table" class="aui aui-table-sortable">
+            <thead>
             <tr>
-                <td headers="name">
+                <th id="name">Developer</th>
+                <th id="open-issue-count">Open Tasks</th>
+            </tr>
+            </thead>
+            <tbody>
+                {foreach $dev in $developers}
+                <tr>
+                    <td headers="name">
                             <span class="aui-avatar aui-avatar-xsmall">
                                 <span class="aui-avatar-inner">
                                     <img src={$dev.avatarUrl} alt="" role="presentation"/>
                                 </span>
                             </span>
-                    {$dev.name}
-                </td>
-                <td headers="open-issue-count">{$dev.openIssueCount}</td>
-            </tr>
-            {/foreach}
-        </tbody>
-    </table>
+                        {$dev.name}
+                    </td>
+                    <td headers="open-issue-count">{$dev.openIssueCount}</td>
+                </tr>
+                {/foreach}
+            </tbody>
+        </table>
+    {/if}
 {/template}
-
-// TODO: handle issue count 0.
-// TODO: failed to push commit.
