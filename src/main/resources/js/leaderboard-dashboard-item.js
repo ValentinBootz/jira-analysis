@@ -42,7 +42,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                         } catch (error) {
                             avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
                         }
-                        self.leaderboard.push(new User(avatar, name, initiated=1));
+                        self.leaderboard.push(new User({avatar, name, initiated:1}));
                     } else {
                         self.leaderboard[index].initiated++;
                     }
@@ -58,7 +58,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                         } catch (error) {
                             avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
                         }
-                        self.leaderboard.push(new User(avatar, name, completed=1));
+                        self.leaderboard.push(new User({avatar, name, completed:1}));
                     } else {
                         self.leaderboard[index].completed++;
                     }
@@ -74,7 +74,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                         } catch (error) {
                             avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
                         }
-                        self.leaderboard.push(new User(avatar, name, reviewed=1));
+                        self.leaderboard.push(new User({avatar, name, reviewed:1}));
                     } else {
                         self.leaderboard[index].reviewed++;
                     }
@@ -106,12 +106,12 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     * User class for leaderboard items
     */
     class User {
-        constructor(avatar, name, initiated = 0, completed = 0, reviewed = 0) {
+        constructor({avatar, name, initiated = 0, completed = 0, reviewed = 0} = {}) {
             this.avatar = avatar;
             this.name = name;
             this.initiated = initiated;
             this.completed = completed;
-            this.reviewed = reviewed
+            this.reviewed = reviewed;
         };
     };
 
@@ -121,9 +121,10 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     * @param changelog
     */
     function getDeveloper(changelog) {
-        return changelog.histories.filter(
+        entry = changelog.histories.filter(
             function(histories){ return histories.items[0].toString == 'In Progress' }
-        ).slice(-1)[0].author;
+        ).slice(-1)[0];
+        return entry ? entry.author : undefined
     }
 
     /**
@@ -132,9 +133,10 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     * @param changelog
     */
     function getReviewer(changelog) {
-        return changelog.histories.filter(
+        entry = changelog.histories.filter(
             function(histories){ return histories.items[0].toString == 'Approved' }
-        ).slice(-1)[0].author;
+        ).slice(-1)[0];
+        return entry ? entry.author : undefined
     }
 
     return DashboardItem;
