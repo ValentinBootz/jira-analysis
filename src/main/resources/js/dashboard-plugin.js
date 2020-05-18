@@ -7,7 +7,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     /**
     * Called to render the view for a fully configured dashboard item.
     *
-    * @param context The surrounding <div/> context that this items should render into.
+    * @param context The surrounding <div/> context that this item should render into.
     * @param preferences The user preferences saved for this dashboard item (e.g. filter id, number of results...)
     */
     DashboardItem.prototype.render = function (context, preferences) {

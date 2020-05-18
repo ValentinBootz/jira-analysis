@@ -63,8 +63,7 @@
             <thumbnail location="/download/resources/${atlassian.plugin.key}:dashboard-plugin-resources/images/pluginLogo.png" />
         </definition>
         <description key="leaderboard.dashboard.item.description" />
-        <resource name="view" type="soy" location=":dashboard-plugin-resources/Leaderboard.Dashboard.Item.Templates.Static" />
-        <context-provider class="org.pit.jira.LeaderboardDashboardItemContextProvider" />
+        <resource name="view" type="soy" location=":dashboard-plugin-resources/Leaderboard.Dashboard.Item.Templates.Container" />
         <amd-module>jira-dashboard-items/leaderboard</amd-module>
     </dashboard-item>
 
