@@ -17,15 +17,15 @@
             <transformer key="soyTransformer" />
         </transformation>
 
-        <resource type="download" name="dashboard-plugin.css" location="/css/dashboard-plugin.css" />
-        <resource type="download" name="dashboard-plugin.js" location="/js/dashboard-plugin.js" />
         <resource type="download" name="images/" location="/images" />
+        <resource type="download" name="dashboard-plugin.css" location="/css/dashboard-plugin.css" />
 
         <!-- Example Dashboard Item resources -->
         <resource type="download" location="soy/example-dashboard-item.soy" name="soy/example-dashboard-item.soy.js" />
         <resource type="soy" location="/soy/example-dashboard-item.soy" name="Example.Dashboard.Item.Templates.Static" />
 
         <!-- Leaderboard Dashboard Item resources -->
+        <resource type="download" name="leaderboard-dashboard-item.js" location="/js/leaderboard-dashboard-item.js" />
         <resource type="download" location="soy/leaderboard-dashboard-item.soy" name="soy/leaderboard-dashboard-item.soy.js" />
         <resource type="soy" location="/soy/leaderboard-dashboard-item.soy" name="Leaderboard.Dashboard.Item.Templates.Static" />
 
