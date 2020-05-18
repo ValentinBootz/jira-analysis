@@ -38,7 +38,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                     var index = self.leaderboard.findIndex(element => element.name == name);
                     if (index == -1) {
                         try {
-                            avatar = assignee.avatarUrls["16x16"];
+                            avatar = developer.avatarUrls["16x16"];
                         } catch (error) {
                             avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
                         }
