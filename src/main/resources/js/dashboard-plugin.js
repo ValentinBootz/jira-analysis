@@ -31,7 +31,23 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                 self.leaderboard = [];
                 self.issues.forEach(issue => {
                     /**
-                    * Accumulate completed tasks. Credited is author who changed from 'In Progress' to 'Ready for Review'
+                    * Accumulate initiated issues. Credited is issue creator
+                    */
+                    var creator = issue.fields.creator;
+                    name = creator ? creator.name : "Unspecified"
+                    var index = self.leaderboard.findIndex(element => element.name == name);
+                    if (index == -1) {
+                        try {
+                            avatar = creator.avatarUrls["16x16"];
+                        } catch (error) {
+                            avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
+                        }
+                        self.leaderboard.push(new User(avatar, name, initiated=1));
+                    } else {
+                        self.leaderboard[index].initiated++;
+                    }
+                    /**
+                    * Accumulate completed issues. Credited is author who last changed status to 'In Progress'
                     */
                     var developer = getDeveloper(issue.changelog);
                     name = developer ? developer.name : "Unspecified"
@@ -42,12 +58,12 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                         } catch (error) {
                             avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
                         }
-                        self.leaderboard.push(new User(avatar, name, 1));
+                        self.leaderboard.push(new User(avatar, name, completed=1));
                     } else {
-                        self.leaderboard[index].issuecount++;
+                        self.leaderboard[index].completed++;
                     }
                 });
-                self.leaderboard.sort((a,b) => (a.issuecount > b.issuecount) ? -1 : ((b.issuecount > a.issuecount) ? 1 : 0))
+                self.leaderboard.sort((a,b) => (a.completed > b.completed) ? -1 : ((b.completed > a.completed) ? 1 : 0))
                 $element.empty().html(Leaderboard.Dashboard.Item.Templates.Leaderboard({leaderboard: self.leaderboard}));
             }
             self.API.resize();
@@ -71,18 +87,20 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     };
 
     /**
-    * Developer class for leaderboard items
+    * User class for leaderboard items
     */
     class User {
-        constructor(avatar, name, issuecount) {
-          this.avatar = avatar;
-          this.name = name;
-          this.issuecount = issuecount;
+        constructor(avatar, name, initiated = 0, completed = 0, reviewed = 0) {
+            this.avatar = avatar;
+            this.name = name;
+            this.initiated = initiated;
+            this.completed = completed;
+            this.reviewed = reviewed
         };
     };
 
     /**
-    * Gets developer from issue changelog. Credited is the user who changed status to 'Ready for review'
+    * Gets developer from issue changelog. Credited is the user who last changed status to 'In Progress'
     * 
     * @param changelog
     */
