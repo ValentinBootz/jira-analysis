@@ -1,7 +1,17 @@
 .aui-avatar {
-    margin-right: 5px
+    margin-right: 5px;
 }
 
 .priority-icon {
-    margin-right: 5px
+    margin-left: 1px;
+    margin-right: 5px;
+}
+
+.type-icon {
+    margin-left: 4px;
+    margin-right: 8px;
+}
+
+.container {
+    white-space: nowrap;
 }

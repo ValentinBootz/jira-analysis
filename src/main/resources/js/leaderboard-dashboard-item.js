@@ -18,6 +18,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
             self.API.hideLoadingBar();
             self.issues = data[0].issues;
             self.priorities = data[1];
+            self.types = data[2];
             /**
             * If response contains no issues use .Empty template
             */
@@ -36,6 +37,13 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                     prioritiesTemplate.push({name: priority.name, iconUrl: priority.iconUrl, count: 0});
                 });
                 /**
+                * Initialize issue types template
+                */
+                const typesTemplate = [];
+                self.types.forEach(type => {
+                    typesTemplate.push({name: type.name, iconUrl: type.iconUrl, count: 0});
+                });
+                /**
                 * Iterate issues and populate leaderboard
                 */
                 self.leaderboard = [];
@@ -43,6 +51,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                     /**
                     * Retrieve issue details by analyzing changelog and accumulate completed issues by developer
                     */
+                    var issuetype = getIssueType(issue);
                     var priority = getPriority(issue);
                     var developer = getDeveloper(issue.changelog);
                     name = developer ? developer.name : "Unspecified"
@@ -58,13 +67,16 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                         }
                         priorities = prioritiesTemplate;
                         priorities.find(element => element.name == priority.name).count++;
-                        self.leaderboard.push(new User({avatar, name, issues: 1, priorities}));
+                        issuetypes = typesTemplate;
+                        issuetypes.find(element => element.name == issuetype.name).count++;
+                        self.leaderboard.push(new User({avatar, name, issues: 1, issuetypes, priorities}));
                     /**
                     * Otherwise update leaderboard data
                     */
                     } else {
                         self.leaderboard[index].issues++;
                         self.leaderboard[index].priorities.find(element => element.name == priority.name).count++;
+                        self.leaderboard[index].issuetypes.find(element => element.name == issuetype.name).count++;
                     }
                 });
                 /**
@@ -84,11 +96,12 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     };
 
     /**
-    * Promises for API calls requesting all issues with status 'Done' with expanded changelog and a list of issue priorities
+    * Promises for API calls requesting all issues with status 'Done' with expanded changelog and lists of issue priorities and types
     */
     DashboardItem.prototype.requestDataPromises = [
         "/rest/api/latest/search?jql=status%3Ddone&expand=changelog",
-        "/rest/api/latest/priority"
+        "/rest/api/latest/priority",
+        "/rest/api/latest/issuetype"
         ].map(function(url){
             return $.ajax({
                 method: "GET",
@@ -100,10 +113,11 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     * User class for leaderboard items
     */
     class User {
-        constructor({avatar, name, issues, priorities} = {}) {
+        constructor({avatar, name, issues, issuetypes, priorities} = {}) {
             this.avatar = avatar;
             this.name = name;
             this.issues = issues;
+            this.issuetypes = issuetypes;
             this.priorities = priorities;
         };
     };
@@ -128,6 +142,15 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     function getPriority(issue) {
         return issue.fields.priority;
     }
+
+    /**
+    * Gets issue type from issue
+    * 
+    * @param issue
+    */
+   function getIssueType(issue) {
+    return issue.fields.issuetype;
+}
 
     return DashboardItem;
 });

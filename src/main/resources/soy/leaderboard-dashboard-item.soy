@@ -16,6 +16,7 @@
            <tr>
                <th id="name">User</th>
                <th id="issues">Completed Issues</th>
+               <th id="issuetypes">Issue Types</th>
                <th id="priorities">Priorities</th>
            </tr>
        </thead>
@@ -23,26 +24,32 @@
        {foreach $user in $leaderboard}
                     <tr>
                         <td headers="name">
-                            <span class="aui-avatar aui-avatar-xsmall">
-                                <span class="aui-avatar-inner">
-                                    <img src={$user.avatar} alt="" role="presentation"/>
+                            <span class="container">
+                                <span class="aui-avatar aui-avatar-xsmall">
+                                    <span class="aui-avatar-inner">
+                                        <img src={$user.avatar} alt="" role="presentation"/>
+                                    </span>
                                 </span>
+                                {$user.name}
                             </span>
-                            {$user.name}
                         </td>
                         <td headers="issues">{$user.issues}</td>
+                        <td headers="issuetypes">
+                            <span class="container">
+                            {foreach $type in $user.issuetypes}
+                                <aui-badge class="aui-badge">{$type.count}</aui-badge>
+                                <img class="type-icon" alt="" height="16" src={$type.iconUrl} title={$type.name} width="16">
+                            {/foreach}
+                            </span>
+                        </td>                          
                         <td headers="priorities">
-                            // <span class="priority-container">
-                            //     <aui-badge class="aui-badge">{$user.priorities["highest"]}</aui-badge>
-                            //     <img alt="" height="16" src="/jira/images/icons/priorities/highest.svg" title="highest" width="16">
-                            // </span>
-                            <span class="priority-container">
+                            <span class="container">
                             {foreach $priority in $user.priorities}
                                 <aui-badge class="aui-badge">{$priority.count}</aui-badge>
                                 <img class="priority-icon" alt="" height="16" src={$priority.iconUrl} title={$priority.name} width="16">
                             {/foreach}
                             </span>
-                        </td>
+                        </td>                      
                     </tr>
        {/foreach}
        </tbody>
