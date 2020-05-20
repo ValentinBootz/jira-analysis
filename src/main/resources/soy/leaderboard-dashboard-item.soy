@@ -37,16 +37,20 @@
                         <td headers="issuetypes">
                             <span class="container">
                             {foreach $type in $user.issuetypes}
+                            {if $type.count > 0}
                                 <aui-badge class="aui-badge">{$type.count}</aui-badge>
-                                <img class="type-icon" alt="" height="16" src={$type.iconUrl} title={$type.name} width="16">
+                                <img class="type-icon" alt="" height="16" src={$type.iconUrl} title={$type.name} width="16">                            
+                            {/if}
                             {/foreach}
                             </span>
                         </td>                          
                         <td headers="priorities">
                             <span class="container">
                             {foreach $priority in $user.priorities}
+                            {if $priority.count > 0}
                                 <aui-badge class="aui-badge">{$priority.count}</aui-badge>
-                                <img class="priority-icon" alt="" height="16" src={$priority.iconUrl} title={$priority.name} width="16">
+                                <img class="priority-icon" alt="" height="16" src={$priority.iconUrl} title={$priority.name} width="16">                       
+                            {/if}
                             {/foreach}
                             </span>
                         </td>                      
