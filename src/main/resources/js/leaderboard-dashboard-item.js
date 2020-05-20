@@ -31,7 +31,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                 self.leaderboard = [];
                 self.issues.forEach(issue => {
                     /**
-                    * Accumulate completed issues. Credited is author who last changed status to 'In Progress'
+                    * Retrieve issue details by analyzing changelog and accumulate completed issues by developer. 
                     */
                     var developer = getDeveloper(issue.changelog);
                     name = developer ? developer.name : "Unspecified"
@@ -42,9 +42,12 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                         } catch (error) {
                             avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
                         }
-                        self.leaderboard.push(new User({avatar, name, issues:1}));
+                        var priorities = {highest: 0, high: 0, medium:0, low: 0, lowest: 0};
+                        priorities[getPriority(issue).name.toLowerCase()]++;
+                        self.leaderboard.push(new User({avatar, name, issues:1, priorities}));
                     } else {
                         self.leaderboard[index].issues++;
+                        self.leaderboard[index].priorities[getPriority(issue).name.toLowerCase()]++;
                     }
                 });
                 self.leaderboard.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
@@ -74,15 +77,16 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     * User class for leaderboard items
     */
     class User {
-        constructor({avatar, name, issues = 0} = {}) {
+        constructor({avatar, name, issues, priorities} = {}) {
             this.avatar = avatar;
             this.name = name;
             this.issues = issues;
+            this.priorities = priorities;
         };
     };
 
     /**
-    * Gets developer from issue changelog. Credited is the user who last changed status to 'In Progress'
+    * Gets developer from issue changelog. Credited is author who last changed status to 'In Progress'
     * 
     * @param changelog
     */
@@ -90,7 +94,16 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         entry = changelog.histories.filter(
             function(histories){ return histories.items[0].toString == 'In Progress' }
         ).slice(-1)[0];
-        return entry ? entry.author : undefined
+        return entry ? entry.author : undefined;
+    }
+
+    /**
+    * Gets prioritiy from issue
+    * 
+    * @param issue
+    */
+    function getPriority(issue) {
+        return issue.fields.priority;
     }
 
     return DashboardItem;

@@ -16,6 +16,7 @@
            <tr>
                <th id="name">User</th>
                <th id="issues">Completed Issues</th>
+               <th id="priorities">Priorities</th>
            </tr>
        </thead>
               <tbody>
@@ -30,6 +31,18 @@
                             {$user.name}
                         </td>
                         <td headers="issues">{$user.issues}</td>
+                        <td headers="priorities">
+                            // <span class="priority-container">
+                            //     <aui-badge class="aui-badge">{$user.priorities["highest"]}</aui-badge>
+                            //     <img alt="" height="16" src="/jira/images/icons/priorities/highest.svg" title="highest" width="16">
+                            // </span>
+                            <span class="priority-container">
+                            {foreach $key in keys($user.priorities)}
+                                <aui-badge class="aui-badge">{$user.priorities[$key]}</aui-badge>
+                                <img class="priority-icon" alt="" height="16" src="/jira/images/icons/priorities/{$key}.svg" title="highest" width="16">
+                            {/foreach}
+                            </span>
+                        </td>
                     </tr>
        {/foreach}
        </tbody>
