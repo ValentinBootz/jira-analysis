@@ -37,9 +37,9 @@
                             //     <img alt="" height="16" src="/jira/images/icons/priorities/highest.svg" title="highest" width="16">
                             // </span>
                             <span class="priority-container">
-                            {foreach $key in keys($user.priorities)}
-                                <aui-badge class="aui-badge">{$user.priorities[$key]}</aui-badge>
-                                <img class="priority-icon" alt="" height="16" src="/jira/images/icons/priorities/{$key}.svg" title="highest" width="16">
+                            {foreach $priority in $user.priorities}
+                                <aui-badge class="aui-badge">{$priority.count}</aui-badge>
+                                <img class="priority-icon" alt="" height="16" src={$priority.iconUrl} title={$priority.name} width="16">
                             {/foreach}
                             </span>
                         </td>

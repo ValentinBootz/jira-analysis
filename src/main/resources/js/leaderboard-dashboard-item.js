@@ -17,7 +17,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         Promise.all(this.requestDataPromises).then(function (data) {
             self.API.hideLoadingBar();
             self.issues = data[0].issues;
-
+            self.priorities = data[1];
             /**
             * If response contains no issues use .Empty template
             */
@@ -28,29 +28,48 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
             * Otherwise populate array with data for .Leaderboard template
             */
             else {
+                /**
+                * Initialize priorities template
+                */
+                const prioritiesTemplate = [];
+                self.priorities.forEach(priority => {
+                    prioritiesTemplate.push({name: priority.name, iconUrl: priority.iconUrl, count: 0});
+                });
+                /**
+                * Iterate issues and populate leaderboard
+                */
                 self.leaderboard = [];
                 self.issues.forEach(issue => {
                     /**
                     * Retrieve issue details by analyzing changelog and accumulate completed issues by developer
                     */
+                    var priority = getPriority(issue);
                     var developer = getDeveloper(issue.changelog);
                     name = developer ? developer.name : "Unspecified"
                     var index = self.leaderboard.findIndex(element => element.name == name);
+                    /**
+                    * If not on yet - add user to leaderboard
+                    */
                     if (index == -1) {
                         try {
                             avatar = developer.avatarUrls["16x16"];
                         } catch (error) {
                             avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
                         }
-                        var priorities = {highest: 0, high: 0, medium:0, low: 0, lowest: 0};
-                        var types = {};
-                        priorities[getPriority(issue).name.toLowerCase()]++;
-                        self.leaderboard.push(new User({avatar, name, issues:1, priorities}));
+                        priorities = prioritiesTemplate;
+                        priorities.find(element => element.name == priority.name).count++;
+                        self.leaderboard.push(new User({avatar, name, issues: 1, priorities}));
+                    /**
+                    * Otherwise update leaderboard data
+                    */
                     } else {
                         self.leaderboard[index].issues++;
-                        self.leaderboard[index].priorities[getPriority(issue).name.toLowerCase()]++;
+                        self.leaderboard[index].priorities.find(element => element.name == priority.name).count++;
                     }
                 });
+                /**
+                * Sort leaderboard by completed issues 
+                */
                 self.leaderboard.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
                 $element.empty().html(Leaderboard.Dashboard.Item.Templates.Leaderboard({leaderboard: self.leaderboard}));
             }
@@ -73,7 +92,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         ].map(function(url){
             return $.ajax({
                 method: "GET",
-                url: contextPath() + url,
+                url: contextPath() + url
             });
         });
 
