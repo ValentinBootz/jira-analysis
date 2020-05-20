@@ -28,6 +28,11 @@
         <resource type="download" name="leaderboard-dashboard-item.js" location="/js/leaderboard-dashboard-item.js" />
         <resource type="download" location="soy/leaderboard-dashboard-item.soy" name="soy/leaderboard-dashboard-item.soy.js" />
         <resource type="soy" location="/soy/leaderboard-dashboard-item.soy" name="Leaderboard.Dashboard.Item.Templates.Static" />
+        
+        <!-- Expert Dashboard Item resources -->
+        <resource type="download" name="expert-dashboard-item.js" location="/js/expert-dashboard-item.js" />
+        <resource type="download" location="soy/expert-dashboard-item.soy" name="soy/expert-dashboard-item.soy.js" />
+        <resource type="soy" location="/soy/expert-dashboard-item.soy" name="Expert.Dashboard.Item.Templates.Static" />
 
         <context>atl.dashboard</context>
         <context>dashboard-plugin</context>
@@ -65,6 +70,23 @@
         <description key="leaderboard.dashboard.item.description" />
         <resource name="view" type="soy" location=":dashboard-plugin-resources/Leaderboard.Dashboard.Item.Templates.Container" />
         <amd-module>jira-dashboard-items/leaderboard</amd-module>
+    </dashboard-item>
+    
+    <!-- Expert Dashboard Item -->
+    <dashboard-item key="expert-dashboard-item" i18n-name-key="expert.dashboard.item.title">
+        <definition>
+            <title key="expert.dashboard.item.title" />
+            <categories>
+                <category>Jira</category>
+            </categories>
+            <author>
+                <name>Katharina Stetter</name>
+            </author>
+            <thumbnail location="/download/resources/${atlassian.plugin.key}:dashboard-plugin-resources/images/pluginLogo.png" />
+        </definition>
+        <description key="expert.dashboard.item.description" />
+        <resource name="view" type="soy" location=":dashboard-plugin-resources/Expert.Dashboard.Item.Templates.Container" />
+        <amd-module>jira-dashboard-items/expert</amd-module>
     </dashboard-item>
 
 </atlassian-plugin>
