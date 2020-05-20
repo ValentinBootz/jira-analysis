@@ -15,9 +15,7 @@
        <thead>
            <tr>
                <th id="name">User</th>
-               <th id="initiated">Initiated Issues</th>
-               <th id="completed">Completed Issues</th>
-               <th id="reviewed">Reviewed Issues</th>
+               <th id="issues">Completed Issues</th>
            </tr>
        </thead>
               <tbody>
@@ -31,9 +29,7 @@
                             </span>
                             {$user.name}
                         </td>
-                        <td headers="initiated">{$user.initiated}</td>
-                        <td headers="completed">{$user.completed}</td>
-                        <td headers="reviewed">{$user.reviewed}</td>
+                        <td headers="issues">{$user.issues}</td>
                     </tr>
        {/foreach}
        </tbody>

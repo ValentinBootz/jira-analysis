@@ -31,22 +31,6 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                 self.leaderboard = [];
                 self.issues.forEach(issue => {
                     /**
-                    * Accumulate initiated issues. Credited is issue creator
-                    */
-                    var creator = issue.fields.creator;
-                    name = creator ? creator.name : "Unspecified"
-                    var index = self.leaderboard.findIndex(element => element.name == name);
-                    if (index == -1) {
-                        try {
-                            avatar = creator.avatarUrls["16x16"];
-                        } catch (error) {
-                            avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
-                        }
-                        self.leaderboard.push(new User({avatar, name, initiated:1}));
-                    } else {
-                        self.leaderboard[index].initiated++;
-                    }
-                    /**
                     * Accumulate completed issues. Credited is author who last changed status to 'In Progress'
                     */
                     var developer = getDeveloper(issue.changelog);
@@ -58,28 +42,12 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                         } catch (error) {
                             avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
                         }
-                        self.leaderboard.push(new User({avatar, name, completed:1}));
+                        self.leaderboard.push(new User({avatar, name, issues:1}));
                     } else {
-                        self.leaderboard[index].completed++;
-                    }
-                    /**
-                    * Accumulate reviewed issues. Credited is author who last changed status to 'Approved'
-                    */
-                    var reviewer = getReviewer(issue.changelog);
-                    name = reviewer ? reviewer.name : "Unspecified"
-                    var index = self.leaderboard.findIndex(element => element.name == name);
-                    if (index == -1) {
-                        try {
-                            avatar = reviewer.avatarUrls["16x16"];
-                        } catch (error) {
-                            avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
-                        }
-                        self.leaderboard.push(new User({avatar, name, reviewed:1}));
-                    } else {
-                        self.leaderboard[index].reviewed++;
+                        self.leaderboard[index].issues++;
                     }
                 });
-                self.leaderboard.sort((a,b) => (a.completed > b.completed) ? -1 : ((b.completed > a.completed) ? 1 : 0))
+                self.leaderboard.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
                 $element.empty().html(Leaderboard.Dashboard.Item.Templates.Leaderboard({leaderboard: self.leaderboard}));
             }
             self.API.resize();
@@ -106,12 +74,10 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     * User class for leaderboard items
     */
     class User {
-        constructor({avatar, name, initiated = 0, completed = 0, reviewed = 0} = {}) {
+        constructor({avatar, name, issues = 0} = {}) {
             this.avatar = avatar;
             this.name = name;
-            this.initiated = initiated;
-            this.completed = completed;
-            this.reviewed = reviewed;
+            this.issues = issues;
         };
     };
 
@@ -123,18 +89,6 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     function getDeveloper(changelog) {
         entry = changelog.histories.filter(
             function(histories){ return histories.items[0].toString == 'In Progress' }
-        ).slice(-1)[0];
-        return entry ? entry.author : undefined
-    }
-
-    /**
-    * Gets reviewer from issue changelog. Credited is the user who last changed status to 'Approved'
-    * 
-    * @param changelog
-    */
-    function getReviewer(changelog) {
-        entry = changelog.histories.filter(
-            function(histories){ return histories.items[0].toString == 'Approved' }
         ).slice(-1)[0];
         return entry ? entry.author : undefined
     }
