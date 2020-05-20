@@ -14,9 +14,9 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         this.API.showLoadingBar();
         var $element = this.$element = $(context).find("#dynamic-content");
         var self = this;
-        this.requestData().done(function (data) {
+        Promise.all(this.requestDataPromises).then(function (data) {
             self.API.hideLoadingBar();
-            self.issues = data.issues;
+            self.issues = data[0].issues;
 
             /**
             * If response contains no issues use .Empty template
@@ -31,7 +31,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                 self.leaderboard = [];
                 self.issues.forEach(issue => {
                     /**
-                    * Retrieve issue details by analyzing changelog and accumulate completed issues by developer. 
+                    * Retrieve issue details by analyzing changelog and accumulate completed issues by developer
                     */
                     var developer = getDeveloper(issue.changelog);
                     name = developer ? developer.name : "Unspecified"
@@ -43,6 +43,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                             avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
                         }
                         var priorities = {highest: 0, high: 0, medium:0, low: 0, lowest: 0};
+                        var types = {};
                         priorities[getPriority(issue).name.toLowerCase()]++;
                         self.leaderboard.push(new User({avatar, name, issues:1, priorities}));
                     } else {
@@ -64,14 +65,17 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     };
 
     /**
-    * REST call requesting all issues with status 'Done' with expanded changelog
+    * Promises for API calls requesting all issues with status 'Done' with expanded changelog and a list of issue priorities
     */
-    DashboardItem.prototype.requestData = function () {
-        return $.ajax({
-            method: "GET",
-            url: contextPath() + "/rest/api/latest/search?jql=status%3Ddone&expand=changelog"
+    DashboardItem.prototype.requestDataPromises = [
+        "/rest/api/latest/search?jql=status%3Ddone&expand=changelog",
+        "/rest/api/latest/priority"
+        ].map(function(url){
+            return $.ajax({
+                method: "GET",
+                url: contextPath() + url,
+            });
         });
-    };
 
     /**
     * User class for leaderboard items
