@@ -15,3 +15,7 @@
 .container {
     white-space: nowrap;
 }
+
+.no-content {
+    padding: 5px;
+}
