@@ -14,10 +14,11 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         this.API.showLoadingBar();
         var $element = this.$element = $(context).find("#dynamic-content");
         var self = this;
-        this.requestData().done(function (data) {
+        Promise.all(this.requestDataPromises).then(function (data) {
             self.API.hideLoadingBar();
-            self.issues = data.issues;
-
+            self.issues = data[0].issues;
+            self.priorities = data[1];
+            self.types = data[2];
             /**
             * If response contains no issues use .Empty template
             */
@@ -28,58 +29,60 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
             * Otherwise populate array with data for .Leaderboard template
             */
             else {
+                /**
+                * Initialize priorities template
+                */
+                const prioritiesTemplate = [];
+                self.priorities.forEach(priority => {
+                    prioritiesTemplate.push({name: priority.name, iconUrl: priority.iconUrl, count: 0});
+                });
+                /**
+                * Initialize issue types template
+                */
+                const typesTemplate = [];
+                self.types.forEach(type => {
+                    typesTemplate.push({name: type.name, iconUrl: type.iconUrl, count: 0});
+                });
+                /**
+                * Iterate issues and populate leaderboard
+                */
                 self.leaderboard = [];
                 self.issues.forEach(issue => {
                     /**
-                    * Accumulate initiated issues. Credited is issue creator
+                    * Retrieve issue details by analyzing changelog and accumulate completed issues by developer
                     */
-                    var creator = issue.fields.creator;
-                    name = creator ? creator.name : "Unspecified"
-                    var index = self.leaderboard.findIndex(element => element.name == name);
-                    if (index == -1) {
-                        try {
-                            avatar = creator.avatarUrls["16x16"];
-                        } catch (error) {
-                            avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
-                        }
-                        self.leaderboard.push(new User({avatar, name, initiated:1}));
-                    } else {
-                        self.leaderboard[index].initiated++;
-                    }
-                    /**
-                    * Accumulate completed issues. Credited is author who last changed status to 'In Progress'
-                    */
+                    var issuetype = getIssueType(issue);
+                    var priority = getPriority(issue);
                     var developer = getDeveloper(issue.changelog);
                     name = developer ? developer.name : "Unspecified"
                     var index = self.leaderboard.findIndex(element => element.name == name);
+                    /**
+                    * If not on yet - add user to leaderboard
+                    */
                     if (index == -1) {
                         try {
                             avatar = developer.avatarUrls["16x16"];
                         } catch (error) {
                             avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
                         }
-                        self.leaderboard.push(new User({avatar, name, completed:1}));
-                    } else {
-                        self.leaderboard[index].completed++;
-                    }
+                        priorities = prioritiesTemplate;
+                        priorities.find(element => element.name == priority.name).count++;
+                        issuetypes = typesTemplate;
+                        issuetypes.find(element => element.name == issuetype.name).count++;
+                        self.leaderboard.push(new User({avatar, name, issues: 1, issuetypes, priorities}));
                     /**
-                    * Accumulate reviewed issues. Credited is author who last changed status to 'Approved'
+                    * Otherwise update leaderboard data
                     */
-                    var reviewer = getReviewer(issue.changelog);
-                    name = reviewer ? reviewer.name : "Unspecified"
-                    var index = self.leaderboard.findIndex(element => element.name == name);
-                    if (index == -1) {
-                        try {
-                            avatar = reviewer.avatarUrls["16x16"];
-                        } catch (error) {
-                            avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
-                        }
-                        self.leaderboard.push(new User({avatar, name, reviewed:1}));
                     } else {
-                        self.leaderboard[index].reviewed++;
+                        self.leaderboard[index].issues++;
+                        self.leaderboard[index].priorities.find(element => element.name == priority.name).count++;
+                        self.leaderboard[index].issuetypes.find(element => element.name == issuetype.name).count++;
                     }
                 });
-                self.leaderboard.sort((a,b) => (a.completed > b.completed) ? -1 : ((b.completed > a.completed) ? 1 : 0))
+                /**
+                * Sort leaderboard by completed issues 
+                */
+                self.leaderboard.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
                 $element.empty().html(Leaderboard.Dashboard.Item.Templates.Leaderboard({leaderboard: self.leaderboard}));
             }
             self.API.resize();
@@ -93,30 +96,34 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     };
 
     /**
-    * REST call requesting all issues with status 'Done' with expanded changelog
+    * Promises for API calls requesting all issues with status 'Done' with expanded changelog and lists of issue priorities and types
     */
-    DashboardItem.prototype.requestData = function () {
-        return $.ajax({
-            method: "GET",
-            url: contextPath() + "/rest/api/latest/search?jql=status%3Ddone&expand=changelog"
+    DashboardItem.prototype.requestDataPromises = [
+        "/rest/api/latest/search?jql=status%3Ddone&expand=changelog",
+        "/rest/api/latest/priority",
+        "/rest/api/latest/issuetype"
+        ].map(function(url){
+            return $.ajax({
+                method: "GET",
+                url: contextPath() + url
+            });
         });
-    };
 
     /**
     * User class for leaderboard items
     */
     class User {
-        constructor({avatar, name, initiated = 0, completed = 0, reviewed = 0} = {}) {
+        constructor({avatar, name, issues, issuetypes, priorities} = {}) {
             this.avatar = avatar;
             this.name = name;
-            this.initiated = initiated;
-            this.completed = completed;
-            this.reviewed = reviewed;
+            this.issues = issues;
+            this.issuetypes = issuetypes;
+            this.priorities = priorities;
         };
     };
 
     /**
-    * Gets developer from issue changelog. Credited is the user who last changed status to 'In Progress'
+    * Gets developer from issue changelog. Credited is author who last changed status to 'In Progress'
     * 
     * @param changelog
     */
@@ -124,20 +131,26 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         entry = changelog.histories.filter(
             function(histories){ return histories.items[0].toString == 'In Progress' }
         ).slice(-1)[0];
-        return entry ? entry.author : undefined
+        return entry ? entry.author : undefined;
     }
 
     /**
-    * Gets reviewer from issue changelog. Credited is the user who last changed status to 'Approved'
+    * Gets prioritiy from issue
     * 
-    * @param changelog
+    * @param issue
     */
-    function getReviewer(changelog) {
-        entry = changelog.histories.filter(
-            function(histories){ return histories.items[0].toString == 'Approved' }
-        ).slice(-1)[0];
-        return entry ? entry.author : undefined
+    function getPriority(issue) {
+        return issue.fields.priority;
     }
+
+    /**
+    * Gets issue type from issue
+    * 
+    * @param issue
+    */
+   function getIssueType(issue) {
+    return issue.fields.issuetype;
+}
 
     return DashboardItem;
 });

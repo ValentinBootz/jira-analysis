@@ -27,6 +27,12 @@ Here are SDK commands you'll find useful:
 * atlas-debug -- same as atlas-run, but allows a debugger to attach at port 5005
 * atlas-help  -- prints description for all commands in the SDK
 
+### Live development with QuickReload
+
+Dashboard Items will be automatically reloaded by the [QuickReload plugin](https://developer.atlassian.com/server/framework/atlassian-sdk/automatic-plugin-reinstallation-with-quickreload/).
+Start the application once and after making changes to the item just use the command `mvn package` in a separate
+terminal and reload the Browser page.
+
 ### Generating mock data for Jira
 
 To generate mock data you can use the [Data Generator for Jira](https://marketplace.atlassian.com/apps/1210725/data-generator-for-jira) plugin.
@@ -34,22 +40,16 @@ More details about the installation and usage can be found on [Confluence](https
 
 ### Cleaning mock data
 
-Use the command [atlas-clean](https://developer.atlassian.com/server/framework/atlassian-sdk/atlas-clean/) to remove the target folder (be aware that all Jira data will be lost).
+Use the command `atlas-clean` to remove the target folder (be aware that all Jira data will be lost).
 
-## Installing Dashboard Items / Gadgets
+## Installing Dashboard Items
+
+The documentation for all implemented Dashboard Items can be found in [Confluence](https://iwiki.sse.in.tum.de/x/dwCP).
 
  1. After logging in to Jira, create or open a project
  2. At the top left of the page, click `Dashboard > Manage dashboards`
  3. Create or open a dashboard and click `Add gadget` button
  4. Select and add your dashboard item
-
-## Analysis Features
-
-The following dashboard items are part of this plugin. They provide analysis on Jira data and are implemented based on Inverse Transparency concepts.
-
-### Leaderboard [in Progress]
-
-The leaderboard displays a ranking of developers based on the amount of tasks they completed.
 
 ## Developers
 

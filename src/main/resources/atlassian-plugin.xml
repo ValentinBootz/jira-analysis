@@ -34,6 +34,10 @@
         <resource type="download" location="soy/expert-dashboard-item.soy" name="soy/expert-dashboard-item.soy.js" />
         <resource type="soy" location="/soy/expert-dashboard-item.soy" name="Expert.Dashboard.Item.Templates.Static" />
 
+        <!-- Who Needs Help Dashboard Item resources -->
+        <resource type="download" location="soy/who-needs-help-dashboard-item.soy" name="soy/who-needs-help-dashboard-item.soy.js" />
+        <resource type="soy" location="/soy/who-needs-help-dashboard-item.soy" name="Who.Needs.Help.Dashboard.Item.Templates.Static" />
+
         <context>atl.dashboard</context>
         <context>dashboard-plugin</context>
     </web-resource>
@@ -88,5 +92,22 @@
         <resource name="view" type="soy" location=":dashboard-plugin-resources/Expert.Dashboard.Item.Templates.Container" />
         <amd-module>jira-dashboard-items/expert</amd-module>
     </dashboard-item>
+    <!-- Who Needs Help Dashboard Item -->
+    <dashboard-item key="who-needs-help-dashboard-item" i18n-name-key="who.needs.help.dashboard.item.title">
+        <definition>
+            <title key="who.needs.help.dashboard.item.title" />
+            <categories>
+                <category>Jira</category>
+            </categories>
+            <author>
+                <name>TUM</name>
+            </author>
+            <thumbnail location="/download/resources/${atlassian.plugin.key}:dashboard-plugin-resources/images/pluginLogo.png" />
+        </definition>
+        <description key="who.needs.help.dashboard.item.description" />
+        <resource name="view" type="soy" location=":dashboard-plugin-resources/Who.Needs.Help.Dashboard.Item.Templates.Static" />
+        <context-provider class="org.pit.jira.WhoNeedsHelpDashboardItemContextProvider" />
+    </dashboard-item>
 
 </atlassian-plugin>
+
