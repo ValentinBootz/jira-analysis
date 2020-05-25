@@ -4,39 +4,15 @@
 *   Container template with the search bar
 */
 {template .Container}
-    <section id="static-dialog" class="aui-dialog2 aui-dialog2-medium" role="dialog">
-        <!-- Dialog header -->
-        <header class="aui-dialog2-header">
-            <!-- The dialog's title -->
-            <h2 class="aui-dialog2-header-main">Expert Search</h2>
-            <!-- Actions to render on the right of the header -->
-            <div class="aui-dialog2-header-secondary">
-                <form class="aui" action="#">
-                    <input id="expert-search" class="text" type="search" name="search">
-                </form>
+    <form class="aui">
+        <div class="field-group">
+            <label for="comment-email">Expert Search</label>
+            <input class="text" type="text" id="search-text" name="search-text">
+            <div class="aui-button aui-button-primary" id="search">Search</button>
             </div>
-            <!-- Search Button -->
-            <button class="aui-button aui-button-primary" id="search">Search</button>
-          
-        </header>
-
-        <!-- Dialog footer for the dynamic content (expert table or empty message) -->
-        <footer class="aui-dialog2-footer">
-          <div id="dynamic-content"/>
-        </footer>
-    </section>
+        </div>
+    </form>
+    <p id="test-table"></p>
+    <table id="expert-table"></table>
 {/template}
 
-/**
-* This creates an expert-table
-*/
-{template .Search}
-   We have Done objects
-{/template}
-
-/**
-*   Use this template if there are no issues with the keyword found
-*/
-{template .Empty}
-    No Done objects yet
-{/template}
