@@ -61,6 +61,7 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                     //order entrences by issue count
                     expert.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
                     $(context).find('#expert-table').html(createExpertTable(expert));
+                    this.API.on(this.API.resize);
                 });
                 
             }
