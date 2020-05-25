@@ -61,7 +61,6 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                     //order entrences by issue count
                     expert.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
                     $(context).find('#expert-table').html(createExpertTable(expert));
-                    this.API.on(this.API.resize);
                 });
                 
             }
@@ -112,7 +111,7 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
         var table = "<thead><tr><th id=" + "name"+ ">User</th><th id=" +"issues"+ ">Completed Issues</th></tr></thead><tbody>";
         
         experts.forEach(expert => {
-            table = table + "<tr><td headers=" + "name" + "><span class=" + "container" + "><span class=" + "aui-avatar aui-avatar-xsmall" + "><span class=" + "aui-avatar-inner" + "><img src= " +expert.avatar +  "alt=" + " role=" + "presentation"+ "/></span></span>" + expert.name + "</span></td><td headers=" + "issues" + ">" + expert.issues + "</td></tr>"
+            table = table + "<tr><td headers=" + "name" + "><span class=" + "container" + "><span class=" + "aui-avatar aui-avatar-xsmall" + "><span class=" + "aui-avatar-inner" + "><img src=" + expert.avatar +  " alt=" +" role=" + "presentation"+ "/></span></span>" + expert.name + "</span></td><td headers=" + "issues" + ">" + expert.issues + "</td></tr>"
         });
         return table + "</tbody>";
     }
