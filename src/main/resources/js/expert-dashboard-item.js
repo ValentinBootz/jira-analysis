@@ -25,9 +25,9 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
             self.API.hideLoadingBar();
             self.issues = data.issues;
             
-
+            //If there are no "Done" tasks, ...
             if(self.issues === undefined || self.issues.length  === 0){
-
+                // ...do nothing
             }
             
             //only use expert search if there are actually done items
@@ -77,7 +77,6 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
     function filterIssuesWithKeyword(unfilteredIssues, keyword){
         var expertIssues = [];
         for(fi = 0; fi < unfilteredIssues.length; fi++){
-            var x =unfilteredIssues[fi].fields.summary.includes(keyword);
             if (unfilteredIssues[fi].fields.summary.includes(keyword)){
                 expertIssues.push(unfilteredIssues[fi]);
             }
@@ -89,7 +88,6 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
     Get the developer of an issue, aka the last user that set the item to "In Progress"
     */
     function getDeveloper(changelog) {
-        
         entry = changelog.histories.filter(
             function(histories){ return histories.items[0].toString == 'In Progress' }
         ).slice(-1)[0];
@@ -116,7 +114,6 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
         experts.forEach(expert => {
             table = table + "<tr><td headers=" + "name" + "><span class=" + "container" + "><span class=" + "aui-avatar aui-avatar-xsmall" + "><span class=" + "aui-avatar-inner" + "><img src= " +expert.avatar +  "alt=" + " role=" + "presentation"+ "/></span></span>" + expert.name + "</span></td><td headers=" + "issues" + ">" + expert.issues + "</td></tr>"
         });
-        
         return table + "</tbody>";
     }
 
