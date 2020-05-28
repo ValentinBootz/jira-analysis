@@ -50,7 +50,7 @@
                 <category>Jira</category>
             </categories>
             <author>
-                <name>TUM</name>
+                <name>Joonas Palm</name>
             </author>
             <thumbnail location="/download/resources/${atlassian.plugin.key}:dashboard-plugin-resources/images/pluginLogo.png" />
         </definition>
@@ -92,6 +92,7 @@
         <resource name="view" type="soy" location=":dashboard-plugin-resources/Expert.Dashboard.Item.Templates.Container" />
         <amd-module>jira-dashboard-items/expert</amd-module>
     </dashboard-item>
+
     <!-- Who Needs Help Dashboard Item -->
     <dashboard-item key="who-needs-help-dashboard-item" i18n-name-key="who.needs.help.dashboard.item.title">
         <definition>
@@ -100,7 +101,7 @@
                 <category>Jira</category>
             </categories>
             <author>
-                <name>TUM</name>
+                <name>Joonas Palm</name>
             </author>
             <thumbnail location="/download/resources/${atlassian.plugin.key}:dashboard-plugin-resources/images/pluginLogo.png" />
         </definition>
