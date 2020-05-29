@@ -53,6 +53,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                     */
                     var issuetype = getIssueType(issue);
                     var priority = getPriority(issue);
+                    var estimated_time = getEstimatedTime(issue);
                     var developer = getDeveloper(issue.changelog);
                     name = developer ? developer.name : "Unspecified"
                     var index = self.leaderboard.findIndex(element => element.name == name);
@@ -69,12 +70,13 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                         priorities.find(element => element.name == priority.name).count++;
                         issuetypes = typesTemplate;
                         issuetypes.find(element => element.name == issuetype.name).count++;
-                        self.leaderboard.push(new User({avatar, name, issues: 1, issuetypes, priorities}));
+                        self.leaderboard.push(new User({avatar, name, issues: 1, estimated_time, issuetypes, priorities}));
                     /**
                     * Otherwise update leaderboard data
                     */
                     } else {
                         self.leaderboard[index].issues++;
+                        self.leaderboard[index].estimated_time += estimated_time;
                         self.leaderboard[index].priorities.find(element => element.name == priority.name).count++;
                         self.leaderboard[index].issuetypes.find(element => element.name == issuetype.name).count++;
                     }
@@ -113,10 +115,11 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     * User class for leaderboard items
     */
     class User {
-        constructor({avatar, name, issues, issuetypes, priorities} = {}) {
+        constructor({avatar, name, issues, estimated_time, issuetypes, priorities} = {}) {
             this.avatar = avatar;
             this.name = name;
             this.issues = issues;
+            this.estimated_time = estimated_time;
             this.issuetypes = issuetypes;
             this.priorities = priorities;
         };
@@ -135,6 +138,16 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     }
 
     /**
+    * Gets estimated time in minutes from issue
+    * 
+    * @param issue
+    */
+    function getEstimatedTime(issue) {
+        estimated = issue.fields.timeoriginalestimate;
+        return estimated ? estimated/3600 : 0;
+    }
+
+    /**
     * Gets prioritiy from issue
     * 
     * @param issue
@@ -148,9 +161,9 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     * 
     * @param issue
     */
-   function getIssueType(issue) {
-    return issue.fields.issuetype;
-}
+    function getIssueType(issue) {
+        return issue.fields.issuetype;
+    }
 
     return DashboardItem;
 });

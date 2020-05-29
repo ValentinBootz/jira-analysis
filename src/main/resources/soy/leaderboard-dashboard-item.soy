@@ -16,6 +16,7 @@
            <tr>
                <th id="name">User</th>
                <th id="issues">Completed Issues</th>
+               <th id="estimated_time">Estimated Time</th>
                <th id="issuetypes">Issue Types</th>
                <th id="priorities">Priorities</th>
            </tr>
@@ -34,6 +35,7 @@
                             </span>
                         </td>
                         <td headers="issues">{$user.issues}</td>
+                        <td headers="estimated_time">{$user.estimated_time}h</td>
                         <td headers="issuetypes">
                             <span class="container">
                             {foreach $type in $user.issuetypes}
