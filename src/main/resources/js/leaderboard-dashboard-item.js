@@ -44,21 +44,25 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                     typesTemplate.push({name: type.name, iconUrl: type.iconUrl, count: 0});
                 });
                 /**
-                * Iterate issues and populate leaderboard
+                * Iterate issues and populate user/project ranking
                 */
-                self.leaderboard = [];
+                self.users = [];
+                self.projects = [];
                 self.issues.forEach(issue => {
                     /**
-                    * Retrieve issue details by analyzing changelog and accumulate completed issues by developer
+                    * Retrieve issue details
                     */
                     var issuetype = getIssueType(issue);
                     var priority = getPriority(issue);
                     var estimated_time = getEstimatedTime(issue);
-                    var developer = getDeveloper(issue.changelog);
-                    name = developer ? developer.name : "Unspecified"
-                    var index = self.leaderboard.findIndex(element => element.name == name);
                     /**
-                    * If not on yet - add user to leaderboard
+                    * Retrieve issue developer by analyzing changelog and accumulate completed issues by developer
+                    */
+                    var developer = getDeveloper(issue.changelog);
+                    username = developer ? developer.name : "Unspecified";
+                    var index = self.users.findIndex(element => element.name == username);
+                    /**
+                    * If not on yet - add user to user ranking
                     */
                     if (index == -1) {
                         try {
@@ -66,27 +70,54 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                         } catch (error) {
                             avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
                         }
-                        priorities = prioritiesTemplate;
+                        priorities = JSON.parse(JSON.stringify(prioritiesTemplate));
                         priorities.find(element => element.name == priority.name).count++;
-                        issuetypes = typesTemplate;
+                        issuetypes = JSON.parse(JSON.stringify(typesTemplate));
                         issuetypes.find(element => element.name == issuetype.name).count++;
-                        self.leaderboard.push(new User({avatar, name, issues: 1, estimated_time, issuetypes, priorities}));
+                        self.users.push(new User({avatar, name: username, issues: 1, estimated_time, issuetypes, priorities}));
                     /**
-                    * Otherwise update leaderboard data
+                    * Otherwise update user ranking data
                     */
                     } else {
-                        self.leaderboard[index].issues++;
-                        self.leaderboard[index].estimated_time += estimated_time;
-                        self.leaderboard[index].priorities.find(element => element.name == priority.name).count++;
-                        self.leaderboard[index].issuetypes.find(element => element.name == issuetype.name).count++;
+                        self.users[index].issues++;
+                        self.users[index].estimated_time += estimated_time;
+                        self.users[index].priorities.find(element => element.name == priority.name).count++;
+                        self.users[index].issuetypes.find(element => element.name == issuetype.name).count++;
+                    }
+                    /**
+                    * Retrieve project from issue and accumulate completed issues by project
+                    */
+                    var project = getProject(issue);
+                    projectname = project ? project.name : "Unspecified";
+                    var index = self.projects.findIndex(element => element.name == projectname);
+                    /**
+                    * If not on yet - add project to project ranking
+                    */
+                    if (index == -1) {
+                        avatar = project.avatarUrls["16x16"];
+                        priorities = JSON.parse(JSON.stringify(prioritiesTemplate));
+                        priorities.find(element => element.name == priority.name).count++;
+                        issuetypes = JSON.parse(JSON.stringify(typesTemplate));
+                        issuetypes.find(element => element.name == issuetype.name).count++;
+                        self.projects.push(new Project({avatar, name: projectname, issues: 1, estimated_time, issuetypes, priorities}));
+                    /**
+                    * Otherwise update project ranking data
+                    */
+                    } else {
+                        self.projects[index].issues++;
+                        self.projects[index].estimated_time += estimated_time;
+                        self.projects[index].priorities.find(element => element.name == priority.name).count++;
+                        self.projects[index].issuetypes.find(element => element.name == issuetype.name).count++;
                     }
                 });
-                self.leaderboard.forEach(function(element) {element.estimated_time = formatTimeEstimation(element.estimated_time)});
+                self.users.forEach(function(element) {element.estimated_time = formatTimeEstimation(element.estimated_time)});
+                self.projects.forEach(function(element) {element.estimated_time = formatTimeEstimation(element.estimated_time)});
                 /**
-                * Sort leaderboard by completed issues 
+                * Sort user/project ranking by completed issues 
                 */
-                self.leaderboard.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
-                $element.empty().html(Leaderboard.Dashboard.Item.Templates.Leaderboard({leaderboard: self.leaderboard}));
+                self.users.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
+                self.projects.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
+                $element.empty().html(Leaderboard.Dashboard.Item.Templates.Leaderboard({users: self.users, projects: self.projects}));
             }
             self.API.resize();
             $element.find(".submit").click(function (event) {
@@ -113,9 +144,23 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         });
 
     /**
-    * User class for leaderboard items
+    * User class for user ranking items
     */
     class User {
+        constructor({avatar, name, issues, estimated_time, issuetypes, priorities} = {}) {
+            this.avatar = avatar;
+            this.name = name;
+            this.issues = issues;
+            this.estimated_time = estimated_time;
+            this.issuetypes = issuetypes;
+            this.priorities = priorities;
+        };
+    };
+
+    /**
+    * Project class for project ranking items
+    */
+    class Project {
         constructor({avatar, name, issues, estimated_time, issuetypes, priorities} = {}) {
             this.avatar = avatar;
             this.name = name;
@@ -166,6 +211,15 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
             function(histories){ return histories.items[0].toString == 'In Progress' }
         ).slice(-1)[0];
         return entry ? entry.author : undefined;
+    }
+
+    /**
+    * Gets project from issue
+    * 
+    * @param issue
+    */
+    function getProject(issue) {
+        return issue.fields.project;
     }
 
     /**

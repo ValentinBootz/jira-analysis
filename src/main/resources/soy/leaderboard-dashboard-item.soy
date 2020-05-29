@@ -8,7 +8,8 @@
 {/template}
 
 /**
-* @param leaderboard
+* @param users
+* @param projects
 */
 {template .Leaderboard}
     <div class="aui-tabs horizontal-tabs">
@@ -21,26 +22,18 @@
             </li>
         </ul>
         <div class="tabs-pane active-pane" id="users-tab">
-            <h2>This is the Users tab</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-        </div>
-        <div class="tabs-pane" id="projects-tab">
-            <h2>This is the Projects tab</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-        </div>
-    </div>
-   <table id="leaderboard-table" class="aui aui-table-sortable">
-       <thead>
-           <tr>
-               <th id="name">User</th>
-               <th id="issues">Completed Issues</th>
-               <th id="estimated_time">Estimated Time</th>
-               <th id="issuetypes">Issue Types</th>
-               <th id="priorities">Priorities</th>
-           </tr>
-       </thead>
-              <tbody>
-       {foreach $user in $leaderboard}
+            <table id="leaderboard-table" class="aui aui-table-sortable">
+                <thead>
+                    <tr>
+                        <th class='table-header' id="name">User</th>
+                        <th class='table-header' id="issues">Completed Issues</th>
+                        <th class='table-header' id="estimated_time">Estimated Time</th>
+                        <th class='table-header' id="issuetypes">Issue Types</th>
+                        <th class='table-header' id="priorities">Priorities</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {foreach $user in $users}
                     <tr>
                         <td headers="name">
                             <span class="container">
@@ -75,9 +68,62 @@
                             </span>
                         </td>                      
                     </tr>
-       {/foreach}
-       </tbody>
-   </table>
+                {/foreach}
+                </tbody>
+            </table>
+        </div>
+        <div class="tabs-pane" id="projects-tab">
+            <table id="leaderboard-table" class="aui aui-table-sortable">
+                <thead>
+                    <tr>
+                        <th class='table-header' id="name">Project</th>
+                        <th class='table-header' id="issues">Completed Issues</th>
+                        <th class='table-header' id="estimated_time">Estimated Time</th>
+                        <th class='table-header' id="issuetypes">Issue Types</th>
+                        <th class='table-header' id="priorities">Priorities</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {foreach $project in $projects}
+                    <tr>
+                        <td headers="name">
+                            <span class="container">
+                                <span class="aui-avatar aui-avatar-xsmall">
+                                    <span class="aui-avatar-inner">
+                                        <img src={$project.avatar} alt="" role="presentation"/>
+                                    </span>
+                                </span>
+                                {$project.name}
+                            </span>
+                        </td>
+                        <td headers="issues">{$project.issues}</td>
+                        <td headers="estimated_time">{$project.estimated_time}</td>
+                        <td headers="issuetypes">
+                            <span class="container">
+                            {foreach $type in $project.issuetypes}
+                            {if $type.count > 0}
+                                <aui-badge class="aui-badge">{$type.count}</aui-badge>
+                                <img class="type-icon" alt="" height="16" src={$type.iconUrl} title={$type.name} width="16">                            
+                            {/if}
+                            {/foreach}
+                            </span>
+                        </td>                          
+                        <td headers="priorities">
+                            <span class="container">
+                            {foreach $priority in $project.priorities}
+                            {if $priority.count > 0}
+                                <aui-badge class="aui-badge">{$priority.count}</aui-badge>
+                                <img class="priority-icon" alt="" height="16" src={$priority.iconUrl} title={$priority.name} width="16">                       
+                            {/if}
+                            {/foreach}
+                            </span>
+                        </td>                      
+                    </tr>
+                {/foreach}
+                </tbody>
+            </table>
+        </div>
+    </div>
 {/template}
 /**
 *   Use this template if there are no issues with status 'Done' yet
