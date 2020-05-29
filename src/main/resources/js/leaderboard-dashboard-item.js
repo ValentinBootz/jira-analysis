@@ -134,7 +134,6 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     function formatTimeEstimation(timeoriginalestimate) {
         var res = "";
         var remaining = timeoriginalestimate;
-        console.log(remaining)
         if (remaining >= 144000) {
             var weeks = Math.floor(timeoriginalestimate/144000);
             res += weeks + "w";
@@ -149,7 +148,6 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
             var hours = Math.floor(remaining/3600);
             res += " " + hours + "h";
             remaining -= hours*3600;
-            console.log(remaining)
         }
         if (remaining >= 60 || res == undefined) {
             var minutes = Math.floor(remaining/60);

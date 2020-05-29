@@ -11,6 +11,24 @@
 * @param leaderboard
 */
 {template .Leaderboard}
+    <div class="aui-tabs horizontal-tabs">
+        <ul class="tabs-menu">
+            <li class="menu-item active-tab">
+                <a href="#users-tab">Users</a>
+            </li>
+            <li class="menu-item">
+                <a href="#projects-tab">Projects</a>
+            </li>
+        </ul>
+        <div class="tabs-pane active-pane" id="users-tab">
+            <h2>This is the Users tab</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+        </div>
+        <div class="tabs-pane" id="projects-tab">
+            <h2>This is the Projects tab</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+        </div>
+    </div>
    <table id="leaderboard-table" class="aui aui-table-sortable">
        <thead>
            <tr>
