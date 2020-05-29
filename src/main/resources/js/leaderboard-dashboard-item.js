@@ -81,6 +81,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                         self.leaderboard[index].issuetypes.find(element => element.name == issuetype.name).count++;
                     }
                 });
+                self.leaderboard.forEach(function(element) {element.estimated_time = formatTimeEstimation(element.estimated_time)});
                 /**
                 * Sort leaderboard by completed issues 
                 */
@@ -126,6 +127,38 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     };
 
     /**
+    * Formats time estimation (e.g. 1w 2d 5h 30m) to display readable format with standard workings days/weeks, hours and minutes
+    * 
+    * @param seconds
+    */
+    function formatTimeEstimation(timeoriginalestimate) {
+        var res = "";
+        var remaining = timeoriginalestimate;
+        console.log(remaining)
+        if (remaining >= 144000) {
+            var weeks = Math.floor(timeoriginalestimate/144000);
+            res += weeks + "w";
+            remaining -= weeks*144000;
+        }
+        if (remaining >= 28800) {
+            var days = Math.floor(remaining/28800);
+            res += " " + days + "d";
+            remaining -= days*28800;
+        }
+        if (remaining >= 3600) {
+            var hours = Math.floor(remaining/3600);
+            res += " " + hours + "h";
+            remaining -= hours*3600;
+            console.log(remaining)
+        }
+        if (remaining >= 60 || res == undefined) {
+            var minutes = Math.floor(remaining/60);
+            res += " " + minutes + "m";
+        }
+        return res.trim();
+    }
+
+    /**
     * Gets developer from issue changelog. Credited is author who last changed status to 'In Progress'
     * 
     * @param changelog
@@ -138,13 +171,13 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     }
 
     /**
-    * Gets estimated time in minutes from issue
+    * Gets estimated time from issue
     * 
     * @param issue
+    * @returns time in s or 0 if not specified
     */
     function getEstimatedTime(issue) {
-        estimated = issue.fields.timeoriginalestimate;
-        return estimated ? estimated/3600 : 0;
+        return issue.fields.timeoriginalestimate || 0; 
     }
 
     /**
