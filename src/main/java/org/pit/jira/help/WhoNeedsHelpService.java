@@ -1,4 +1,4 @@
-package org.pit.jira;
+package org.pit.jira.help;
 
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
@@ -14,67 +14,35 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.pit.jira.model.Developer;
 import org.pit.jira.model.IssueCategory;
+import org.springframework.stereotype.Component;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 /**
- * The resource for Who Needs Help Dashboard Item.
+ * The service for Who Needs Help Dashboard Item.
  */
-@Scanned
 @Slf4j
-@Path("/who-needs-help")
-public class WhoNeedsHelpResource {
+@Scanned
+@Component
+public class WhoNeedsHelpService {
 
     private final SearchService searchService;
 
 
     private final AvatarService avatarService;
 
-    public WhoNeedsHelpResource(@ComponentImport SearchService searchService,
-                                @ComponentImport AvatarService avatarService) {
+    @Inject
+    public WhoNeedsHelpService(@ComponentImport SearchService searchService,
+                               @ComponentImport AvatarService avatarService) {
         this.searchService = searchService;
         this.avatarService = avatarService;
-    }
-
-    /**
-     * Searches for developers and their open issues.
-     *
-     * @return a sorted list of developers with their open issues
-     */
-    @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    @Path("/issues")
-    public Response getDevelopersWithOpenIssues() {
-        List<Developer> developers = getSortedListOfDevelopersWithOpenIssues();
-
-        return Response.ok(developers).build();
-    }
-
-    /**
-     * Initializes a context map with required entries for the dashboard item.
-     *
-     * @param context the context map
-     * @return the initialized context map
-     */
-    public Map<String, Object> getContextMap(final Map<String, Object> context) {
-        final Map<String, Object> newContext = Maps.newHashMap(context);
-
-        newContext.put("developers", getSortedListOfDevelopersWithOpenIssues());
-
-        return newContext;
     }
 
     /**
@@ -82,7 +50,7 @@ public class WhoNeedsHelpResource {
      *
      * @return sorted list of developers
      */
-    private List<Developer> getSortedListOfDevelopersWithOpenIssues() {
+    public List<Developer> getSortedListOfDevelopersWithOpenIssues() {
         List<Developer> developers = new ArrayList<>();
         List<Issue> issues = searchOpenAssignedIssues();
 
