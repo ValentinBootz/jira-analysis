@@ -62,10 +62,11 @@ public class WhoNeedsHelpService {
                     .orElse(null);
 
             if (developer != null) {
-                // Increment issues count for existing developer.
+                // Update data for existing developer.
                 developer.setOpenIssueCount(developer.getOpenIssueCount() + 1);
                 setIssueType(developer, issue);
                 setIssuePriority(developer, issue);
+                developer.setTotalOpenEstimate(developer.getTotalOpenEstimate() + getEstimateInHours(issue));
             } else {
                 // Create and add new developer.
                 developer = createNewDeveloper(assignee, issue);
@@ -118,11 +119,28 @@ public class WhoNeedsHelpService {
         developer.setOpenIssueCount(1);
         developer.setOpenIssueTypes(new ArrayList<>());
         developer.setOpenIssuePriorities(new ArrayList<>());
+        developer.setTotalOpenEstimate(getEstimateInHours(issue));
 
         setIssueType(developer, issue);
         setIssuePriority(developer, issue);
 
         return developer;
+    }
+
+    /**
+     * Returns the estimate for the issue in hours. If an estimate has not been defined, returns 0.
+     *
+     * @param issue the issue
+     * @return the estimate in hours
+     */
+    private Long getEstimateInHours(Issue issue) {
+        Long estimate = issue.getOriginalEstimate();
+
+        if (estimate != null) {
+            return estimate / 3600;
+        } else {
+            return 0L;
+        }
     }
 
     /**

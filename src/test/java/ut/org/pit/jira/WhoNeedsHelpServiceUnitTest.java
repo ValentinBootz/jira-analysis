@@ -38,6 +38,9 @@ public class WhoNeedsHelpServiceUnitTest {
     private final static String ICON_URL = "http://www.test.com/";
     private final static String NAME_1 = "test-name-1";
     private final static String NAME_2 = "test-name-2";
+    private final static Long ESTIMATE_1 = 3600L;
+    private final static Long ESTIMATE_2 = 28800L;
+    private final static Long ESTIMATE_3 = 7200L;
     private final static String TYPE_NAME_1 = "test-type-name-1";
 
     @Mock
@@ -98,6 +101,9 @@ public class WhoNeedsHelpServiceUnitTest {
         when(issue1.getAssignee()).thenReturn(applicationUser1);
         when(issue2.getAssignee()).thenReturn(applicationUser1);
         when(issue3.getAssignee()).thenReturn(applicationUser2);
+        when(issue1.getOriginalEstimate()).thenReturn(ESTIMATE_1);
+        when(issue2.getOriginalEstimate()).thenReturn(ESTIMATE_2);
+        when(issue3.getOriginalEstimate()).thenReturn(ESTIMATE_3);
 
         when(issue1.getIssueType()).thenReturn(issueType1);
         when(issueType1.getName()).thenReturn(TYPE_NAME_1);
@@ -112,15 +118,24 @@ public class WhoNeedsHelpServiceUnitTest {
         List<Developer> developers = service.getSortedListOfDevelopersWithOpenIssues();
 
         assertEquals(developers.size(), 2);
+
         assertEquals(developers.get(0).getName(), NAME_2);
         assertEquals(developers.get(0).getAvatarUrl(), AVATAR_URL);
         assertEquals(developers.get(0).getOpenIssueCount(), new Integer(1));
+        assertEquals(developers.get(0).getTotalOpenEstimate(), getHours(ESTIMATE_3));
+
         assertEquals(developers.get(1).getName(), NAME_1);
         assertEquals(developers.get(1).getAvatarUrl(), AVATAR_URL);
         assertEquals(developers.get(1).getOpenIssueCount(), new Integer(2));
+        assertEquals(developers.get(1).getTotalOpenEstimate(), getHours(ESTIMATE_1 + ESTIMATE_2));
+
         assertEquals(developers.get(1).getOpenIssueTypes().size(), 1);
         assertEquals(developers.get(1).getOpenIssueTypes().get(0).getIssueCount(), new Integer(1));
         assertEquals(developers.get(1).getOpenIssueTypes().get(0).getCategoryName(), TYPE_NAME_1);
         assertEquals(developers.get(1).getOpenIssueTypes().get(0).getIconUrl(), ICON_URL);
+    }
+
+    private Long getHours(Long seconds) {
+        return seconds / 3600;
     }
 }

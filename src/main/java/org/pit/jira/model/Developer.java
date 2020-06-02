@@ -44,4 +44,10 @@ public class Developer implements Serializable {
      */
     @XmlElement
     private List<IssueCategory> openIssuePriorities;
+
+    /**
+     * Total amount of time that has been estimated for open issues in hours.
+     */
+    @XmlElement
+    private Long totalOpenEstimate;
 }

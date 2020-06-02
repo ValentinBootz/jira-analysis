@@ -18,6 +18,7 @@
         <tr>
             <th id="name">User</th>
             <th id="open-issue-count">Open Issues</th>
+            <th id="estimated_time">Estimated Time</th>
             <th id="open-issue-types">Issue Types</th>
             <th id="open-issue-priorities">Priorities</th>
         </tr>
@@ -34,6 +35,7 @@
                     {$dev.name}
                 </td>
                 <td headers="open-issue-count">{$dev.openIssueCount}</td>
+                <td headers="estimated_time">{$dev.totalOpenEstimate}h</td>
                 <td headers="open-issue-types">
                     <span class="container">
                         {foreach $type in $dev.openIssueTypes}
