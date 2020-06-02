@@ -19,6 +19,8 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
             self.issues = data[0].issues;
             self.priorities = data[1];
             self.types = data[2];
+            self.projects = data[3];
+            self.users = data[4];
             /**
             * If response contains no issues use .Empty template
             */
@@ -46,8 +48,8 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                 /**
                 * Iterate issues and populate user/project ranking
                 */
-                self.users = [];
-                self.projects = [];
+                self.leaderboard_users = [];
+                self.leaderboard_projects = [];
                 self.issues.forEach(issue => {
                     /**
                     * Retrieve issue details
@@ -60,7 +62,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                     */
                     var developer = getDeveloper(issue.changelog);
                     username = developer ? developer.name : "Unspecified";
-                    var index = self.users.findIndex(element => element.name == username);
+                    var index = self.leaderboard_users.findIndex(element => element.name == username);
                     /**
                     * If not on yet - add user to user ranking
                     */
@@ -74,22 +76,22 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                         priorities.find(element => element.name == priority.name).count++;
                         issuetypes = JSON.parse(JSON.stringify(typesTemplate));
                         issuetypes.find(element => element.name == issuetype.name).count++;
-                        self.users.push(new User({avatar, name: username, issues: 1, estimated_time, issuetypes, priorities}));
+                        self.leaderboard_users.push(new User({avatar, name: username, issues: 1, estimated_time, issuetypes, priorities}));
                     /**
                     * Otherwise update user ranking data
                     */
                     } else {
-                        self.users[index].issues++;
-                        self.users[index].estimated_time += estimated_time;
-                        self.users[index].priorities.find(element => element.name == priority.name).count++;
-                        self.users[index].issuetypes.find(element => element.name == issuetype.name).count++;
+                        self.leaderboard_users[index].issues++;
+                        self.leaderboard_users[index].estimated_time += estimated_time;
+                        self.leaderboard_users[index].priorities.find(element => element.name == priority.name).count++;
+                        self.leaderboard_users[index].issuetypes.find(element => element.name == issuetype.name).count++;
                     }
                     /**
                     * Retrieve project from issue and accumulate completed issues by project
                     */
                     var project = getProject(issue);
                     projectname = project ? project.name : "Unspecified";
-                    var index = self.projects.findIndex(element => element.name == projectname);
+                    var index = self.leaderboard_projects.findIndex(element => element.name == projectname);
                     /**
                     * If not on yet - add project to project ranking
                     */
@@ -99,25 +101,25 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                         priorities.find(element => element.name == priority.name).count++;
                         issuetypes = JSON.parse(JSON.stringify(typesTemplate));
                         issuetypes.find(element => element.name == issuetype.name).count++;
-                        self.projects.push(new Project({avatar, name: projectname, issues: 1, estimated_time, issuetypes, priorities}));
+                        self.leaderboard_projects.push(new Project({avatar, name: projectname, issues: 1, estimated_time, issuetypes, priorities}));
                     /**
                     * Otherwise update project ranking data
                     */
                     } else {
-                        self.projects[index].issues++;
-                        self.projects[index].estimated_time += estimated_time;
-                        self.projects[index].priorities.find(element => element.name == priority.name).count++;
-                        self.projects[index].issuetypes.find(element => element.name == issuetype.name).count++;
+                        self.leaderboard_projects[index].issues++;
+                        self.leaderboard_projects[index].estimated_time += estimated_time;
+                        self.leaderboard_projects[index].priorities.find(element => element.name == priority.name).count++;
+                        self.leaderboard_projects[index].issuetypes.find(element => element.name == issuetype.name).count++;
                     }
                 });
-                self.users.forEach(function(element) {element.estimated_time = formatTimeEstimation(element.estimated_time)});
-                self.projects.forEach(function(element) {element.estimated_time = formatTimeEstimation(element.estimated_time)});
+                self.leaderboard_users.forEach(function(element) {element.estimated_time = formatTimeEstimation(element.estimated_time)});
+                self.leaderboard_projects.forEach(function(element) {element.estimated_time = formatTimeEstimation(element.estimated_time)});
                 /**
                 * Sort user/project ranking by completed issues 
                 */
-                self.users.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
-                self.projects.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
-                $element.empty().html(Leaderboard.Dashboard.Item.Templates.Leaderboard({users: self.users, projects: self.projects}));
+                self.leaderboard_users.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
+                self.leaderboard_projects.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
+                $element.empty().html(Leaderboard.Dashboard.Item.Templates.Leaderboard({leaderboard_users: self.leaderboard_users, leaderboard_projects: self.leaderboard_projects, priorities: self.priorities, issuetypes: self.types, projects: self.projects, users: self.users}));
             }
             self.API.resize();
             $element.find(".submit").click(function (event) {
@@ -135,7 +137,9 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     DashboardItem.prototype.requestDataPromises = [
         "/rest/api/latest/search?jql=status%3Ddone&expand=changelog",
         "/rest/api/latest/priority",
-        "/rest/api/latest/issuetype"
+        "/rest/api/latest/issuetype",
+        "/rest/api/latest/project",
+        "/rest/api/latest/user/search?username=''"
         ].map(function(url){
             return $.ajax({
                 method: "GET",
