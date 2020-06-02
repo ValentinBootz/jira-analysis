@@ -19,3 +19,7 @@
 .no-content {
     padding: 5px;
 }
+
+.no-wrap {
+    white-space: nowrap;
+}

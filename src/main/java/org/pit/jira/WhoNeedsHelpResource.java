@@ -4,20 +4,26 @@ import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.issue.priority.Priority;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchResults;
 import com.atlassian.jira.issue.status.category.StatusCategory;
 import com.atlassian.jira.jql.builder.JqlQueryBuilder;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.bean.PagerFilter;
-import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import com.atlassian.plugin.web.ContextProvider;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.pit.jira.model.Developer;
+import org.pit.jira.model.IssueCategory;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,24 +31,36 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The context data provider for Who Needs Help Dashboard Item.
+ * The resource for Who Needs Help Dashboard Item.
  */
 @Scanned
 @Slf4j
-public class WhoNeedsHelpDashboardItemContextProvider implements ContextProvider {
+@Path("/who-needs-help")
+public class WhoNeedsHelpResource {
 
     private final SearchService searchService;
 
+
     private final AvatarService avatarService;
 
-    public WhoNeedsHelpDashboardItemContextProvider(@ComponentImport SearchService searchService,
-                                                    @ComponentImport AvatarService avatarService) {
+    public WhoNeedsHelpResource(@ComponentImport SearchService searchService,
+                                @ComponentImport AvatarService avatarService) {
         this.searchService = searchService;
         this.avatarService = avatarService;
     }
 
-    @Override
-    public void init(final Map<String, String> params) throws PluginParseException {
+    /**
+     * Searches for developers and their open issues.
+     *
+     * @return a sorted list of developers with their open issues
+     */
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("/issues")
+    public Response getDevelopersWithOpenIssues() {
+        List<Developer> developers = getSortedListOfDevelopersWithOpenIssues();
+
+        return Response.ok(developers).build();
     }
 
     /**
@@ -51,7 +69,6 @@ public class WhoNeedsHelpDashboardItemContextProvider implements ContextProvider
      * @param context the context map
      * @return the initialized context map
      */
-    @Override
     public Map<String, Object> getContextMap(final Map<String, Object> context) {
         final Map<String, Object> newContext = Maps.newHashMap(context);
 
@@ -77,11 +94,13 @@ public class WhoNeedsHelpDashboardItemContextProvider implements ContextProvider
                     .orElse(null);
 
             if (developer != null) {
-                // Increment open issues count.
+                // Increment issues count for existing developer.
                 developer.setOpenIssueCount(developer.getOpenIssueCount() + 1);
+                setIssueType(developer, issue);
+                setIssuePriority(developer, issue);
             } else {
                 // Create and add new developer.
-                developer = createNewDeveloper(assignee);
+                developer = createNewDeveloper(assignee, issue);
                 developers.add(developer);
             }
         });
@@ -123,14 +142,79 @@ public class WhoNeedsHelpDashboardItemContextProvider implements ContextProvider
      * @param assignee the assignee of the issue
      * @return a new developer object
      */
-    private Developer createNewDeveloper(ApplicationUser assignee) {
+    private Developer createNewDeveloper(ApplicationUser assignee, Issue issue) {
         Developer developer = new Developer();
 
         developer.setName(assignee.getName());
         developer.setAvatarUrl(getAvatarUrl(assignee));
         developer.setOpenIssueCount(1);
+        developer.setOpenIssueTypes(new ArrayList<>());
+        developer.setOpenIssuePriorities(new ArrayList<>());
+
+        setIssueType(developer, issue);
+        setIssuePriority(developer, issue);
 
         return developer;
+    }
+
+    /**
+     * Set the issue type for the developer.
+     *
+     * @param developer the developer
+     * @param issue     the issue
+     */
+    private void setIssueType(Developer developer, Issue issue) {
+        IssueType issueType = issue.getIssueType();
+
+        if (issueType != null) {
+            IssueCategory openIssueType = new IssueCategory();
+            openIssueType.setCategoryName(issueType.getName());
+            openIssueType.setIconUrl(issueType.getCompleteIconUrl());
+            openIssueType.setIssueCount(1);
+
+            updateIssueCategories(developer.getOpenIssueTypes(), openIssueType);
+        }
+    }
+
+    /**
+     * Set the issue priority for the developer.
+     *
+     * @param developer the developer
+     * @param issue     the issue
+     */
+    private void setIssuePriority(Developer developer, Issue issue) {
+        Priority priority = issue.getPriority();
+
+        if (priority != null) {
+            IssueCategory openIssuePriority = new IssueCategory();
+            openIssuePriority.setCategoryName(priority.getName());
+            openIssuePriority.setIconUrl(priority.getCompleteIconUrl());
+            openIssuePriority.setIssueCount(1);
+
+            updateIssueCategories(developer.getOpenIssuePriorities(), openIssuePriority);
+        }
+    }
+
+    /**
+     * Update the developers list of issue categories. Check if the category to be added already exists.
+     *
+     * @param categoryList the existing list of issue categories of the developer
+     * @param category     the issue category to be added
+     */
+    private void updateIssueCategories(List<IssueCategory> categoryList, IssueCategory category) {
+        // Check if the category already exists.
+        IssueCategory existingCategory = categoryList.stream()
+                .filter(cat -> category.getCategoryName().equals(cat.getCategoryName()))
+                .findAny()
+                .orElse(null);
+
+        if (existingCategory != null) {
+            // Increment issue count for the existing category.
+            existingCategory.setIssueCount(existingCategory.getIssueCount() + 1);
+        } else {
+            // Add the new issue category.
+            categoryList.add(category);
+        }
     }
 
     /**

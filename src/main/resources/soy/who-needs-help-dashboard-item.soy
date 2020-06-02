@@ -1,36 +1,66 @@
 {namespace Who.Needs.Help.Dashboard.Item.Templates}
 
 /**
+ * Container template.
+ */
+{template .Container}
+    <div id="dynamic-content"/>
+{/template}
+
+/**
  * The Who Needs Help Dashboard Item.
  *
  * @param developers the list of assignees and their open issues
  */
-{template .Static}
-    {if length($developers) == 0}
-        <div class="no-content">No open tasks yet.</div>
-    {else}
-        <table id="who-needs-help-table" class="aui aui-table-sortable">
-            <thead>
+{template .Results}
+    <table id="who-needs-help-table" class="aui aui-table-sortable">
+        <thead class="no-wrap">
+        <tr>
+            <th id="name">User</th>
+            <th id="open-issue-count">Open Issues</th>
+            <th id="open-issue-types">Issue Types</th>
+            <th id="open-issue-priorities">Priorities</th>
+        </tr>
+        </thead>
+        <tbody>
+            {foreach $dev in $developers}
             <tr>
-                <th id="name">Developer</th>
-                <th id="open-issue-count">Open Tasks</th>
-            </tr>
-            </thead>
-            <tbody>
-                {foreach $dev in $developers}
-                <tr>
-                    <td headers="name">
-                            <span class="aui-avatar aui-avatar-xsmall">
-                                <span class="aui-avatar-inner">
-                                    <img src={$dev.avatarUrl} alt="" role="presentation"/>
-                                </span>
+                <td headers="name" class="no-wrap">
+                        <span class="aui-avatar aui-avatar-xsmall">
+                            <span class="aui-avatar-inner">
+                                <img src={$dev.avatarUrl} alt="" role="presentation"/>
                             </span>
-                        {$dev.name}
-                    </td>
-                    <td headers="open-issue-count">{$dev.openIssueCount}</td>
-                </tr>
-                {/foreach}
-            </tbody>
-        </table>
-    {/if}
+                        </span>
+                    {$dev.name}
+                </td>
+                <td headers="open-issue-count">{$dev.openIssueCount}</td>
+                <td headers="open-issue-types">
+                    <span class="container">
+                        {foreach $type in $dev.openIssueTypes}
+                            <aui-badge class="aui-badge">{$type.issueCount}</aui-badge>
+                            <img class="type-icon" alt="" height="16" width="16"
+                                 src={$type.iconUrl} title={$type.categoryName}>
+                        {/foreach}
+                    </span>
+                </td>
+                <td headers="open-issue-priorities">
+                    <span class="container">
+                        {foreach $priority in $dev.openIssuePriorities}
+                            <aui-badge class="aui-badge">{$priority.issueCount}</aui-badge>
+                            <img class="priority-icon" alt="" height="16" width="16"
+                                 src={$priority.iconUrl} title={$priority.categoryName}>
+                        {/foreach}
+                    </span>
+                </td>
+            </tr>
+            {/foreach}
+        </tbody>
+    </table>
+{/template}
+
+/**
+ * Use this template if there are no issues in the response.
+ */
+{template .Empty}
+    <div class="no-content">No open tasks yet.</div>
 {/template}
