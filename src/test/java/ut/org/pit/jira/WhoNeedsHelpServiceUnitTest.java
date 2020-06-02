@@ -122,20 +122,16 @@ public class WhoNeedsHelpServiceUnitTest {
         assertEquals(developers.get(0).getName(), NAME_2);
         assertEquals(developers.get(0).getAvatarUrl(), AVATAR_URL);
         assertEquals(developers.get(0).getOpenIssueCount(), new Integer(1));
-        assertEquals(developers.get(0).getTotalOpenEstimate(), getHours(ESTIMATE_3));
+        assertEquals(developers.get(0).getTotalOpenEstimate(), ESTIMATE_3);
 
         assertEquals(developers.get(1).getName(), NAME_1);
         assertEquals(developers.get(1).getAvatarUrl(), AVATAR_URL);
         assertEquals(developers.get(1).getOpenIssueCount(), new Integer(2));
-        assertEquals(developers.get(1).getTotalOpenEstimate(), getHours(ESTIMATE_1 + ESTIMATE_2));
+        assertEquals(developers.get(1).getTotalOpenEstimate(), new Long(ESTIMATE_1 + ESTIMATE_2));
 
         assertEquals(developers.get(1).getOpenIssueTypes().size(), 1);
         assertEquals(developers.get(1).getOpenIssueTypes().get(0).getIssueCount(), new Integer(1));
         assertEquals(developers.get(1).getOpenIssueTypes().get(0).getCategoryName(), TYPE_NAME_1);
         assertEquals(developers.get(1).getOpenIssueTypes().get(0).getIconUrl(), ICON_URL);
-    }
-
-    private Long getHours(Long seconds) {
-        return seconds / 3600;
     }
 }

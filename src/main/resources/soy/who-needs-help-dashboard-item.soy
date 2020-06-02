@@ -35,7 +35,7 @@
                     {$dev.name}
                 </td>
                 <td headers="open-issue-count">{$dev.openIssueCount}</td>
-                <td headers="estimated_time">{$dev.totalOpenEstimate}h</td>
+                <td headers="estimated_time" class="no-wrap">{$dev.totalOpenEstimateText}</td>
                 <td headers="open-issue-types">
                     <span class="container">
                         {foreach $type in $dev.openIssueTypes}
