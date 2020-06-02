@@ -6,67 +6,96 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
     };
     
     /**
-    * Called to render the view for a fully configured dashboard item.
-    */
+     Called to render the view for a fully configured dashboard item.
+     */
     DashboardItem.prototype.render = function (context, preferences) {
         this.API.showLoadingBar();
         var $element = this.$element = $(context);
         var self = this;
         var keyword = "";
-        
-        //Event to get our keyword
+
+        /**
+         Event to get our keyword
+         */
         $(context).on('change','#search-text', function(){
             keyword = this.value;
         })
-
         
-        //request issues that have been done and create the espert table
+        /**
+         Request issues that have been done and create the expert table
+         */
         this.requestData().done(function (data) {
             self.API.hideLoadingBar();
             self.issues = data.issues;
+            var x = self.API;
             
-            //If there are no "Done" tasks, ...
-            if(self.issues === undefined || self.issues.length  === 0){
-                // ...do nothing
-            }
-            
-            //only use expert search if there are actually done items
-            else{
+            /**
+             Click search button, to start search ...
+             */
+            $(context).on('click', '#search', function(){
+                $(context).find('#expert-table').html("");
                 
-                $(context).on('click', '#search', function(){
-                    var expert = [];
-                    
-                    //filter issues that have keyword in their title
+                /**
+                 If there are no done tasks, give a warning
+                 */
+                if(self.issues === undefined || self.issues.length  === 0){
+                    $(context).find('#expert-table').html("So far there are no finished dasks. Please finish tasks before you search for experts.");
+                }
+                /**
+                 Only use expert search if there are actually done items
+                 */
+                else{
+                    /**
+                     Filter esperts
+                     */
                     var expertIssues = filterIssuesWithKeyword(self.issues, keyword);
                     
-                    //map experts and the number of filtered issues they worked on
-                    expertIssues.forEach(issue => {
-                        var developer = getDeveloper(issue.changelog);
-                        name = developer ? developer.name : "Unspecified"
-                        var index = expert.findIndex(element => element.name == name);
+                    /**
+                     If there are no experts, give out a message
+                     */
+                    if(expertIssues.length === 0 || expertIssues === undefined){
+                        $(context).find('#expert-table').html("No experts for " + keyword + " found.");
+                    }
+                    /**
+                     If there are experts, create a table
+                     */
+                    else {
+                        var expert = [];
                         
-                        if (index == -1) {
-                            try {
-                                avatar = developer.avatarUrls["16x16"];
-                            } catch (error) {
-                                avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
-                            }
-                            expert.push(new User({avatar, name, issues: 1}));
+                        /**
+                         Map experts and the number of filtered issues they worked on
+                         */
+                        expertIssues.forEach(issue => {
+                            var developer = getDeveloper(issue.changelog);
+                            name = developer ? developer.name : "Unspecified"
+                            var index = expert.findIndex(element => element.name == name);
                             
-                        } else {
-                            expert[index].issues++;
-                        }
-                    });
-                    
-                    //order entrences by issue count
-                    expert.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
-                    $(context).find('#expert-table').html(createExpertTable(expert));
-                });
-                
-            }
+                            if (index == -1) {
+                                try {
+                                    avatar = developer.avatarUrls["16x16"];
+                                } catch (error) {
+                                    avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
+                                }
+                                expert.push(new User({avatar, name, issues: 1}));
+                                
+                            } else {
+                                expert[index].issues++;
+                            }
+                        });
+                        
+                        /**
+                         Order entrences by issue count
+                         */
+                        expert.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
+                        $(context).find('#expert-table').html(createExpertTable(expert));
+                    }
+               }
+                /**
+                 Resize the window
+                 */
+                self.API.resize();
+            });
         });
-
-        this.API.once("afterRender", this.API.resize);
     };
     
     
