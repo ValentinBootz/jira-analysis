@@ -65,18 +65,35 @@ public class Developer implements Serializable {
     }
 
     /**
-     * Convert the estimate in seconds into a text representation.
+     * Convert the estimate in seconds into a text representation. A day in Jira is equal to 8h. A week has 5 days.
      * e.g.: "1w 2d 5h 30m".
      *
      * @param seconds the total estimate in seconds
      * @return the text representation
      */
     private String getEstimateTextRepresentation(Long seconds) {
-        int weeks = (int) (TimeUnit.SECONDS.toDays(seconds) / 7);
-        int days = (int) (TimeUnit.SECONDS.toDays(seconds) - 7 * weeks);
-        long hours = TimeUnit.SECONDS.toHours(seconds) - TimeUnit.DAYS.toHours(days) - TimeUnit.DAYS.toHours(7 * weeks);
-        long minutes = TimeUnit.SECONDS.toMinutes(seconds) - (TimeUnit.SECONDS.toHours(seconds) * 60);
+        String estimateText = "";
 
-        return weeks + "w " + days + "d " + hours + "h " + minutes + "m";
+        if (seconds >= 144000) {
+            int weeks = (int) (seconds / 144000);
+            estimateText += weeks + "w";
+            seconds -= weeks * 144000;
+        }
+        if (seconds >= 28800) {
+            int days = (int) (seconds / 28800);
+            estimateText += " " + days + "d";
+            seconds -= days * 28800;
+        }
+        if (seconds >= 3600) {
+            long hours = TimeUnit.SECONDS.toHours(seconds);
+            estimateText += " " + hours + "h";
+            seconds -= hours * 3600;
+        }
+        if (seconds >= 60) {
+            long minutes = TimeUnit.SECONDS.toMinutes(seconds);
+            estimateText += " " + minutes + "m";
+        }
+
+        return estimateText.trim();
     }
 }

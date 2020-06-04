@@ -14,11 +14,47 @@ import static org.junit.Assert.assertEquals;
 public class DeveloperUnitTest {
 
     @Test
+    public void testSetTotalOpenEstimateWeeks() {
+        Developer developer = new Developer();
+
+        developer.setTotalOpenEstimate(144000L);
+
+        assertEquals("1w", developer.getTotalOpenEstimateText());
+    }
+
+    @Test
+    public void testSetTotalOpenEstimateDays() {
+        Developer developer = new Developer();
+
+        developer.setTotalOpenEstimate(28800L);
+
+        assertEquals("1d", developer.getTotalOpenEstimateText());
+    }
+
+    @Test
+    public void testSetTotalOpenEstimateHours() {
+        Developer developer = new Developer();
+
+        developer.setTotalOpenEstimate(3600L);
+
+        assertEquals("1h", developer.getTotalOpenEstimateText());
+    }
+
+    @Test
+    public void testSetTotalOpenEstimateMinutes() {
+        Developer developer = new Developer();
+
+        developer.setTotalOpenEstimate(60L);
+
+        assertEquals("1m", developer.getTotalOpenEstimateText());
+    }
+
+    @Test
     public void testSetTotalOpenEstimate() {
         Developer developer = new Developer();
 
-        developer.setTotalOpenEstimate(2887500L);
+        developer.setTotalOpenEstimate(176460L);
 
-        assertEquals(developer.getTotalOpenEstimateText(), "4w 5d 10h 5m");
+        assertEquals("1w 1d 1h 1m", developer.getTotalOpenEstimateText());
     }
 }
