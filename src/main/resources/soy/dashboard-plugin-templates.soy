@@ -1,0 +1,54 @@
+{namespace Dashboard.Plugin.Templates}
+
+/**
+* Issue filter template
+*
+* @param projects
+* @param users
+* @param types
+* @param priorities
+*/
+{template .Filters}
+    <form class="aui">
+        <h3>Filter Issues</h3>
+        <div class="field-group">
+            <label for="multiselect">Projects</label>
+            <select class="multi-select" size="4" multiple="multiple" id="project-multiselect" name="multiselect">
+            {foreach $project in $projects}
+                <option>{$project.name}</option>
+            {/foreach}
+            </select>
+        </div>
+        <div class="field-group">
+            <label for="multiselect">Users</label>
+            <select class="multi-select" size="4" multiple="multiple" id="user-multiselect" name="multiselect">
+            {foreach $user in $users}
+                <option>{$user.name}</option>
+            {/foreach}
+            </select>
+        </div>
+        <fieldset class="group">
+            <legend><span>Types</span></legend>
+            {foreach $type in $types}
+                <div class="checkbox">
+                    <input class="checkbox" type="checkbox" name="checkBox{$type.name}" id="checkBox{$type.name}">
+                    <label for="checkBox{$type.name}">{$type.name}</label>
+                </div>
+            {/foreach}
+        </fieldset>
+        <fieldset class="group">
+            <legend><span>Priorities</span></legend>
+            {foreach $priority in $priorities}
+                <div class="checkbox">
+                    <input class="checkbox" type="checkbox" name="checkBox{$priority.name}" id="checkBox{$priority.name}">
+                    <label for="checkBox{$priority.name}">{$priority.name}</label>
+                </div>
+            {/foreach}
+        </fieldset>
+        <div class="buttons-container">
+            <div class="buttons">
+                <input class="aui-button aui-button-primary" type="submit" value="Filter" id="filter">
+            </div>
+        </div>
+    </form>
+{/template}
