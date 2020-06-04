@@ -10,87 +10,18 @@
 /**
 * @param leaderboard_users
 * @param leaderboard_projects
-* @param priorities
-* @param issuetypes
 * @param projects
 * @param users
+* @param priorities
+* @param types
 */
 {template .Leaderboard}
-    <form class="aui">
-        <h3>Filter Issues</h3>
-        <div class="field-group">
-            <label for="multiselect">Projects</label>
-            <select class="multi-select" size="4" multiple="multiple" id="multiselect" name="multiselect">
-            {foreach $project in $projects}
-                <option>{$project.name}</option>
-            {/foreach}
-            </select>
-        </div>
-        <div class="field-group">
-            <label for="multiselect">Users</label>
-            <select class="multi-select" size="4" multiple="multiple" id="multiselect" name="multiselect">
-            {foreach $user in $users}
-                <option>{$user.name}</option>
-            {/foreach}
-            </select>
-        </div>
-        <fieldset class="group">
-            <legend><span>Issue Types</span></legend>
-            {foreach $type in $issuetypes}
-                <div class="checkbox">
-                    <input class="checkbox" type="checkbox" name="checkBox{$type.name}" id="checkBox{$type.name}">
-                    <label for="checkBox{$type.name}">{$type.name}</label>
-                </div>
-            {/foreach}
-        </fieldset>
-        <fieldset class="group">
-            <legend><span>Priorities</span></legend>
-            {foreach $priority in $priorities}
-                <div class="checkbox">
-                    <input class="checkbox" type="checkbox" name="checkBox{$priority.name}" id="checkBox{$priority.name}">
-                    <label for="checkBox{$priority.name}">{$priority.name}</label>
-                </div>
-            {/foreach}
-        </fieldset>
-        <div class="buttons-container">
-            <div class="buttons">
-                <input class="button submit" type="submit" value="Filter" id="filter-button">
-                <a class="cancel" href="#">Select all</a>
-            </div>
-        </div>
-    </form>
-    <form class="aui">
-        <h3>Configure View</h3>
-        <fieldset class="group">
-            <legend><span>View</span></legend>
-            <div class="checkbox" resolved="">
-                <input disabled="" checked="" class="checkbox" type="checkbox" name="checkboxDisabled" id="checkboxDisabled" resolved=""><span class="aui-form-glyph"></span>
-                <label for="checkboxDisabled">Users/Projects</label>
-            </div>
-            <div class="checkbox">
-                <input class="checkbox" type="checkbox" name="checkboxIssues" id="checkboxIssues">
-                <label for="checkboxIssues">Completed Issues</label>
-            </div>
-            <div class="checkbox">
-                <input class="checkbox" type="checkbox" name="checkboxTime" id="checkboxTime">
-                <label for="checkboxTime">Estimated Time</label>
-            </div>
-            <div class="checkbox">
-                <input class="checkbox" type="checkbox" name="checkboxType" id="checkboxType">
-                <label for="checkboxType">Issue Types</label>
-            </div>
-            <div class="checkbox">
-                <input class="checkbox" type="checkbox" name="checkboxPriorities" id="checkboxPriorities">
-                <label for="checkboxPriorities">Priorities</label>
-            </div>
-        </fieldset>
-        <div class="buttons-container">
-            <div class="buttons">
-                <input class="button submit" type="submit" value="Save" id="save-button">
-                <a class="cancel" href="#">Cancel</a>
-            </div>
-        </div>
-    </form>
+    {call Dashboard.Plugin.Templates.Filters}
+        {param projects: $projects /}
+	    {param users: $users /}
+        {param types: $types /}
+	    {param priorities: $priorities /}
+    {/call}
     <div class="aui-tabs horizontal-tabs">
         <ul class="tabs-menu">
             <li class="menu-item active-tab">

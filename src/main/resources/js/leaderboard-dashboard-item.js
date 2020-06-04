@@ -119,7 +119,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                 */
                 self.leaderboard_users.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
                 self.leaderboard_projects.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0))
-                $element.empty().html(Leaderboard.Dashboard.Item.Templates.Leaderboard({leaderboard_users: self.leaderboard_users, leaderboard_projects: self.leaderboard_projects, priorities: self.priorities, issuetypes: self.types, projects: self.projects, users: self.users}));
+                $element.empty().html(Leaderboard.Dashboard.Item.Templates.Leaderboard({leaderboard_users: self.leaderboard_users, leaderboard_projects: self.leaderboard_projects, priorities: self.priorities, types: self.types, projects: self.projects, users: self.users}));
             }
             self.API.resize();
             $element.find(".submit").click(function (event) {

@@ -19,6 +19,7 @@
 
         <resource type="download" name="images/" location="/images" />
         <resource type="download" name="dashboard-plugin.css" location="/css/dashboard-plugin.css" />
+        <resource type="download" location="soy/dashboard-plugin-templates.soy" name="soy/dashboard-plugin-templates.soy.js"/>
 
         <!-- Example Dashboard Item resources -->
         <resource type="download" location="soy/example-dashboard-item.soy" name="soy/example-dashboard-item.soy.js" />
