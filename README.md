@@ -13,13 +13,16 @@ systems.
 
 Make sure the Maven home directory of your IDE is pointing to the one included in the Atlassian SDK.
 
+See [Useful Tricks and Common Issues](https://iwiki.sse.in.tum.de/x/YQC) for more tips and solutions for common issues.
+
 ## Running Jira locally
 
 After you set up the Atlassian SDK, the following steps will start up Jira with the plugin installed:
 
- 1. Use the `atlas-run` command to install the plugin and run Jira on localhost
- 2. Navigate to http://localhost:2990/jira via your browser
- 3. As login credentials, use `admin` for Username and Password
+ 1. Change to the root directory of the project (the directory with the `pom.xml` file)
+ 2. Use the `atlas-run` command to install the plugin and run Jira on localhost
+ 3. Navigate to http://localhost:2990/jira via your browser
+ 4. As login credentials, use `admin` for Username and Password
 
 Here are SDK commands you'll find useful:
 
