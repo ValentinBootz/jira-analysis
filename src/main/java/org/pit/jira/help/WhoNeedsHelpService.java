@@ -3,6 +3,8 @@ package org.pit.jira.help;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.bc.issue.search.SearchService;
+import com.atlassian.jira.config.IssueTypeManager;
+import com.atlassian.jira.config.PriorityManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.issue.priority.Priority;
@@ -35,14 +37,21 @@ public class WhoNeedsHelpService {
 
     private final SearchService searchService;
 
-
     private final AvatarService avatarService;
+
+    private final PriorityManager priorityManager;
+
+    private final IssueTypeManager issueTypeManager;
 
     @Inject
     public WhoNeedsHelpService(@ComponentImport SearchService searchService,
-                               @ComponentImport AvatarService avatarService) {
+                               @ComponentImport AvatarService avatarService,
+                               @ComponentImport PriorityManager priorityManager,
+                               @ComponentImport IssueTypeManager issueTypeManager) {
         this.searchService = searchService;
         this.avatarService = avatarService;
+        this.priorityManager = priorityManager;
+        this.issueTypeManager = issueTypeManager;
     }
 
     /**
@@ -76,6 +85,10 @@ public class WhoNeedsHelpService {
 
         // Sort developer list.
         developers.sort(Comparator.comparing(Developer::getOpenIssueCount));
+
+        // Remove empty issue categories.
+        developers.forEach(developer -> developer.getOpenIssueTypes().removeIf(type -> type.getIssueCount() == 0));
+        developers.forEach(developer -> developer.getOpenIssuePriorities().removeIf(priority -> priority.getIssueCount() == 0));
 
         return developers;
     }
@@ -117,14 +130,64 @@ public class WhoNeedsHelpService {
         developer.setName(assignee.getName());
         developer.setAvatarUrl(getAvatarUrl(assignee));
         developer.setOpenIssueCount(1);
-        developer.setOpenIssueTypes(new ArrayList<>());
-        developer.setOpenIssuePriorities(new ArrayList<>());
+        developer.setOpenIssueTypes(getSortedBlankIssueTypes());
+        developer.setOpenIssuePriorities(getSortedBlankPriorities());
         developer.setTotalOpenEstimate(getEstimate(issue));
 
         setIssueType(developer, issue);
         setIssuePriority(developer, issue);
 
         return developer;
+    }
+
+    /**
+     * Creates a list of all available blank issue type categories, sorted based on the order received from Jira.
+     *
+     * @return a sorted list of blank issue types
+     */
+    private List<IssueCategory> getSortedBlankIssueTypes() {
+        List<IssueCategory> blankIssueTypes = new ArrayList<>();
+        List<IssueType> sortedIssueTypes = new ArrayList<>(issueTypeManager.getIssueTypes());
+
+        sortedIssueTypes.forEach(issueType -> {
+            IssueCategory category = getBlankIssueCategory(issueType.getName(), issueType.getCompleteIconUrl());
+            blankIssueTypes.add(category);
+        });
+
+        return blankIssueTypes;
+    }
+
+    /**
+     * Creates a list of all available blank priority categories, sorted based on the order received from Jira.
+     *
+     * @return a sorted list of blank priorities
+     */
+    private List<IssueCategory> getSortedBlankPriorities() {
+        List<IssueCategory> blankPriorities = new ArrayList<>();
+        List<Priority> sortedPriorities = priorityManager.getPriorities();
+
+        sortedPriorities.forEach(priority -> {
+            IssueCategory category = getBlankIssueCategory(priority.getName(), priority.getCompleteIconUrl());
+            blankPriorities.add(category);
+        });
+
+        return blankPriorities;
+    }
+
+    /**
+     * Creates a blank issue category (issue category count set to 0).
+     *
+     * @param categoryName the name of the category
+     * @param iconUrl      the icon URL
+     * @return a blank issue category
+     */
+    private IssueCategory getBlankIssueCategory(String categoryName, String iconUrl) {
+        IssueCategory category = new IssueCategory();
+        category.setCategoryName(categoryName);
+        category.setIconUrl(iconUrl);
+        category.setIssueCount(0);
+
+        return category;
     }
 
     /**
@@ -149,12 +212,7 @@ public class WhoNeedsHelpService {
         IssueType issueType = issue.getIssueType();
 
         if (issueType != null) {
-            IssueCategory openIssueType = new IssueCategory();
-            openIssueType.setCategoryName(issueType.getName());
-            openIssueType.setIconUrl(issueType.getCompleteIconUrl());
-            openIssueType.setIssueCount(1);
-
-            updateIssueCategories(developer.getOpenIssueTypes(), openIssueType);
+            updateIssueCategories(developer.getOpenIssueTypes(), issueType.getName());
         }
     }
 
@@ -168,35 +226,23 @@ public class WhoNeedsHelpService {
         Priority priority = issue.getPriority();
 
         if (priority != null) {
-            IssueCategory openIssuePriority = new IssueCategory();
-            openIssuePriority.setCategoryName(priority.getName());
-            openIssuePriority.setIconUrl(priority.getCompleteIconUrl());
-            openIssuePriority.setIssueCount(1);
-
-            updateIssueCategories(developer.getOpenIssuePriorities(), openIssuePriority);
+            updateIssueCategories(developer.getOpenIssuePriorities(), priority.getName());
         }
     }
 
     /**
-     * Update the developers list of issue categories. Check if the category to be added already exists.
+     * Update the developers list of issue categories.
      *
      * @param categoryList the existing list of issue categories of the developer
-     * @param category     the issue category to be added
+     * @param categoryName the name of the issue category to be added
      */
-    private void updateIssueCategories(List<IssueCategory> categoryList, IssueCategory category) {
-        // Check if the category already exists.
-        IssueCategory existingCategory = categoryList.stream()
-                .filter(cat -> category.getCategoryName().equals(cat.getCategoryName()))
-                .findAny()
-                .orElse(null);
+    private void updateIssueCategories(List<IssueCategory> categoryList, String categoryName) {
+        // Increment the issue count for the category.
+        categoryList.stream()
+                .filter(cat -> categoryName.equals(cat.getCategoryName()))
+                .findAny().ifPresent(existingCategory ->
+                existingCategory.setIssueCount(existingCategory.getIssueCount() + 1));
 
-        if (existingCategory != null) {
-            // Increment issue count for the existing category.
-            existingCategory.setIssueCount(existingCategory.getIssueCount() + 1);
-        } else {
-            // Add the new issue category.
-            categoryList.add(category);
-        }
     }
 
     /**
