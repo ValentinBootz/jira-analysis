@@ -47,7 +47,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         $element.find("#filter-form").on('submit', function (event) {
             event.preventDefault();
             initializeTemplates();
-            handleSubmit(self, context, $(this))
+            handleSubmit(self, context)
         });
         self.API.resize();
     };
@@ -57,9 +57,9 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     * 
     * @param event
     */
-    function handleSubmit(self, context, filters) {
-        requestData(filters).done(function (response) {
-            data = analyzeProductivity(response.issues, filters)
+    function handleSubmit(self, context) {
+        requestData().done(function (response) {
+            data = analyzeProductivity(response.issues)
             loadResults(self, context, data);
         });
     };
@@ -67,7 +67,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     /**
     * API call requesting all issues with status 'Done' with expanded changelog
     */
-    function requestData(filters) {
+    function requestData() {
         jql_query = "jql=status%3Ddone";
         jql_query += $('#project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
         jql_query += $('#type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
@@ -83,11 +83,11 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     * 
     * @param issues
     */
-    function analyzeProductivity(issues, filters) {
+    function analyzeProductivity(issues) {
         data = { users: [], projects: [] };
         issues.forEach(issue => {
             details = getDetails(issue);
-            if (isRequested(filters, details)) {
+            if ($('#user-multiselect').val() ? $('#user-multiselect').val().includes(details.developer.name) : false) {
                 updateUsers(data.users, details);
                 updateProjects(data.projects, details);
             };
@@ -97,16 +97,6 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
             list.sort((a, b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0));
         });
         return data;
-    };
-
-    /**
-    * 
-    * 
-    * @param filters
-    * @param details
-    */
-    function isRequested(filters, details) {
-        return details.project
     };
 
     /**
