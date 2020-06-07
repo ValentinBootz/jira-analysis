@@ -66,15 +66,15 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
 
     /**
     * API call requesting all issues with status 'Done' with expanded changelog
-    * 
-    * TODO construct jql query from filters to retrieve requested data only
     */
     function requestData(filters) {
         jql_query = "jql=status%3Ddone";
-        jql_query += " AND project in (" + $('#project-multiselect').val().map(element => "\'" + element + "\'").join() + ")";
+        jql_query += $('#project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query += $('#type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query += $('#priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
         return $.ajax({
             method: "GET",
-            url: contextPath() + "/rest/api/latest/search?" + encodeURIComponent(jql_query) + "&expand=changelog"
+            url: contextPath() + "/rest/api/latest/search?" + jql_query + "&expand=changelog"
         });
     };
 
