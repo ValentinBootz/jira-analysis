@@ -13,7 +13,7 @@
         <h3>Filter Issues</h3>
         <div class="field-group">
             <label for="multiselect">Projects</label>
-            <select class="multi-select" size="4" multiple="multiple" id="project-multiselect" name="multiselect">
+            <select class="multi-select" size="4" multiple="multiple" id="project-multiselect" name="project-multiselect">
             {foreach $project in $projects}
                 <option>{$project.name}</option>
             {/foreach}
@@ -21,7 +21,7 @@
         </div>
         <div class="field-group">
             <label for="multiselect">Users</label>
-            <select class="multi-select" size="4" multiple="multiple" id="user-multiselect" name="multiselect">
+            <select class="multi-select" size="4" multiple="multiple" id="user-multiselect" name="user-multiselect">
             {foreach $user in $users}
                 <option>{$user.name}</option>
             {/foreach}

@@ -47,7 +47,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         $element.find("#filter-form").on('submit', function (event) {
             event.preventDefault();
             initializeTemplates();
-            handleSubmit(self, context, $(this).serialize())
+            handleSubmit(self, context, $(this))
         });
         self.API.resize();
     };
@@ -59,18 +59,22 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     */
     function handleSubmit(self, context, filters) {
         requestData(filters).done(function (response) {
-            data = analyzeProductivity(response.issues)
+            data = analyzeProductivity(response.issues, filters)
             loadResults(self, context, data);
         });
     };
 
     /**
     * API call requesting all issues with status 'Done' with expanded changelog
+    * 
+    * TODO construct jql query from filters to retrieve requested data only
     */
     function requestData(filters) {
+        jql_query = "jql=status%3Ddone";
+        jql_query += " AND project in (" + $('#project-multiselect').val().map(element => "\'" + element + "\'").join() + ")";
         return $.ajax({
             method: "GET",
-            url: contextPath() + "/rest/api/latest/search?jql=status%3Ddone&expand=changelog"
+            url: contextPath() + "/rest/api/latest/search?" + encodeURIComponent(jql_query) + "&expand=changelog"
         });
     };
 
@@ -79,18 +83,30 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     * 
     * @param issues
     */
-    function analyzeProductivity(issues) {
+    function analyzeProductivity(issues, filters) {
         data = { users: [], projects: [] };
         issues.forEach(issue => {
             details = getDetails(issue);
-            updateUsers(data.users, details);
-            updateProjects(data.projects, details);
+            if (isRequested(filters, details)) {
+                updateUsers(data.users, details);
+                updateProjects(data.projects, details);
+            };
         });
         [data.users, data.projects].forEach(function (list) {
             list.forEach(element => element.time = formatTime(element.time));
             list.sort((a, b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0));
         });
         return data;
+    };
+
+    /**
+    * 
+    * 
+    * @param filters
+    * @param details
+    */
+    function isRequested(filters, details) {
+        return details.project
     };
 
     /**
