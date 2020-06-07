@@ -93,8 +93,10 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
             };
         });
         [data.users, data.projects].forEach(function (list) {
-            list.forEach(element => element.time = formatTime(element.time));
-            list.sort((a, b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0));
+            list.forEach(element => element.estimate = formatEstimate(element.estimate));
+            list.sort((a, b) => (a.count > b.count) ? -1 : ((b.count > a.count) ? 1 : 0));
+            list.forEach(element => element.types = element.types.filter(function (type) { return type.count > 0; }));
+            list.forEach(element => element.priorities = element.priorities.filter(function (type) { return type.count > 0; }));
         });
         return data;
     };
@@ -111,8 +113,8 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
             user = new Entity(details.developer);
             users.push(user);
         };
-        user.issues++;
-        user.time += details.time;
+        user.count++;
+        user.estimate += details.estimate;
         user.priorities.find(element => element.name == details.priority.name).count++;
         user.types.find(element => element.name == details.type.name).count++;
     };
@@ -129,8 +131,8 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
             project = new Entity(details.project);
             projects.push(project);
         };
-        project.issues++;
-        project.time += details.time;
+        project.count++;
+        project.estimate += details.estimate;
         project.priorities.find(element => element.name == details.priority.name).count++;
         project.types.find(element => element.name == details.type.name).count++;
     };
@@ -154,8 +156,8 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         constructor(entity) {
             this.avatar = entity.avatarUrls["16x16"];
             this.name = entity.name;
-            this.issues = 0;
-            this.time = 0;
+            this.count = 0;
+            this.estimate = 0;
             this.types = JSON.parse(JSON.stringify(typesTemplate));
             this.priorities = JSON.parse(JSON.stringify(prioritiesTemplate));
         };
@@ -180,7 +182,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     * 
     * @param seconds
     */
-    function formatTime(timeoriginalestimate) {
+    function formatEstimate(timeoriginalestimate) {
         var res = "";
         var remaining = timeoriginalestimate;
         if (remaining >= 144000) {
@@ -214,7 +216,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         return {
             project: getProject(issue),
             developer: getDeveloper(issue),
-            time: getEstimatedTime(issue),
+            estimate: getEstimatedTime(issue),
             type: getType(issue),
             priority: getPriority(issue)
         };
@@ -245,7 +247,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     * Gets estimated time from issue
     * 
     * @param issue
-    * @returns time in s or 0 if not specified
+    * @returns time estimate in s or 0 if not specified
     */
     function getEstimatedTime(issue) {
         return issue.fields.timeoriginalestimate || 0;

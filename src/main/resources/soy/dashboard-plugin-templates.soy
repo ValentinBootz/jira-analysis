@@ -56,7 +56,7 @@
 *
 * @param scope entity your table displays (e.g. "User" or "Project")
 * @param analysis feature your table analyzes (e.g. "Completed Issues" or "Open tasks")
-* @param content table content (template expects avatar, name, count, time, types and priorities properties)
+* @param content table content (template expects avatar, name, count, estimate, types and priorities properties)
 */
 {template .Table}
     <table id="ranking-table" class="aui aui-table-sortable">
@@ -64,7 +64,7 @@
             <tr>
                 <th class='table-header' id="name">{$scope}</th>
                 <th class='table-header' id="count">{$analysis}</th>
-                <th class='table-header' id="time">Estimated Time</th>
+                <th class='table-header' id="estimate">Estimated Time</th>
                 <th class='table-header' id="types">Issue Types</th>
                 <th class='table-header' id="priorities">Priorities</th>
             </tr>
@@ -82,25 +82,21 @@
                         {$entity.name}
                     </span>
                 </td>
-                <td headers="issues">{$entity.issues}</td>
-                <td headers="time">{$entity.time}</td>
+                <td headers="count">{$entity.count}</td>
+                <td headers="estimate">{$entity.estimate}</td>
                 <td headers="types">
                     <span class="container">
                     {foreach $type in $entity.types}
-                    {if $type.count > 0}
                         <aui-badge class="aui-badge">{$type.count}</aui-badge>
                         <img class="type-icon" alt="" height="16" src={$type.iconUrl} title={$type.name} width="16">                            
-                    {/if}
                     {/foreach}
                     </span>
                 </td>                          
                 <td headers="priorities">
                     <span class="container">
                     {foreach $priority in $entity.priorities}
-                    {if $priority.count > 0}
                         <aui-badge class="aui-badge">{$priority.count}</aui-badge>
                         <img class="priority-icon" alt="" height="16" src={$priority.iconUrl} title={$priority.name} width="16">                       
-                    {/if}
                     {/foreach}
                     </span>
                 </td>                      
