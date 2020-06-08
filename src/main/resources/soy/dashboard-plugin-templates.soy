@@ -9,11 +9,11 @@
 * @param priorities
 */
 {template .Filters}
-    <form class="aui">
+    <form class="aui" id="filter-form">
         <h3>Filter Issues</h3>
         <div class="field-group">
             <label for="multiselect">Projects</label>
-            <select class="multi-select" size="4" multiple="multiple" id="project-multiselect" name="multiselect">
+            <select class="multi-select" size="4" multiple="multiple" id="project-multiselect" name="project-multiselect">
             {foreach $project in $projects}
                 <option>{$project.name}</option>
             {/foreach}
@@ -21,30 +21,28 @@
         </div>
         <div class="field-group">
             <label for="multiselect">Users</label>
-            <select class="multi-select" size="4" multiple="multiple" id="user-multiselect" name="multiselect">
+            <select class="multi-select" size="4" multiple="multiple" id="user-multiselect" name="user-multiselect">
             {foreach $user in $users}
                 <option>{$user.name}</option>
             {/foreach}
             </select>
         </div>
-        <fieldset class="group">
-            <legend><span>Types</span></legend>
+        <div class="field-group">
+            <label for="multiselect">Types</label>
+            <select class="multi-select" size="4" multiple="multiple" id="type-multiselect" name="type-multiselect">
             {foreach $type in $types}
-                <div class="checkbox">
-                    <input class="checkbox" type="checkbox" name="checkBox{$type.name}" id="checkBox{$type.name}">
-                    <label for="checkBox{$type.name}">{$type.name}</label>
-                </div>
+                <option>{$type.name}</option>
             {/foreach}
-        </fieldset>
-        <fieldset class="group">
-            <legend><span>Priorities</span></legend>
+            </select>
+        </div>
+        <div class="field-group">
+            <label for="multiselect">Priorities</label>
+            <select class="multi-select" size="4" multiple="multiple" id="priority-multiselect" name="priority-multiselect">
             {foreach $priority in $priorities}
-                <div class="checkbox">
-                    <input class="checkbox" type="checkbox" name="checkBox{$priority.name}" id="checkBox{$priority.name}">
-                    <label for="checkBox{$priority.name}">{$priority.name}</label>
-                </div>
+                <option>{$priority.name}</option>
             {/foreach}
-        </fieldset>
+            </select>
+        </div>
         <div class="buttons-container">
             <div class="buttons">
                 <input class="aui-button aui-button-primary" type="submit" value="Filter" id="filter">
@@ -52,3 +50,59 @@
         </div>
     </form>
 {/template}
+
+/**
+* Analysis table template
+*
+* @param scope entity your table displays (e.g. "User" or "Project")
+* @param analysis feature your table analyzes (e.g. "Completed Issues" or "Open tasks")
+* @param content table content (template expects avatar, name, count, estimate, types and priorities properties)
+*/
+{template .Table}
+    <table id="ranking-table" class="aui aui-table-sortable">
+        <thead>
+            <tr>
+                <th class='table-header' id="name">{$scope}</th>
+                <th class='table-header' id="count">{$analysis}</th>
+                <th class='table-header' id="estimate">Estimated Time</th>
+                <th class='table-header' id="types">Issue Types</th>
+                <th class='table-header' id="priorities">Priorities</th>
+            </tr>
+        </thead>
+        <tbody>
+        {foreach $entity in $content}
+            <tr>
+                <td headers="name">
+                    <span class="container">
+                        <span class="aui-avatar aui-avatar-xsmall">
+                            <span class="aui-avatar-inner">
+                                <img src={$entity.avatar} alt="" role="presentation"/>
+                            </span>
+                        </span>
+                        {$entity.name}
+                    </span>
+                </td>
+                <td headers="count">{$entity.count}</td>
+                <td headers="estimate">{$entity.estimate}</td>
+                <td headers="types">
+                    <span class="container">
+                    {foreach $type in $entity.types}
+                        <aui-badge class="aui-badge">{$type.count}</aui-badge>
+                        <img class="type-icon" alt="" height="16" src={$type.iconUrl} title={$type.name} width="16">                            
+                    {/foreach}
+                    </span>
+                </td>                          
+                <td headers="priorities">
+                    <span class="container">
+                    {foreach $priority in $entity.priorities}
+                        <aui-badge class="aui-badge">{$priority.count}</aui-badge>
+                        <img class="priority-icon" alt="" height="16" src={$priority.iconUrl} title={$priority.name} width="16">                       
+                    {/foreach}
+                    </span>
+                </td>                      
+            </tr>
+        {/foreach}
+        </tbody>
+    </table>
+{/template}
+
