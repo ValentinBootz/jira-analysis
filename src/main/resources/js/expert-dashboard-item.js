@@ -90,7 +90,6 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                                     var issueTable = createIssueSubTable(expertName, expertIssues);
                                     
                                     this.children[1].innerHTML = writeIssueSubTable(issueTable);
-                                    
                                     isSubTableOpen = true;
                                 }
                                 
@@ -230,7 +229,7 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
         var table = "<td><table id=" + "issue-table" + " class=" + "aui aui-table-sortable" + "><thead><tr><th id=" + "issue"+ ">Issue</th><th id=" +"summary"+ ">Summary</th></tr></thead><tbody>";
         
         issueTable.forEach(issue => {
-            table = table + "<tr><td headers=" + "issue" + "><a href=" + issue.link + ">" + issue.key  +"</a></td><td headers=" + "summary" + ">" + issue.summary + "</td></tr>";
+            table = table + "<tr><td headers=" + "issue" + "><a href=" + contextPath()+ "/browse/"+ issue.key + ">" + issue.key  +"</a></td><td headers=" + "summary" + ">" + issue.summary + "</td></tr>";
         });
         
         return table + "</tbody></table></td>";
