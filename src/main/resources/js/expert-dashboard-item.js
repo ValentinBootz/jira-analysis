@@ -14,7 +14,7 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
         var self = this;
         
         var keyword = "";
-        var expert = [];
+        var expertList = [];
 
         /**
          Event to get our keyword
@@ -50,12 +50,12 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                     /**
                      Filter experts
                      */
-                    var expertIssues = filterIssuesWithKeyword(self.issues, keyword);
+                    var keywordIssues = filterIssuesWithKeyword(self.issues, keyword);
                     
                     /**
                      If there are no experts, give out a message
                      */
-                    if(expertIssues.length === 0 || expertIssues === undefined){
+                    if(keywordIssues.length === 0 || keywordIssues === undefined){
                         $(context).find('#expert-table').html("No experts for " + keyword + " found.");
                     }
                     /**
@@ -65,32 +65,32 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                         /**
                          Call createExpertTable to create an array with all the experts
                          */
-                        expert = createExpertTable(expertIssues);
+                        expertList = createExpertTable(keywordIssues);
                         
                         /**
                          Order entrences by issue count
                          */
-                        expert.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0));
+                        expertList.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0));
                         
                         /**
                          Write expert table
                          */
-                        $(context).find('#expert-table').html(writeExpertTable(expert));
+                        $(context).find('#expert-table').html(writeExpertTable(expertList));
                         
                         /**
                          For all Table entries ...
                          */
                         var isSubTableOpen = false;
-                        for (var expcount = 0; expcount < expert.length; expcount++){
+                        for (var expertCount = 0; expertCount < expertList.length; expertCount++){
                             /**
                              ... when clicked on, display a able of all the issues that have the keyword in them
                              */
-                            $(context).on('click', '#' + expcount, function(){
+                            $(context).on('click', '#' + expertCount, function(){
                                 /**
                                  If the Issue table is shown, create table without issues
                                  */
                                 if(isSubTableOpen){
-                                    $(context).find('#expert-table').html(writeExpertTable(expert));
+                                    $(context).find('#expert-table').html(writeExpertTable(expertList));
                                     isSubTableOpen = false;
                                 }
                                 /**
@@ -98,7 +98,7 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                                  */
                                 else{
                                     var expertName = this.children[0].innerText;
-                                    var issueTable = createIssueSubTable(expertName, expertIssues);
+                                    var issueTable = createIssueSubTable(expertName, keywordIssues);
                                     
                                     this.children[1].innerHTML = writeIssueSubTable(issueTable);
                                     isSubTableOpen = true;
@@ -125,13 +125,13 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
     /**
      Create an array of all the experts
      */
-    function createExpertTable(eIssues){
-        var e = [];
+    function createExpertTable(filteredExpertIssues){
+        var experts = [];
         
-        eIssues.forEach(issue => {
+        filteredExpertIssues.forEach(issue => {
             var developer = getDeveloper(issue.changelog);
             name = developer ? developer.name : "Unspecified"
-            var index = e.findIndex(element => element.name == name);
+            var index = experts.findIndex(element => element.name == name);
             
             if (index == -1) {
                 try {
@@ -139,28 +139,28 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                 } catch (error) {
                     avatar = "/jira/secure/useravatar?size=xsmall&avatarId=10123";
                 }
-                e.push(new User({avatar, name, issues: 1}));
+                experts.push(new User({avatar, name, issues: 1}));
                 
             } else {
-                e[index].issues++;
+                experts[index].issues++;
             }
         });
         
-        return e;
+        return experts;
     }
     
     
     /**
      Create an array of all the issues the expert has worked on, that also include the keyword
      */
-    function createIssueSubTable(expertN, eIssues){
+    function createIssueSubTable(expertName, expertIssues){
         var issueTable = [];
         
-        eIssues.forEach(issue => {
+        expertIssues.forEach(issue => {
             var developer = getDeveloper(issue.changelog);
             name = developer ? developer.name : "Unspecified"
             
-            if(developer.name === expertN){
+            if(developer.name === expertName){
                 key = issue.key;
                 summary = issue.fields.summary;
                 issueTable.push(new Issue({key, summary}));
@@ -200,14 +200,14 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
      Creates a table with the names of the experts and the nummber of issues they solved.
         Next step: Improve so Table is not written as HTML String
      */
-    function writeExpertTable(experts){
+    function writeExpertTable(expertList){
         var table = "<thead><tr><th id=" + "name"+ ">User</th><th id=" +"issues"+ ">Completed Issues</th></tr></thead><tbody>";
         
-        var countE = 0;
-        experts.forEach(expert => {
-            table = table + "<tr id = " + countE + "><td headers=" + "name" + "><span class=" + "container" + "><span class=" + "aui-avatar aui-avatar-xsmall" + "><span class=" + "aui-avatar-inner" + "><img src=" + expert.avatar +  " alt=" +" role=" + "presentation"+ "/></span></span>" + expert.name + "</span></td><td headers=" + "issues" + ">" + expert.issues + "</td></tr>";
+        var countExpert = 0;
+        expertList.forEach(expert => {
+            table = table + "<tr id = " + countExpert + "><td headers=" + "name" + "><span class=" + "container" + "><span class=" + "aui-avatar aui-avatar-xsmall" + "><span class=" + "aui-avatar-inner" + "><img src=" + expert.avatar +  " alt=" +" role=" + "presentation"+ "/></span></span>" + expert.name + "</span></td><td headers=" + "issues" + ">" + expert.issues + "</td></tr>";
             
-            countE++;
+            countExpert++;
         });
         return table + "</tbody>";
     }
