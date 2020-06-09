@@ -150,21 +150,21 @@ public class WhoNeedsHelpServiceUnitTest {
         assertEquals(developers.size(), 2);
 
         assertEquals(NAME_2, developers.get(0).getName());
-        assertEquals(AVATAR_URL, developers.get(0).getAvatarUrl());
-        assertEquals(new Integer(1), developers.get(0).getOpenIssueCount());
-        assertEquals(ESTIMATE_3, developers.get(0).getTotalOpenEstimate());
+        assertEquals(AVATAR_URL, developers.get(0).getAvatar());
+        assertEquals(new Integer(1), developers.get(0).getCount());
+        assertEquals(ESTIMATE_3, developers.get(0).getTotalEstimateSeconds());
 
         assertEquals(NAME_1, developers.get(1).getName());
-        assertEquals(AVATAR_URL, developers.get(1).getAvatarUrl());
-        assertEquals(new Integer(2), developers.get(1).getOpenIssueCount());
-        assertEquals(new Long(ESTIMATE_1 + ESTIMATE_2), developers.get(1).getTotalOpenEstimate());
+        assertEquals(AVATAR_URL, developers.get(1).getAvatar());
+        assertEquals(new Integer(2), developers.get(1).getCount());
+        assertEquals(new Long(ESTIMATE_1 + ESTIMATE_2), developers.get(1).getTotalEstimateSeconds());
 
-        assertEquals(2, developers.get(1).getOpenIssueTypes().size());
-        assertEquals(new Integer(1), developers.get(1).getOpenIssueTypes().get(0).getIssueCount());
-        assertEquals(new Integer(1), developers.get(1).getOpenIssueTypes().get(1).getIssueCount());
-        assertEquals(TYPE_NAME_2, developers.get(1).getOpenIssueTypes().get(0).getCategoryName());
-        assertEquals(ICON_URL, developers.get(1).getOpenIssueTypes().get(0).getIconUrl());
-        assertEquals(TYPE_NAME_1, developers.get(1).getOpenIssueTypes().get(1).getCategoryName());
-        assertEquals(ICON_URL, developers.get(1).getOpenIssueTypes().get(1).getIconUrl());
+        assertEquals(2, developers.get(1).getTypes().size());
+        assertEquals(new Integer(1), developers.get(1).getTypes().get(0).getCount());
+        assertEquals(new Integer(1), developers.get(1).getTypes().get(1).getCount());
+        assertEquals(TYPE_NAME_2, developers.get(1).getTypes().get(0).getName());
+        assertEquals(ICON_URL, developers.get(1).getTypes().get(0).getIconUrl());
+        assertEquals(TYPE_NAME_1, developers.get(1).getTypes().get(1).getName());
+        assertEquals(ICON_URL, developers.get(1).getTypes().get(1).getIconUrl());
     }
 }

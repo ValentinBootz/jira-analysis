@@ -13,7 +13,7 @@ define('jira-dashboard-items/who-needs-help', ['underscore', 'jquery', 'wrm/cont
      */
     DashboardItem.prototype.render = function (context, preferences) {
         this.API.showLoadingBar();
-        var $element = this.$element = $(context).find("#dynamic-content");
+        var $element = this.$element = $(context).find("#results");
         var self = this;
 
         this.requestData().done(function (data) {
@@ -23,7 +23,7 @@ define('jira-dashboard-items/who-needs-help', ['underscore', 'jquery', 'wrm/cont
             if (self.developers === undefined || self.developers.length === 0) {
                 $element.empty().html(Who.Needs.Help.Dashboard.Item.Templates.Empty());
             } else {
-                $element.empty().html(Who.Needs.Help.Dashboard.Item.Templates.Results({developers: self.developers}));
+                $element.empty().html(Who.Needs.Help.Dashboard.Item.Templates.Results({ developers: self.developers }));
             }
 
             self.API.resize();

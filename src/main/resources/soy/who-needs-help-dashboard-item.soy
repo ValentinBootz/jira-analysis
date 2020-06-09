@@ -4,7 +4,7 @@
  * Container template.
  */
 {template .Container}
-    <div id="dynamic-content"/>
+    <div id="results"/>
 {/template}
 
 /**
@@ -13,51 +13,11 @@
  * @param developers the list of assignees and their open issues
  */
 {template .Results}
-    <table id="who-needs-help-table" class="aui aui-table-sortable">
-        <thead class="no-wrap">
-        <tr>
-            <th id="name">User</th>
-            <th id="open-issue-count">Open Issues</th>
-            <th id="estimated_time">Estimated Time</th>
-            <th id="open-issue-types">Issue Types</th>
-            <th id="open-issue-priorities">Priorities</th>
-        </tr>
-        </thead>
-        <tbody>
-            {foreach $dev in $developers}
-            <tr>
-                <td headers="name" class="no-wrap">
-                        <span class="aui-avatar aui-avatar-xsmall">
-                            <span class="aui-avatar-inner">
-                                <img src={$dev.avatarUrl} alt="" role="presentation"/>
-                            </span>
-                        </span>
-                    {$dev.name}
-                </td>
-                <td headers="open-issue-count">{$dev.openIssueCount}</td>
-                <td headers="estimated_time" class="no-wrap">{$dev.totalOpenEstimateText}</td>
-                <td headers="open-issue-types">
-                    <span class="container">
-                        {foreach $type in $dev.openIssueTypes}
-                            <aui-badge class="aui-badge">{$type.issueCount}</aui-badge>
-                            <img class="type-icon" alt="" height="16" width="16"
-                                 src={$type.iconUrl} title={$type.categoryName}>
-                        {/foreach}
-                    </span>
-                </td>
-                <td headers="open-issue-priorities">
-                    <span class="container">
-                        {foreach $priority in $dev.openIssuePriorities}
-                            <aui-badge class="aui-badge">{$priority.issueCount}</aui-badge>
-                            <img class="priority-icon" alt="" height="16" width="16"
-                                 src={$priority.iconUrl} title={$priority.categoryName}>
-                        {/foreach}
-                    </span>
-                </td>
-            </tr>
-            {/foreach}
-        </tbody>
-    </table>
+    {call Dashboard.Plugin.Templates.Table}
+        {param scope: 'User' /}
+        {param analysis: 'Open Issues' /}
+        {param content: $developers /}
+    {/call}
 {/template}
 
 /**

@@ -72,10 +72,10 @@ public class WhoNeedsHelpService {
 
             if (developer != null) {
                 // Update data for existing developer.
-                developer.setOpenIssueCount(developer.getOpenIssueCount() + 1);
+                developer.setCount(developer.getCount() + 1);
                 setIssueType(developer, issue);
                 setIssuePriority(developer, issue);
-                developer.setTotalOpenEstimate(developer.getTotalOpenEstimate() + getEstimate(issue));
+                developer.setTotalEstimateSeconds(developer.getTotalEstimateSeconds() + getEstimate(issue));
             } else {
                 // Create and add new developer.
                 developer = createNewDeveloper(assignee, issue);
@@ -84,11 +84,11 @@ public class WhoNeedsHelpService {
         });
 
         // Sort developer list.
-        developers.sort(Comparator.comparing(Developer::getOpenIssueCount));
+        developers.sort(Comparator.comparing(Developer::getCount));
 
         // Remove empty issue categories.
-        developers.forEach(developer -> developer.getOpenIssueTypes().removeIf(type -> type.getIssueCount() == 0));
-        developers.forEach(developer -> developer.getOpenIssuePriorities().removeIf(priority -> priority.getIssueCount() == 0));
+        developers.forEach(developer -> developer.getTypes().removeIf(type -> type.getCount() == 0));
+        developers.forEach(developer -> developer.getPriorities().removeIf(priority -> priority.getCount() == 0));
 
         return developers;
     }
@@ -128,11 +128,11 @@ public class WhoNeedsHelpService {
         Developer developer = new Developer();
 
         developer.setName(assignee.getName());
-        developer.setAvatarUrl(getAvatarUrl(assignee));
-        developer.setOpenIssueCount(1);
-        developer.setOpenIssueTypes(getSortedBlankIssueTypes());
-        developer.setOpenIssuePriorities(getSortedBlankPriorities());
-        developer.setTotalOpenEstimate(getEstimate(issue));
+        developer.setAvatar(getAvatarUrl(assignee));
+        developer.setCount(1);
+        developer.setTypes(getSortedBlankIssueTypes());
+        developer.setPriorities(getSortedBlankPriorities());
+        developer.setTotalEstimateSeconds(getEstimate(issue));
 
         setIssueType(developer, issue);
         setIssuePriority(developer, issue);
@@ -183,9 +183,9 @@ public class WhoNeedsHelpService {
      */
     private IssueCategory getBlankIssueCategory(String categoryName, String iconUrl) {
         IssueCategory category = new IssueCategory();
-        category.setCategoryName(categoryName);
+        category.setName(categoryName);
         category.setIconUrl(iconUrl);
-        category.setIssueCount(0);
+        category.setCount(0);
 
         return category;
     }
@@ -212,7 +212,7 @@ public class WhoNeedsHelpService {
         IssueType issueType = issue.getIssueType();
 
         if (issueType != null) {
-            updateIssueCategories(developer.getOpenIssueTypes(), issueType.getName());
+            updateIssueCategories(developer.getTypes(), issueType.getName());
         }
     }
 
@@ -226,7 +226,7 @@ public class WhoNeedsHelpService {
         Priority priority = issue.getPriority();
 
         if (priority != null) {
-            updateIssueCategories(developer.getOpenIssuePriorities(), priority.getName());
+            updateIssueCategories(developer.getPriorities(), priority.getName());
         }
     }
 
@@ -239,9 +239,9 @@ public class WhoNeedsHelpService {
     private void updateIssueCategories(List<IssueCategory> categoryList, String categoryName) {
         // Increment the issue count for the category.
         categoryList.stream()
-                .filter(cat -> categoryName.equals(cat.getCategoryName()))
+                .filter(cat -> categoryName.equals(cat.getName()))
                 .findAny().ifPresent(existingCategory ->
-                existingCategory.setIssueCount(existingCategory.getIssueCount() + 1));
+                existingCategory.setCount(existingCategory.getCount() + 1));
 
     }
 

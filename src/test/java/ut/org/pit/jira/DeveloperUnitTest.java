@@ -17,44 +17,44 @@ public class DeveloperUnitTest {
     public void testSetTotalOpenEstimateWeeks() {
         Developer developer = new Developer();
 
-        developer.setTotalOpenEstimate(144000L);
+        developer.setTotalEstimateSeconds(144000L);
 
-        assertEquals("1w", developer.getTotalOpenEstimateText());
+        assertEquals("1w", developer.getEstimate());
     }
 
     @Test
     public void testSetTotalOpenEstimateDays() {
         Developer developer = new Developer();
 
-        developer.setTotalOpenEstimate(28800L);
+        developer.setTotalEstimateSeconds(28800L);
 
-        assertEquals("1d", developer.getTotalOpenEstimateText());
+        assertEquals("1d", developer.getEstimate());
     }
 
     @Test
     public void testSetTotalOpenEstimateHours() {
         Developer developer = new Developer();
 
-        developer.setTotalOpenEstimate(3600L);
+        developer.setTotalEstimateSeconds(3600L);
 
-        assertEquals("1h", developer.getTotalOpenEstimateText());
+        assertEquals("1h", developer.getEstimate());
     }
 
     @Test
     public void testSetTotalOpenEstimateMinutes() {
         Developer developer = new Developer();
 
-        developer.setTotalOpenEstimate(60L);
+        developer.setTotalEstimateSeconds(60L);
 
-        assertEquals("1m", developer.getTotalOpenEstimateText());
+        assertEquals("1m", developer.getEstimate());
     }
 
     @Test
     public void testSetTotalOpenEstimate() {
         Developer developer = new Developer();
 
-        developer.setTotalOpenEstimate(176460L);
+        developer.setTotalEstimateSeconds(176460L);
 
-        assertEquals("1w 1d 1h 1m", developer.getTotalOpenEstimateText());
+        assertEquals("1w 1d 1h 1m", developer.getEstimate());
     }
 }

@@ -20,8 +20,11 @@ import java.io.Serializable;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class IssueCategory implements Serializable {
 
+    /**
+     * The name of this category (e.g. priority "high").
+     */
     @XmlElement
-    private String categoryName;
+    private String name;
 
     @XmlElement
     private String iconUrl;
@@ -30,5 +33,5 @@ public class IssueCategory implements Serializable {
      * The number of issues that fall into this category.
      */
     @XmlElement
-    private Integer issueCount;
+    private Integer count;
 }
