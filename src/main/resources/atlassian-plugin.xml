@@ -36,12 +36,18 @@
         <resource type="soy" location="/soy/expert-dashboard-item.soy" name="Expert.Dashboard.Item.Templates.Static" />
 
         <!-- Who Needs Help Dashboard Item resources -->
+        <resource type="download" name="who-needs-help-item.js" location="/js/who-needs-help-item.js" />
         <resource type="download" location="soy/who-needs-help-dashboard-item.soy" name="soy/who-needs-help-dashboard-item.soy.js" />
         <resource type="soy" location="/soy/who-needs-help-dashboard-item.soy" name="Who.Needs.Help.Dashboard.Item.Templates.Static" />
 
         <context>atl.dashboard</context>
         <context>dashboard-plugin</context>
     </web-resource>
+
+    <!-- REST Resource Plugin -->
+    <rest name="Jira Analysis Rest Resource" key="jira-analysis-rest-resource" path="/jira-analysis-api" version="1.0">
+        <description>Jira Analysis Rest Resource Plugin</description>
+    </rest>
 
     <!-- Example Dashboard Item -->
     <dashboard-item key="example-dashboard-item" i18n-name-key="example.dashboard.item.title">
@@ -51,7 +57,7 @@
                 <category>Jira</category>
             </categories>
             <author>
-                <name>TUM</name>
+                <name>Joonas Palm</name>
             </author>
             <thumbnail location="/download/resources/${atlassian.plugin.key}:dashboard-plugin-resources/images/pluginLogo.png" />
         </definition>
@@ -93,6 +99,7 @@
         <resource name="view" type="soy" location=":dashboard-plugin-resources/Expert.Dashboard.Item.Templates.Container" />
         <amd-module>jira-dashboard-items/expert</amd-module>
     </dashboard-item>
+
     <!-- Who Needs Help Dashboard Item -->
     <dashboard-item key="who-needs-help-dashboard-item" i18n-name-key="who.needs.help.dashboard.item.title">
         <definition>
@@ -101,13 +108,13 @@
                 <category>Jira</category>
             </categories>
             <author>
-                <name>TUM</name>
+                <name>Joonas Palm</name>
             </author>
             <thumbnail location="/download/resources/${atlassian.plugin.key}:dashboard-plugin-resources/images/pluginLogo.png" />
         </definition>
         <description key="who.needs.help.dashboard.item.description" />
-        <resource name="view" type="soy" location=":dashboard-plugin-resources/Who.Needs.Help.Dashboard.Item.Templates.Static" />
-        <context-provider class="org.pit.jira.WhoNeedsHelpDashboardItemContextProvider" />
+        <resource name="view" type="soy" location=":dashboard-plugin-resources/Who.Needs.Help.Dashboard.Item.Templates.Container" />
+        <amd-module>jira-dashboard-items/who-needs-help</amd-module>
     </dashboard-item>
 
 </atlassian-plugin>
