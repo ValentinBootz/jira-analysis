@@ -5,6 +5,7 @@
 */
 {template .Container}
     <div id="filters"/>
+    <div id="access-dialog"/>
     <div id="results"/>
 {/template}
 
@@ -25,14 +26,14 @@
         <div class="tabs-pane active-pane" id="users-tab">
             {call Dashboard.Plugin.Templates.Table}
                 {param scope: 'User' /}
-	            {param analysis: 'Completed Issues' /}
+                {param analysis: 'Completed Issues' /}
                 {param content: $users /}
             {/call}
         </div>
         <div class="tabs-pane" id="projects-tab">
             {call Dashboard.Plugin.Templates.Table}
                 {param scope: 'Project' /}
-	            {param analysis: 'Completed Issues' /}
+                {param analysis: 'Completed Issues' /}
                 {param content: $projects /}
             {/call}
         </div>
