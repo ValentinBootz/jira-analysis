@@ -45,11 +45,10 @@ import java.util.List;
 public class LoggingAndAccessService {
 
     private final static String JIRA = "jira";
-    //TODO: justifications.
-    private final static String EXPERT_JUSTIFICATION = "";
-    private final static String LEADERBOARD_JUSTIFICATION = "";
-    private final static String HELP_JUSTIFICATION = "";
-    private final static String SUPPORTER_JUSTIFICATION = "";
+    private final static String EXPERT_JUSTIFICATION = "The Expert Dashboard Item is used to look for developers who have already worked on a specific topic, we call those developers experts.";
+    private final static String LEADERBOARD_JUSTIFICATION = "The Leaderboard Item displays lists of users and projects that provide insights on productivity.";
+    private final static String HELP_JUSTIFICATION = "The Who Needs Help Dashboard Item provides information about the current workload of the developers in a team.";
+    private final static String SUPPORTER_JUSTIFICATION = "The Supporter Dashboard Item provides information about the number of issues developers have reviewed.";
 
     private final static String USERNAME = "techie";
     private final static String PASSWORD = "some_body_00";
