@@ -59,8 +59,9 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     */
     function handleSubmit(self, context) {
         requestData().done(function (response) {
-            data = analyzeProductivity(response.issues)
-            loadResults(self, context, data);
+            console.log(response)
+            // data = analyzeProductivity(response.issues)
+            // loadResults(self, context, data);
         });
     };
 
@@ -68,13 +69,14 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     * API call requesting all issues with status 'Done' with expanded changelog
     */
     function requestData() {
-        jql_query = "jql=status%3Ddone";
-        jql_query += $('#project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
-        jql_query += $('#type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
-        jql_query += $('#priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        // jql_query = "jql=status%3Ddone";
+        // jql_query += $('#project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        // jql_query += $('#type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        // jql_query += $('#priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
         return $.ajax({
             method: "GET",
-            url: contextPath() + "/rest/api/latest/search?" + jql_query + "&expand=changelog"
+            // url: contextPath() + "/rest/api/latest/search?" + jql_query + "&expand=changelog"
+            url: contextPath() + "/rest/jira-analysis-api/1.0/leaderboard/issues",
         });
     };
 
