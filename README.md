@@ -45,6 +45,14 @@ More details about the installation and usage can be found on [Confluence](https
 
 Use the command `atlas-clean` to remove the target folder (be aware that all Jira data will be lost).
 
+### Adjusting log levels
+
+To adjust the log level of the Jira plugin:
+ 1. Navigate to `Administration -> System -> Logging and profiling`
+ 2. Scroll down and click `Configure logging level for another package`
+ 3. In the dialog insert `org.pit.jira` as the `Package name` and select the desired log level
+ 4. Click `Add`
+
 ## Installing Dashboard Items
 
 The documentation for all implemented Dashboard Items can be found in [Confluence](https://iwiki.sse.in.tum.de/x/dwCP).
