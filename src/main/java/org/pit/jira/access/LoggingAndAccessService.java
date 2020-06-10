@@ -1,6 +1,9 @@
 package org.pit.jira.access;
 
-import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.bc.JiraServiceContext;
+import com.atlassian.jira.bc.JiraServiceContextImpl;
+import com.atlassian.jira.bc.user.search.UserSearchService;
+import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
@@ -52,11 +55,19 @@ public class LoggingAndAccessService {
     private final static String PASSWORD = "some_body_00";
     private final static String URL = "https://overseer.sse.in.tum.de/request-access/query";
 
+    private final JiraAuthenticationContext jiraAuthenticationContext;
+
     private final UserManager userManager;
 
+    private final UserSearchService userSearchService;
+
     @Inject
-    public LoggingAndAccessService(@ComponentImport UserManager userManager) {
+    public LoggingAndAccessService(@ComponentImport JiraAuthenticationContext jiraAuthenticationContext,
+                                   @ComponentImport UserManager userManager,
+                                   @ComponentImport UserSearchService userSearchService) {
+        this.jiraAuthenticationContext = jiraAuthenticationContext;
         this.userManager = userManager;
+        this.userSearchService = userSearchService;
     }
 
     /**
@@ -143,7 +154,7 @@ public class LoggingAndAccessService {
             owners.add(owner);
         });
 
-        ApplicationUser currentUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
+        ApplicationUser currentUser = jiraAuthenticationContext.getLoggedInUser();
         accessRequest.setUserRid(currentUser.getEmailAddress());
         accessRequest.setOwners(owners);
         accessRequest.setTool(JIRA);
@@ -184,7 +195,9 @@ public class LoggingAndAccessService {
     }
 
     /**
-     * Retrieves the email addresses of the owners by username.
+     * Retrieves the email addresses of the data owners.
+     * If a filter has been defined, then retrieves only emails for usernames in the filter, else retrieves all emails
+     * of active users.
      *
      * @param ownerUsernames a list of data owner usernames
      * @return a list of data owner emails
@@ -192,12 +205,20 @@ public class LoggingAndAccessService {
     private List<String> getOwnerEmails(List<String> ownerUsernames) {
         List<String> ownerEmails = new ArrayList<>();
 
-        ownerUsernames.forEach(username -> {
-            ApplicationUser user = userManager.getUserByName(username);
-            if (user != null) {
-                ownerEmails.add(user.getEmailAddress());
-            }
-        });
+        if (ownerUsernames != null && ownerUsernames.size() > 0) {
+            // Retrieve filtered user emails.
+            ownerUsernames.forEach(username -> {
+                ApplicationUser user = userManager.getUserByName(username);
+                if (user != null) {
+                    ownerEmails.add(user.getEmailAddress());
+                }
+            });
+        } else {
+            // If no filter defined, retrieve all user emails.
+            JiraServiceContext serviceContext = new JiraServiceContextImpl(jiraAuthenticationContext.getLoggedInUser());
+            List<ApplicationUser> users = userSearchService.findUsersAllowEmptyQuery(serviceContext, "");
+            users.forEach(user -> ownerEmails.add(user.getEmailAddress()));
+        }
 
         return ownerEmails;
     }
