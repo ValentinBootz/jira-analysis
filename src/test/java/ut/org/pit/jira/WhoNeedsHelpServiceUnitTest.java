@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.pit.jira.help.WhoNeedsHelpService;
 import org.pit.jira.model.Developer;
+import org.pit.jira.model.Filter;
 
 import java.net.URI;
 import java.util.*;
@@ -107,6 +108,7 @@ public class WhoNeedsHelpServiceUnitTest {
     @Test
     public void testGetSortedListOfDevelopersWithOpenIssues() throws Exception {
         URI avatarUri = new URI(AVATAR_URL);
+        Filter filter = new Filter();
 
         List<Issue> issueList = new ArrayList<>();
         issueList.add(issue1);
@@ -145,7 +147,7 @@ public class WhoNeedsHelpServiceUnitTest {
         when(avatarService.getAvatarUrlNoPermCheck(applicationUser1, Avatar.Size.SMALL)).thenReturn(avatarUri);
         when(avatarService.getAvatarUrlNoPermCheck(applicationUser2, Avatar.Size.SMALL)).thenReturn(avatarUri);
 
-        List<Developer> developers = service.getSortedListOfDevelopersWithOpenIssues();
+        List<Developer> developers = service.getSortedListOfDevelopersWithOpenIssues(filter);
 
         assertEquals(developers.size(), 2);
 

@@ -30,17 +30,18 @@ define('jira-dashboard-items/who-needs-help', ['underscore', 'jquery', 'wrm/cont
      * @param data the data to be displayed in the filters
      */
     function loadFilters(self, context, data) {
-        var $element = this.$element = $(context).find("#filters");
+        var $element = this.$element = $(context).find("#help-filters");
         [projects, users, types, priorities] = data;
 
         $element.empty().html(Dashboard.Plugin.Templates.Filters({
+            type: 'help',
             projects: projects,
             users: users,
             types: types,
             priorities: priorities,
         }));
 
-        $element.find("#filter-form").on('submit', function (event) {
+        $element.find("#help-filter-form").on('submit', function (event) {
             event.preventDefault();
             handleSubmit(self, context);
         });
@@ -55,11 +56,12 @@ define('jira-dashboard-items/who-needs-help', ['underscore', 'jquery', 'wrm/cont
      * @param context the HTML context
      */
     function handleSubmit(self, context) {
-        var $element = this.$element = $(context).find("#results");
+        var $element = this.$element = $(context).find("#help-results");
+        self.API.showLoadingBar();
 
         requestData().done(function (data) {
             self.API.hideLoadingBar();
-            var developers  = data;
+            var developers = data;
 
             if (developers === undefined || developers.length === 0) {
                 $element.empty().html(Who.Needs.Help.Dashboard.Item.Templates.Empty());
@@ -94,16 +96,16 @@ define('jira-dashboard-items/who-needs-help', ['underscore', 'jquery', 'wrm/cont
      * @returns {*} a list of open assigned issues
      */
     function requestData() {
-        var users = $('#user-multiselect').val();
-        var projects = $('#project-multiselect').val();
-        var types = $('#type-multiselect').val();
-        var priorities = $('#priority-multiselect').val();
-
-        //TODO: pass on filters to the backend.
-
         return $.ajax({
-            type: "GET",
+            type: "POST",
             url: contextPath() + "/rest/jira-analysis-api/1.0/who-needs-help/issues",
+            data: JSON.stringify({
+                'users': $('#help-user-multiselect').val(),
+                'projects': $('#help-project-multiselect').val(),
+                'types': $('#help-type-multiselect').val(),
+                'priorities': $('#help-priority-multiselect').val(),
+            }),
+            contentType: "application/json",
         });
     }
 

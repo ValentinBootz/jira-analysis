@@ -3,17 +3,18 @@
 /**
 * Issue filter template
 *
-* @param projects
-* @param users
-* @param types
-* @param priorities
+* @param type the type of the dashboard item
+* @param projects all the available project names
+* @param users all the available usernames
+* @param types all the available issue type names names
+* @param priorities all the available priority names
 */
 {template .Filters}
-    <form class="aui" id="filter-form">
+    <form class="aui" id="{$type}-filter-form">
         <h3>Filter Issues</h3>
         <div class="field-group">
             <label for="multiselect">Projects</label>
-            <select class="multi-select" size="4" multiple="multiple" id="project-multiselect" name="project-multiselect">
+            <select class="multi-select" size="4" multiple="multiple" id="{$type}-project-multiselect" name="project-multiselect">
             {foreach $project in $projects}
                 <option>{$project.name}</option>
             {/foreach}
@@ -21,7 +22,7 @@
         </div>
         <div class="field-group">
             <label for="multiselect">Users</label>
-            <select class="multi-select" size="4" multiple="multiple" id="user-multiselect" name="user-multiselect">
+            <select class="multi-select" size="4" multiple="multiple" id="{$type}-user-multiselect" name="user-multiselect">
             {foreach $user in $users}
                 <option>{$user.name}</option>
             {/foreach}
@@ -29,7 +30,7 @@
         </div>
         <div class="field-group">
             <label for="multiselect">Types</label>
-            <select class="multi-select" size="4" multiple="multiple" id="type-multiselect" name="type-multiselect">
+            <select class="multi-select" size="4" multiple="multiple" id="{$type}-type-multiselect" name="type-multiselect">
             {foreach $type in $types}
                 <option>{$type.name}</option>
             {/foreach}
@@ -37,7 +38,7 @@
         </div>
         <div class="field-group">
             <label for="multiselect">Priorities</label>
-            <select class="multi-select" size="4" multiple="multiple" id="priority-multiselect" name="priority-multiselect">
+            <select class="multi-select" size="4" multiple="multiple" id="{$type}-priority-multiselect" name="priority-multiselect">
             {foreach $priority in $priorities}
                 <option>{$priority.name}</option>
             {/foreach}
@@ -45,7 +46,7 @@
         </div>
         <div class="buttons-container">
             <div class="buttons">
-                <input class="aui-button aui-button-primary" type="submit" value="Filter" id="filter">
+                <input class="aui-button aui-button-primary" type="submit" value="Filter" id="{$type}-filter">
             </div>
         </div>
     </form>
@@ -54,19 +55,20 @@
 /**
 * Analysis table template
 *
+* @param type the type of the dashboard item
 * @param scope entity your table displays (e.g. "User" or "Project")
 * @param analysis feature your table analyzes (e.g. "Completed Issues" or "Open tasks")
 * @param content table content (template expects avatar, name, count, estimate, types and priorities properties)
 */
 {template .Table}
-    <table id="ranking-table" class="aui aui-table-sortable">
+    <table id="{$type}-ranking-table" class="aui aui-table-sortable">
         <thead>
             <tr>
-                <th class='table-header' id="name">{$scope}</th>
-                <th class='table-header' id="count">{$analysis}</th>
-                <th class='table-header' id="estimate">Estimated Time</th>
-                <th class='table-header' id="types">Issue Types</th>
-                <th class='table-header' id="priorities">Priorities</th>
+                <th class='table-header' id="{$type}-name">{$scope}</th>
+                <th class='table-header' id="{$type}-count">{$analysis}</th>
+                <th class='table-header' id="{$type}-estimate">Estimated Time</th>
+                <th class='table-header' id="{$type}-types">Issue Types</th>
+                <th class='table-header' id="{$type}-priorities">Priorities</th>
             </tr>
         </thead>
         <tbody>

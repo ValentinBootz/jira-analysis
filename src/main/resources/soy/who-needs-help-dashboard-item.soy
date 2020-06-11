@@ -4,8 +4,8 @@
  * Container template.
  */
 {template .Container}
-    <div id="filters"/>
-    <div id="results"/>
+    <div id="help-filters"/>
+    <div id="help-results"/>
 {/template}
 
 /**
@@ -15,6 +15,7 @@
  */
 {template .Results}
     {call Dashboard.Plugin.Templates.Table}
+        {param type: 'help' /}
         {param scope: 'User' /}
         {param analysis: 'Open Issues' /}
         {param content: $developers /}
@@ -25,5 +26,5 @@
  * Use this template if there are no issues in the response.
  */
 {template .Empty}
-    <div class="no-content">No open tasks yet.</div>
+    <div class="no-content">No results found.</div>
 {/template}

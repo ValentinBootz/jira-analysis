@@ -11,6 +11,7 @@ import com.atlassian.jira.issue.priority.Priority;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchResults;
 import com.atlassian.jira.issue.status.category.StatusCategory;
+import com.atlassian.jira.jql.builder.JqlClauseBuilder;
 import com.atlassian.jira.jql.builder.JqlQueryBuilder;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.bean.PagerFilter;
@@ -18,6 +19,7 @@ import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import lombok.extern.slf4j.Slf4j;
 import org.pit.jira.model.Developer;
+import org.pit.jira.model.Filter;
 import org.pit.jira.model.IssueCategory;
 import org.springframework.stereotype.Component;
 
@@ -57,11 +59,12 @@ public class WhoNeedsHelpService {
     /**
      * Constructs a sorted list of developers with open issues.
      *
+     * @param filter the filter object
      * @return sorted list of developers
      */
-    public List<Developer> getSortedListOfDevelopersWithOpenIssues() {
+    public List<Developer> getSortedListOfDevelopersWithOpenIssues(Filter filter) {
         List<Developer> developers = new ArrayList<>();
-        List<Issue> issues = searchOpenAssignedIssues();
+        List<Issue> issues = searchOpenAssignedIssues(filter);
 
         issues.forEach(issue -> {
             ApplicationUser assignee = issue.getAssignee();
@@ -94,28 +97,56 @@ public class WhoNeedsHelpService {
     }
 
     /**
-     * Searches for open assigned issues.
+     * Searches for open assigned issues. If the filter has been defined, apply it to the search query.
      *
+     * @param filter the filter object
      * @return a list of open assigned issues
      */
-    private List<Issue> searchOpenAssignedIssues() {
+    private List<Issue> searchOpenAssignedIssues(Filter filter) {
         List<Issue> issues = new ArrayList<>();
 
-        JqlQueryBuilder builder = JqlQueryBuilder.newBuilder();
-        builder.where()
+        // Construct the JQL query.
+        JqlQueryBuilder queryBuilder = JqlQueryBuilder.newBuilder();
+        JqlClauseBuilder clauseBuilder = queryBuilder.where();
+        clauseBuilder
                 .not().assigneeIsEmpty()
                 .and()
-                .not().status(StatusCategory.COMPLETE)
-                .endWhere();
+                .not().status(StatusCategory.COMPLETE);
+        applyFilter(clauseBuilder, filter);
+        clauseBuilder.endWhere();
 
         try {
-            SearchResults result = searchService.searchOverrideSecurity(null, builder.buildQuery(), PagerFilter.getUnlimitedFilter());
+            SearchResults result = searchService.searchOverrideSecurity(null, queryBuilder.buildQuery(), PagerFilter.getUnlimitedFilter());
             issues = result.getIssues();
         } catch (SearchException e) {
             log.error("Failed to search for open assigned issues", e);
         }
 
         return issues;
+    }
+
+    /**
+     * Apply the filter to the JQL query.
+     *
+     * @param builder the JQL clause builder
+     * @param filter  the filter object
+     */
+    private void applyFilter(JqlClauseBuilder builder, Filter filter) {
+        if (filter.getUsers() != null && filter.getUsers().size() > 0) {
+            builder.and().assignee().inStrings(filter.getUsers());
+        }
+
+        if (filter.getProjects() != null && filter.getProjects().size() > 0) {
+            builder.and().project().inStrings(filter.getProjects());
+        }
+
+        if (filter.getTypes() != null && filter.getTypes().size() > 0) {
+            builder.and().issueType().inStrings(filter.getTypes());
+        }
+
+        if (filter.getPriorities() != null && filter.getPriorities().size() > 0) {
+            builder.and().priority().inStrings(filter.getPriorities());
+        }
     }
 
     /**
