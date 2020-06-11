@@ -81,9 +81,9 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                 });
             } else {
                 // Access to data not granted.
-                var $element = this.$element = $(context).find("#access-dialog");
-                $element.empty().html(Dashboard.Plugin.Templates.AccessDialog());
-                AJS.dialog2("#no-access-dialog").show();
+                var $element = this.$element = $(context).find("#leaderboard-access-dialog");
+                $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'leaderboard' }));
+                AJS.dialog2("#leaderboard-no-access-dialog").show();
             }
         });
     }
