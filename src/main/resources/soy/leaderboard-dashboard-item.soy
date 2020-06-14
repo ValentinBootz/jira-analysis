@@ -4,9 +4,9 @@
 *   Container template for leaderboard contents
 */
 {template .Container}
-    <div id="filters"/>
+    <div id="leaderboard-filters"/>
     <div id="leaderboard-access-dialog"/>
-    <div id="results"/>
+    <div id="leaderboard-results"/>
 {/template}
 
 /**
@@ -25,6 +25,7 @@
         </ul>
         <div class="tabs-pane active-pane" id="users-tab">
             {call Dashboard.Plugin.Templates.Table}
+                {param type: 'leaderboard' /}
                 {param scope: 'User' /}
                 {param analysis: 'Completed Issues' /}
                 {param content: $users /}
@@ -32,6 +33,7 @@
         </div>
         <div class="tabs-pane" id="projects-tab">
             {call Dashboard.Plugin.Templates.Table}
+                {param type: 'leaderboard' /}
                 {param scope: 'Project' /}
                 {param analysis: 'Completed Issues' /}
                 {param content: $projects /}

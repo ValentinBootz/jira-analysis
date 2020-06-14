@@ -43,15 +43,10 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
      * @param data
      */
     function loadFilters(self, context, data) {
-        var $element = this.$element = $(context).find("#filters");
+        var $element = this.$element = $(context).find("#leaderboard-filters");
         [projects, users, types, priorities] = data;
-        $element.empty().html(Dashboard.Plugin.Templates.Filters({
-            projects: projects,
-            users: users,
-            types: types,
-            priorities: priorities
-        }));
-        $element.find("#filter-form").on('submit', function (event) {
+        $element.empty().html(Dashboard.Plugin.Templates.Filters({ type: 'leaderboard', projects: projects, users: users, types: types, priorities: priorities }));
+        $element.find("#leaderboard-filter-form").on('submit', function (event) {
             event.preventDefault();
             initializeTemplates();
             handleSubmit(self, context)
@@ -106,10 +101,10 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
      * API call requesting all issues with status 'Done' with expanded changelog
      */
     function requestData() {
-        // jql_query = "jql=status%3Ddone";
-        // jql_query += $('#project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
-        // jql_query += $('#type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
-        // jql_query += $('#priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+       // jql_query = "jql=status%3Ddone";
+       // jql_query += $('#leaderboard-project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#leaderboard-project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+       // jql_query += $('#leaderboard-type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#leaderboard-type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+       // jql_query += $('#leaderboard-priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#leaderboard-priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
         return $.ajax({
             method: "GET",
             // url: contextPath() + "/rest/api/latest/search?" + jql_query + "&expand=changelog"
@@ -126,7 +121,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         data = { users: [], projects: [] };
         issues.forEach(issue => {
             details = getDetails(issue);
-            if ($('#user-multiselect').val() ? $('#user-multiselect').val().includes(details.developer.name) : false) {
+            if ($('#leaderboard-user-multiselect').val() ? $('#leaderboard-user-multiselect').val().includes(details.developer.name) : false) {
                 updateUsers(data.users, details);
                 updateProjects(data.projects, details);
             }
@@ -188,11 +183,8 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
      * @param data
      */
     function loadResults(self, context, data) {
-        var $element = this.$element = $(context).find("#results");
-        $element.empty().html(Leaderboard.Dashboard.Item.Templates.Results({
-            users: data.users,
-            projects: data.projects
-        }));
+        var $element = this.$element = $(context).find("#leaderboard-results");
+        $element.empty().html(Leaderboard.Dashboard.Item.Templates.Results({ users: data.users, projects: data.projects }));
         AJS.tabs.setup();
         self.API.resize();
     }

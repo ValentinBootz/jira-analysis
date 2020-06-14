@@ -11,6 +11,7 @@ import com.atlassian.jira.issue.priority.Priority;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchResults;
 import com.atlassian.jira.issue.status.category.StatusCategory;
+import com.atlassian.jira.jql.builder.JqlClauseBuilder;
 import com.atlassian.jira.jql.builder.JqlQueryBuilder;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.bean.PagerFilter;
@@ -18,6 +19,7 @@ import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import lombok.extern.slf4j.Slf4j;
 import org.pit.jira.model.Developer;
+import org.pit.jira.model.Filter;
 import org.pit.jira.model.IssueCategory;
 import org.springframework.stereotype.Component;
 
@@ -57,11 +59,12 @@ public class WhoNeedsHelpService {
     /**
      * Constructs a sorted list of developers with open issues.
      *
+     * @param filter the filter object
      * @return sorted list of developers
      */
-    public List<Developer> getSortedListOfDevelopersWithOpenIssues() {
+    public List<Developer> getSortedListOfDevelopersWithOpenIssues(Filter filter) {
         List<Developer> developers = new ArrayList<>();
-        List<Issue> issues = searchOpenAssignedIssues();
+        List<Issue> issues = searchOpenAssignedIssues(filter);
 
         issues.forEach(issue -> {
             ApplicationUser assignee = issue.getAssignee();
@@ -72,10 +75,10 @@ public class WhoNeedsHelpService {
 
             if (developer != null) {
                 // Update data for existing developer.
-                developer.setOpenIssueCount(developer.getOpenIssueCount() + 1);
+                developer.setCount(developer.getCount() + 1);
                 setIssueType(developer, issue);
                 setIssuePriority(developer, issue);
-                developer.setTotalOpenEstimate(developer.getTotalOpenEstimate() + getEstimate(issue));
+                developer.setTotalEstimateSeconds(developer.getTotalEstimateSeconds() + getEstimate(issue));
             } else {
                 // Create and add new developer.
                 developer = createNewDeveloper(assignee, issue);
@@ -84,38 +87,66 @@ public class WhoNeedsHelpService {
         });
 
         // Sort developer list.
-        developers.sort(Comparator.comparing(Developer::getOpenIssueCount));
+        developers.sort(Comparator.comparing(Developer::getCount));
 
         // Remove empty issue categories.
-        developers.forEach(developer -> developer.getOpenIssueTypes().removeIf(type -> type.getIssueCount() == 0));
-        developers.forEach(developer -> developer.getOpenIssuePriorities().removeIf(priority -> priority.getIssueCount() == 0));
+        developers.forEach(developer -> developer.getTypes().removeIf(type -> type.getCount() == 0));
+        developers.forEach(developer -> developer.getPriorities().removeIf(priority -> priority.getCount() == 0));
 
         return developers;
     }
 
     /**
-     * Searches for open assigned issues.
+     * Searches for open assigned issues. If the filter has been defined, apply it to the search query.
      *
+     * @param filter the filter object
      * @return a list of open assigned issues
      */
-    private List<Issue> searchOpenAssignedIssues() {
+    private List<Issue> searchOpenAssignedIssues(Filter filter) {
         List<Issue> issues = new ArrayList<>();
 
-        JqlQueryBuilder builder = JqlQueryBuilder.newBuilder();
-        builder.where()
+        // Construct the JQL query.
+        JqlQueryBuilder queryBuilder = JqlQueryBuilder.newBuilder();
+        JqlClauseBuilder clauseBuilder = queryBuilder.where();
+        clauseBuilder
                 .not().assigneeIsEmpty()
                 .and()
-                .not().status(StatusCategory.COMPLETE)
-                .endWhere();
+                .not().status(StatusCategory.COMPLETE);
+        applyFilter(clauseBuilder, filter);
+        clauseBuilder.endWhere();
 
         try {
-            SearchResults result = searchService.searchOverrideSecurity(null, builder.buildQuery(), PagerFilter.getUnlimitedFilter());
+            SearchResults result = searchService.searchOverrideSecurity(null, queryBuilder.buildQuery(), PagerFilter.getUnlimitedFilter());
             issues = result.getIssues();
         } catch (SearchException e) {
             log.error("Failed to search for open assigned issues", e);
         }
 
         return issues;
+    }
+
+    /**
+     * Apply the filter to the JQL query.
+     *
+     * @param builder the JQL clause builder
+     * @param filter  the filter object
+     */
+    private void applyFilter(JqlClauseBuilder builder, Filter filter) {
+        if (filter.getUsers() != null && filter.getUsers().size() > 0) {
+            builder.and().assignee().inStrings(filter.getUsers());
+        }
+
+        if (filter.getProjects() != null && filter.getProjects().size() > 0) {
+            builder.and().project().inStrings(filter.getProjects());
+        }
+
+        if (filter.getTypes() != null && filter.getTypes().size() > 0) {
+            builder.and().issueType().inStrings(filter.getTypes());
+        }
+
+        if (filter.getPriorities() != null && filter.getPriorities().size() > 0) {
+            builder.and().priority().inStrings(filter.getPriorities());
+        }
     }
 
     /**
@@ -128,11 +159,11 @@ public class WhoNeedsHelpService {
         Developer developer = new Developer();
 
         developer.setName(assignee.getName());
-        developer.setAvatarUrl(getAvatarUrl(assignee));
-        developer.setOpenIssueCount(1);
-        developer.setOpenIssueTypes(getSortedBlankIssueTypes());
-        developer.setOpenIssuePriorities(getSortedBlankPriorities());
-        developer.setTotalOpenEstimate(getEstimate(issue));
+        developer.setAvatar(getAvatarUrl(assignee));
+        developer.setCount(1);
+        developer.setTypes(getSortedBlankIssueTypes());
+        developer.setPriorities(getSortedBlankPriorities());
+        developer.setTotalEstimateSeconds(getEstimate(issue));
 
         setIssueType(developer, issue);
         setIssuePriority(developer, issue);
@@ -183,9 +214,9 @@ public class WhoNeedsHelpService {
      */
     private IssueCategory getBlankIssueCategory(String categoryName, String iconUrl) {
         IssueCategory category = new IssueCategory();
-        category.setCategoryName(categoryName);
+        category.setName(categoryName);
         category.setIconUrl(iconUrl);
-        category.setIssueCount(0);
+        category.setCount(0);
 
         return category;
     }
@@ -212,7 +243,7 @@ public class WhoNeedsHelpService {
         IssueType issueType = issue.getIssueType();
 
         if (issueType != null) {
-            updateIssueCategories(developer.getOpenIssueTypes(), issueType.getName());
+            updateIssueCategories(developer.getTypes(), issueType.getName());
         }
     }
 
@@ -226,7 +257,7 @@ public class WhoNeedsHelpService {
         Priority priority = issue.getPriority();
 
         if (priority != null) {
-            updateIssueCategories(developer.getOpenIssuePriorities(), priority.getName());
+            updateIssueCategories(developer.getPriorities(), priority.getName());
         }
     }
 
@@ -239,9 +270,9 @@ public class WhoNeedsHelpService {
     private void updateIssueCategories(List<IssueCategory> categoryList, String categoryName) {
         // Increment the issue count for the category.
         categoryList.stream()
-                .filter(cat -> categoryName.equals(cat.getCategoryName()))
+                .filter(cat -> categoryName.equals(cat.getName()))
                 .findAny().ifPresent(existingCategory ->
-                existingCategory.setIssueCount(existingCategory.getIssueCount() + 1));
+                existingCategory.setCount(existingCategory.getCount() + 1));
 
     }
 
