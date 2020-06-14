@@ -8,30 +8,39 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
+import java.util.List;
 
 /**
- * The issue category object.
+ * The filter object.
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@XmlRootElement(name = "issueCategory")
+@XmlRootElement(name = "filter")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class IssueCategory implements Serializable {
+public class Filter {
 
     /**
-     * The name of this category (e.g. priority "high").
+     * Filter by usernames.
      */
     @XmlElement
-    private String name;
-
-    @XmlElement
-    private String iconUrl;
+    private List<String> users;
 
     /**
-     * The number of issues that fall into this category.
+     * Filter by project names.
      */
     @XmlElement
-    private Integer count;
+    private List<String> projects;
+
+    /**
+     * Filter by issue type names.
+     */
+    @XmlElement
+    private List<String> types;
+
+    /**
+     * Filter by priority names.
+     */
+    @XmlElement
+    private List<String> priorities;
 }

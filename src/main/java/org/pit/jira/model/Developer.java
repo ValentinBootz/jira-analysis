@@ -26,42 +26,42 @@ public class Developer implements Serializable {
     private String name;
 
     @XmlElement
-    private String avatarUrl;
+    private String avatar;
 
     /**
-     * Number of issues that are not with the status "COMPLETE".
+     * Total number of issues that are currently being analyzed.
      */
     @XmlElement
-    private Integer openIssueCount;
+    private Integer count;
 
     /**
-     * Open issues by issue type.
+     * Analyzed issues by issue type.
      */
     @XmlElement
-    private List<IssueCategory> openIssueTypes;
+    private List<IssueCategory> types;
 
     /**
-     * Open issues by priority.
+     * Analyzed issues by priority.
      */
     @XmlElement
-    private List<IssueCategory> openIssuePriorities;
+    private List<IssueCategory> priorities;
 
     /**
-     * Total amount of time that has been estimated for open issues in seconds.
+     * Total amount of time that has been estimated for analyzed issues in seconds.
      */
     @XmlElement
-    private Long totalOpenEstimate;
+    private Long totalEstimateSeconds;
 
     /**
-     * The text representation for the total amount of time that has been estimated for open issues.
+     * The text representation for the total amount of time that has been estimated for analyzed issues.
      * e.g.: "1w 2d 5h 30m".
      */
     @XmlElement
-    private String totalOpenEstimateText;
+    private String estimate;
 
-    public void setTotalOpenEstimate(Long totalOpenEstimate) {
-        this.totalOpenEstimateText = getEstimateTextRepresentation(totalOpenEstimate);
-        this.totalOpenEstimate = totalOpenEstimate;
+    public void setTotalEstimateSeconds(Long totalEstimateSeconds) {
+        this.estimate = getEstimateTextRepresentation(totalEstimateSeconds);
+        this.totalEstimateSeconds = totalEstimateSeconds;
     }
 
     /**
