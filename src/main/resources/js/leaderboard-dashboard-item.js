@@ -76,8 +76,9 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                 self.API.showLoadingBar();
                 requestData().done(function (response) {
                     self.API.hideLoadingBar();
-                    data = analyzeProductivity(response.issues)
-                    loadResults(self, context, data);
+                    console.log(response);
+                    // data = analyzeProductivity(response)
+                    // loadResults(self, context, data);
                 });
             } else {
                 // Access to data not granted.
