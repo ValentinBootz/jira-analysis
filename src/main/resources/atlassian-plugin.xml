@@ -25,6 +25,10 @@
         <resource type="download" location="soy/example-dashboard-item.soy" name="soy/example-dashboard-item.soy.js" />
         <resource type="soy" location="/soy/example-dashboard-item.soy" name="Example.Dashboard.Item.Templates.Static" />
 
+        <!-- Suuporter Dashboard Item resources -->
+        <resource type="download" location="soy/supporter-dashboard-item.soy" name="soy/supporter-dashboard-item.soy.js" />
+        <resource type="soy" location="/soy/supporter-dashboard-item.soy" name="Supporter.Dashboard.Item.Templates.Static" />
+
         <!-- Leaderboard Dashboard Item resources -->
         <resource type="download" name="leaderboard-dashboard-item.js" location="/js/leaderboard-dashboard-item.js" />
         <resource type="download" location="soy/leaderboard-dashboard-item.soy" name="soy/leaderboard-dashboard-item.soy.js" />
@@ -64,6 +68,23 @@
         <description key="example.dashboard.item.description" />
         <resource name="view" type="soy" location=":dashboard-plugin-resources/Example.Dashboard.Item.Templates.Static" />
         <context-provider class="org.pit.jira.ExampleDashboardItemContextProvider" />
+    </dashboard-item>
+
+    <!-- Supporter Dashboard Item -->
+    <dashboard-item key="supporter-dashboard-item" i18n-name-key="supporter.dashboard.item.title">
+        <definition>
+            <title key="supporter.dashboard.item.title" />
+            <categories>
+                <category>Jira</category>
+            </categories>
+            <author>
+                <name>Ali Gharaee</name>
+            </author>
+            <thumbnail location="/download/resources/${atlassian.plugin.key}:dashboard-plugin-resources/images/pluginLogo.png" />
+        </definition>
+        <description key="supporter.dashboard.item.description" />
+        <resource name="view" type="soy" location=":dashboard-plugin-resources/Supporter.Dashboard.Item.Templates.Static" />
+        <context-provider class="org.pit.jira.SupporterDashboardItemContextProvider" />
     </dashboard-item>
 
     <!-- Leaderboard Dashboard Item -->
