@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.pit.jira.help.WhoNeedsHelpService;
 import org.pit.jira.model.Developer;
+import org.pit.jira.model.Filter;
 
 import java.net.URI;
 import java.util.*;
@@ -107,6 +108,7 @@ public class WhoNeedsHelpServiceUnitTest {
     @Test
     public void testGetSortedListOfDevelopersWithOpenIssues() throws Exception {
         URI avatarUri = new URI(AVATAR_URL);
+        Filter filter = new Filter();
 
         List<Issue> issueList = new ArrayList<>();
         issueList.add(issue1);
@@ -145,26 +147,26 @@ public class WhoNeedsHelpServiceUnitTest {
         when(avatarService.getAvatarUrlNoPermCheck(applicationUser1, Avatar.Size.SMALL)).thenReturn(avatarUri);
         when(avatarService.getAvatarUrlNoPermCheck(applicationUser2, Avatar.Size.SMALL)).thenReturn(avatarUri);
 
-        List<Developer> developers = service.getSortedListOfDevelopersWithOpenIssues();
+        List<Developer> developers = service.getSortedListOfDevelopersWithOpenIssues(filter);
 
         assertEquals(developers.size(), 2);
 
         assertEquals(NAME_2, developers.get(0).getName());
-        assertEquals(AVATAR_URL, developers.get(0).getAvatarUrl());
-        assertEquals(new Integer(1), developers.get(0).getOpenIssueCount());
-        assertEquals(ESTIMATE_3, developers.get(0).getTotalOpenEstimate());
+        assertEquals(AVATAR_URL, developers.get(0).getAvatar());
+        assertEquals(new Integer(1), developers.get(0).getCount());
+        assertEquals(ESTIMATE_3, developers.get(0).getTotalEstimateSeconds());
 
         assertEquals(NAME_1, developers.get(1).getName());
-        assertEquals(AVATAR_URL, developers.get(1).getAvatarUrl());
-        assertEquals(new Integer(2), developers.get(1).getOpenIssueCount());
-        assertEquals(new Long(ESTIMATE_1 + ESTIMATE_2), developers.get(1).getTotalOpenEstimate());
+        assertEquals(AVATAR_URL, developers.get(1).getAvatar());
+        assertEquals(new Integer(2), developers.get(1).getCount());
+        assertEquals(new Long(ESTIMATE_1 + ESTIMATE_2), developers.get(1).getTotalEstimateSeconds());
 
-        assertEquals(2, developers.get(1).getOpenIssueTypes().size());
-        assertEquals(new Integer(1), developers.get(1).getOpenIssueTypes().get(0).getIssueCount());
-        assertEquals(new Integer(1), developers.get(1).getOpenIssueTypes().get(1).getIssueCount());
-        assertEquals(TYPE_NAME_2, developers.get(1).getOpenIssueTypes().get(0).getCategoryName());
-        assertEquals(ICON_URL, developers.get(1).getOpenIssueTypes().get(0).getIconUrl());
-        assertEquals(TYPE_NAME_1, developers.get(1).getOpenIssueTypes().get(1).getCategoryName());
-        assertEquals(ICON_URL, developers.get(1).getOpenIssueTypes().get(1).getIconUrl());
+        assertEquals(2, developers.get(1).getTypes().size());
+        assertEquals(new Integer(1), developers.get(1).getTypes().get(0).getCount());
+        assertEquals(new Integer(1), developers.get(1).getTypes().get(1).getCount());
+        assertEquals(TYPE_NAME_2, developers.get(1).getTypes().get(0).getName());
+        assertEquals(ICON_URL, developers.get(1).getTypes().get(0).getIconUrl());
+        assertEquals(TYPE_NAME_1, developers.get(1).getTypes().get(1).getName());
+        assertEquals(ICON_URL, developers.get(1).getTypes().get(1).getIconUrl());
     }
 }
