@@ -68,22 +68,20 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     function handleSubmit(self, context) {
         self.API.showLoadingBar();
 
-        requestAccess().done(function (grant) {
+        requestData().done(function (response) {
             self.API.hideLoadingBar();
-
-            if (grant.granted) {
-                // Access to data granted.
-                self.API.showLoadingBar();
-                requestData().done(function (response) {
-                    self.API.hideLoadingBar();
-                    data = analyzeProductivity(response.issues)
-                    loadResults(self, context, data);
-                });
-            } else {
-                // Access to data not granted.
-                var $element = this.$element = $(context).find("#leaderboard-access-dialog");
-                $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'leaderboard' }));
-                AJS.dialog2("#leaderboard-no-access-dialog").show();
+            data = analyzeProductivity(response.issues)
+            loadResults(self, context, data);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            self.API.hideLoadingBar();
+            switch (jqXHR.status) {
+                case 403:
+                    var $element = this.$element = $(context).find("#leaderboard-access-dialog");
+                    $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'leaderboard' }));
+                    AJS.dialog2("#leaderboard-no-access-dialog").show();
+                    break;
+                default:
+                    window.alert(textStatus + ": " + errorThrown);
             }
         });
     }
@@ -114,7 +112,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         return $.ajax({
             method: "GET",
             url: contextPath() + "/rest/jira-analysis-api/1.0/leaderboard/issues",
-            data: "base_url=" + base_url + "&jql_query=" + jql_query,
+            data: "base_url=" + base_url + "&jql_query=" + jql_query + "&owners=" + JSON.stringify($('#user-multiselect').val()),
             contentType: "application/json"
         });
     }
