@@ -76,9 +76,8 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                 self.API.showLoadingBar();
                 requestData().done(function (response) {
                     self.API.hideLoadingBar();
-                    console.log(response);
-                    // data = analyzeProductivity(response)
-                    // loadResults(self, context, data);
+                    data = analyzeProductivity(response.issues)
+                    loadResults(self, context, data);
                 });
             } else {
                 // Access to data not granted.
@@ -99,7 +98,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
             type: "POST",
             url: contextPath() + "/rest/jira-analysis-api/1.0/logging-and-access/query/leaderboard",
             data: JSON.stringify($('#user-multiselect').val()),
-            contentType: "application/json",
+            contentType: "application/json"
         });
     }
 
@@ -107,14 +106,16 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
      * API call requesting all issues with status 'Done' with expanded changelog
      */
     function requestData() {
-        // jql_query = "jql=status%3Ddone";
-        // jql_query += $('#project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
-        // jql_query += $('#type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
-        // jql_query += $('#priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query = "status%3Ddone";
+        jql_query += $('#project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query += $('#type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query += $('#priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        base_url = encodeURIComponent(window.location.protocol + "//" + window.location.host + "/" + window.location.pathname.split('/')[1]);
         return $.ajax({
             method: "GET",
-            // url: contextPath() + "/rest/api/latest/search?" + jql_query + "&expand=changelog"
             url: contextPath() + "/rest/jira-analysis-api/1.0/leaderboard/issues",
+            data: "base_url=" + base_url + "&jql_query=" + jql_query,
+            contentType: "application/json"
         });
     }
 
