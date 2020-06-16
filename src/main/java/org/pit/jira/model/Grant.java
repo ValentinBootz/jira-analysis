@@ -11,27 +11,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
 /**
- * The issue category object.
+ * The grant object.
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@XmlRootElement(name = "issueCategory")
+@XmlRootElement(name = "grant")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class IssueCategory implements Serializable {
-
-    /**
-     * The name of this category (e.g. priority "high").
-     */
-    @XmlElement
-    private String name;
+public class Grant implements Serializable {
 
     @XmlElement
-    private String iconUrl;
-
-    /**
-     * The number of issues that fall into this category.
-     */
-    @XmlElement
-    private Integer count;
+    private Boolean granted;
 }
