@@ -53,7 +53,7 @@
     <rest name="Jira Analysis Rest Resource" key="jira-analysis-rest-resource" path="/jira-analysis-api" version="1.0">
         <description>Jira Analysis Rest Resource Plugin</description>
     </rest>
-    
+
     <!-- Supporter Dashboard Item -->
     <dashboard-item key="supporter-dashboard-item" i18n-name-key="supporter.dashboard.item.title">
         <definition>
