@@ -5,6 +5,7 @@
 */
 {template .Container}
     <div id="leaderboard-filters"/>
+    <div id="leaderboard-access-dialog"/>
     <div id="leaderboard-results"/>
 {/template}
 
@@ -26,7 +27,7 @@
             {call Dashboard.Plugin.Templates.Table}
                 {param type: 'leaderboard' /}
                 {param scope: 'User' /}
-	            {param analysis: 'Completed Issues' /}
+                {param analysis: 'Completed Issues' /}
                 {param content: $users /}
             {/call}
         </div>
@@ -34,7 +35,7 @@
             {call Dashboard.Plugin.Templates.Table}
                 {param type: 'leaderboard' /}
                 {param scope: 'Project' /}
-	            {param analysis: 'Completed Issues' /}
+                {param analysis: 'Completed Issues' /}
                 {param content: $projects /}
             {/call}
         </div>

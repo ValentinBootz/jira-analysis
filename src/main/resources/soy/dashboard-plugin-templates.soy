@@ -1,7 +1,7 @@
 {namespace Dashboard.Plugin.Templates}
 
 /**
-* Issue filter template
+* Issue filter template.
 *
 * @param type the type of the dashboard item
 * @param projects all the available project names
@@ -53,7 +53,7 @@
 {/template}
 
 /**
-* Analysis table template
+* Analysis table template.
 *
 * @param type the type of the dashboard item
 * @param scope entity your table displays (e.g. "User" or "Project")
@@ -72,7 +72,7 @@
             </tr>
         </thead>
         <tbody>
-        {foreach $entity in $content}
+            {foreach $entity in $content}
             <tr>
                 <td headers="name">
                     <span class="container">
@@ -88,23 +88,45 @@
                 <td headers="estimate">{$entity.estimate}</td>
                 <td headers="types">
                     <span class="container">
-                    {foreach $type in $entity.types}
-                        <aui-badge class="aui-badge">{$type.count}</aui-badge>
-                        <img class="type-icon" alt="" height="16" src={$type.iconUrl} title={$type.name} width="16">                            
-                    {/foreach}
+                        {foreach $type in $entity.types}
+                            <aui-badge class="aui-badge">{$type.count}</aui-badge>
+                        <img class="type-icon" alt="" height="16" src={$type.iconUrl} title={$type.name} width="16">
+                        {/foreach}
                     </span>
-                </td>                          
+                </td>
                 <td headers="priorities">
                     <span class="container">
-                    {foreach $priority in $entity.priorities}
-                        <aui-badge class="aui-badge">{$priority.count}</aui-badge>
-                        <img class="priority-icon" alt="" height="16" src={$priority.iconUrl} title={$priority.name} width="16">                       
-                    {/foreach}
+                        {foreach $priority in $entity.priorities}
+                            <aui-badge class="aui-badge">{$priority.count}</aui-badge>
+                        <img class="priority-icon" alt="" height="16" src={$priority.iconUrl} title={$priority.name}
+                             width="16">
+                        {/foreach}
                     </span>
-                </td>                      
+                </td>
             </tr>
-        {/foreach}
+            {/foreach}
         </tbody>
     </table>
+{/template}
+
+/**
+ * Data access not granted dialog template.
+ *
+ * @param type the type of the dashboard item
+ */
+{template .AccessDialog}
+    <section id="{$type}-no-access-dialog" class="aui-dialog2 aui-dialog2-medium aui-dialog2-warning aui-layer"
+             role="dialog" aria-hidden="true">
+        <header class="aui-dialog2-header">
+            <h2 class="aui-dialog2-header-main">No access granted</h2>
+            <a class="aui-dialog2-header-close">
+                <span class="aui-icon aui-icon-small aui-iconfont-close-dialog">Close</span>
+            </a>
+        </header>
+        <div class="aui-dialog2-content">
+            <p>Access to the requested data has not been granted. Please try to apply a filter to reduce the amount of
+                requested data.</p>
+        </div>
+    </section>
 {/template}
 
