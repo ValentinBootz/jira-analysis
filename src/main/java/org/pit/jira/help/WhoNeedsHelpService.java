@@ -24,6 +24,8 @@ import org.pit.jira.model.IssueCategory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -103,7 +105,7 @@ public class WhoNeedsHelpService {
      * @return a list of open assigned issues
      */
     private List<Issue> searchOpenAssignedIssues(Filter filter) {
-        List<Issue> issues = new ArrayList<>();
+        List<Issue> issues;
 
         // Construct the JQL query.
         JqlQueryBuilder queryBuilder = JqlQueryBuilder.newBuilder();
@@ -120,6 +122,7 @@ public class WhoNeedsHelpService {
             issues = result.getIssues();
         } catch (SearchException e) {
             log.error("Failed to search for open assigned issues", e);
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
 
         return issues;

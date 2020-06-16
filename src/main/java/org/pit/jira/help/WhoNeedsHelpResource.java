@@ -1,8 +1,11 @@
 package org.pit.jira.help;
 
 import lombok.extern.slf4j.Slf4j;
+import org.pit.jira.access.ItemType;
+import org.pit.jira.access.LoggingAndAccessService;
 import org.pit.jira.model.Developer;
 import org.pit.jira.model.Filter;
+import org.pit.jira.model.Grant;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -19,9 +22,12 @@ public class WhoNeedsHelpResource {
 
     private final WhoNeedsHelpService whoNeedsHelpService;
 
+    private final LoggingAndAccessService loggingAndAccessService;
+
     @Inject
-    public WhoNeedsHelpResource(WhoNeedsHelpService whoNeedsHelpService) {
+    public WhoNeedsHelpResource(WhoNeedsHelpService whoNeedsHelpService, LoggingAndAccessService loggingAndAccessService) {
         this.whoNeedsHelpService = whoNeedsHelpService;
+        this.loggingAndAccessService = loggingAndAccessService;
     }
 
     /**
@@ -35,12 +41,25 @@ public class WhoNeedsHelpResource {
     @Consumes({MediaType.APPLICATION_JSON})
     @Path("/issues")
     public Response getDevelopersWithOpenIssues(Filter filter) {
-        log.info("Requesting developers with open issues.");
+        try {
+            Grant grant = loggingAndAccessService.requestQueryAccess(ItemType.HELP.getItemType(), filter.getUsers());
 
-        List<Developer> developers = whoNeedsHelpService.getSortedListOfDevelopersWithOpenIssues(filter);
+            if (grant.getGranted()) {
+                // Access granted.
+                log.info("Item " + ItemType.HELP.getItemType() + " requesting developers with open issues.");
 
-        log.info("Received " + developers.size() + " developers with open issues.");
+                List<Developer> developers = whoNeedsHelpService.getSortedListOfDevelopersWithOpenIssues(filter);
 
-        return Response.ok(developers).build();
+                log.info("Item " + ItemType.HELP.getItemType() + " received " + developers.size() + " developers with open issues.");
+
+                return Response.ok(developers).build();
+            } else {
+                // Access not granted.
+                log.info("Access to developers with open issues not granted for " + ItemType.HELP.getItemType() + " item.");
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+        } catch (WebApplicationException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        }
     }
 }
