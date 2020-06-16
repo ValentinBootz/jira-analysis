@@ -109,7 +109,7 @@ public class LoggingAndAccessService {
             }
         } catch (IOException e) {
             log.error("Failed to execute HTTP POST request.", e);
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -130,7 +130,7 @@ public class LoggingAndAccessService {
             return httpPost;
         } catch (UnsupportedEncodingException e) {
             log.error("Failed to construct HTTP POST request.", e);
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
