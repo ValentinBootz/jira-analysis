@@ -67,10 +67,9 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
      */
     function handleSubmit(self, context) {
         self.API.showLoadingBar();
-
         requestData().done(function (response) {
             self.API.hideLoadingBar();
-            data = analyzeProductivity(response.issues)
+            data = analyzeProductivity(response)
             loadResults(self, context, data);
         }).fail(function (jqXHR, textStatus, errorThrown) {
             self.API.hideLoadingBar();
@@ -87,20 +86,6 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     }
 
     /**
-     * Requests access from the Logging and Access API.
-     *
-     * @returns {*} a grant with granted true or granted false
-     */
-    function requestAccess() {
-        return $.ajax({
-            type: "POST",
-            url: contextPath() + "/rest/jira-analysis-api/1.0/logging-and-access/query/leaderboard",
-            data: JSON.stringify($('#user-multiselect').val()),
-            contentType: "application/json"
-        });
-    }
-
-    /**
      * API call requesting all issues with status 'Done' with expanded changelog
      */
     function requestData() {
@@ -112,7 +97,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         return $.ajax({
             method: "GET",
             url: contextPath() + "/rest/jira-analysis-api/1.0/leaderboard/issues",
-            data: "base_url=" + base_url + "&jql_query=" + jql_query + "&owners=" + JSON.stringify($('#user-multiselect').val()),
+            data: "base_url=" + base_url + "&jql_query=" + jql_query + "&users=" + JSON.stringify($('#user-multiselect option:selected').text()),
             contentType: "application/json"
         });
     }
@@ -126,10 +111,8 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         data = { users: [], projects: [] };
         issues.forEach(issue => {
             details = getDetails(issue);
-            if ($('#user-multiselect').val() ? $('#user-multiselect').val().includes(details.developer.name) : false) {
-                updateUsers(data.users, details);
-                updateProjects(data.projects, details);
-            }
+            updateUsers(data.users, details);
+            updateProjects(data.projects, details);
         });
         [data.users, data.projects].forEach(function (list) {
             list.forEach(element => element.estimate = formatEstimate(element.estimate));

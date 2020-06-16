@@ -30,13 +30,13 @@ public class LeaderboardResource {
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes({MediaType.APPLICATION_JSON})
     @Path("/issues")
-    public Response getIssues(@CookieParam("JSESSIONID") Cookie cookie, @QueryParam("base_url") String base_url, @QueryParam("jql_query") String jql_query, @QueryParam("owners") List<String> owners) {
+    public Response getIssues(@CookieParam("JSESSIONID") Cookie cookie, @QueryParam("base_url") String base_url, @QueryParam("jql_query") String jql_query, @QueryParam("users") List<String> users) {
 
-        Grant grant = loggingAndAccessService.requestQueryAccess("leaderboard", owners);
+        Grant grant = loggingAndAccessService.requestQueryAccess("leaderboard", users);
         
-        if(grant.granted) {
+        if(grant.getGranted()) {
             try {
-                return Response.status(Status.OK).entity(leaderboardService.getIssues(cookie.getValue(), base_url, jql_query)).build();
+                return Response.status(Status.OK).entity(leaderboardService.getIssues(cookie.getValue(), base_url, jql_query, users)).build();
             } catch (Exception e) {
                 return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build(); 
             }
