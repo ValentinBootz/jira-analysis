@@ -80,7 +80,7 @@ public class LeaderboardService {
         }
         if(last.has("author")){
             JSONObject author = last.getJSONObject("author");
-            return "\"" + author.getString("name") + "\"";
+            return "[\"" + author.getString("name") + "\"]";
         } else {
             return null;
         }

@@ -11,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.inject.Inject;
+import java.util.Arrays;
 
 import org.pit.jira.access.LoggingAndAccessService;
 import org.pit.jira.model.Grant;
