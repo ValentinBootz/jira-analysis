@@ -41,8 +41,8 @@ public class LeaderboardService {
 
         HttpResponse HttpResponse = client.execute(request);
 
-        log.info("Received HTTP status: " + response.getStatusLine().getStatusCode()
-        + " (" + response.getStatusLine().getReasonPhrase() + ")");
+        log.info("Received HTTP status: " + HttpResponse.getStatusLine().getStatusCode()
+        + " (" + HttpResponse.getStatusLine().getReasonPhrase() + ")");
 
         JSONObject response = new JSONObject(EntityUtils.toString(HttpResponse.getEntity()));
 
