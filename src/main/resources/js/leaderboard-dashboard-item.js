@@ -90,14 +90,14 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
      */
     function requestData() {
         jql_query = "status%3Ddone";
-        jql_query += $('#project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
-        jql_query += $('#type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
-        jql_query += $('#priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query += $('#leaderboard-project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query += $('#leaderboard-type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query += $('#leaderboard-priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
         base_url = encodeURIComponent(window.location.protocol + "//" + window.location.host + "/" + window.location.pathname.split('/')[1]);
         return $.ajax({
             method: "GET",
             url: contextPath() + "/rest/jira-analysis-api/1.0/leaderboard/issues",
-            data: "base_url=" + base_url + "&jql_query=" + jql_query + "&users=" + JSON.stringify($('#user-multiselect').val()).replace(/[\[\]"]+/g,""),
+            data: "base_url=" + base_url + "&jql_query=" + jql_query + "&users=" + JSON.stringify($('#leaderboard-user-multiselect').val()).replace(/[\[\]"]+/g,""),
             contentType: "application/json"
         });
     }
