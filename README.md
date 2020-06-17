@@ -61,6 +61,19 @@ The documentation for all implemented Dashboard Items can be found in [Confluenc
  2. At the top left of the page, click `Dashboard > Manage dashboards`
  3. Create or open a dashboard and click `Add gadget` button
  4. Select and add your dashboard item
+ 
+## Packaging and deployment
+
+Use the command `atlas-package` to package a version of the plugin for deployment. It produces a `jar` file in the
+`target` directory of the project (e.g. `dashboard-plugin-1.0.0-SNAPSHOT.jar`).
+[More information](https://developer.atlassian.com/server/framework/atlassian-sdk/atlas-package/#basic-usage) about packaging.
+
+To upload the packaged plugin to Jira, follow these steps:
+ 1. Navigate to `Administration > Add-ons > Upload add-on`
+ 2. In the following dialog enter the location of the packaged `jar` file
+ 3. Click `Upload` and wait for the confirmation
+ 
+[More information](https://confluence.atlassian.com/upm/installing-add-ons-273875715.html) about deployment.
 
 ## Developers
 
