@@ -183,7 +183,14 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         var $element = this.$element = $(context).find("#leaderboard-results");
         $element.empty().html(Leaderboard.Dashboard.Item.Templates.Results({ users: data.users, projects: data.projects }));
         AJS.tabs.setup();
+                
+        // Resize on tabSelect
+        $(context).on("tabSelect", "#leaderboard-tabs", function () {
+            self.API.resize();
+        });
+        
         self.API.resize();
+
     }
 
     /**
