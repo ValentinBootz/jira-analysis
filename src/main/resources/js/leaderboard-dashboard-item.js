@@ -62,38 +62,21 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
      */
     function handleSubmit(self, context) {
         self.API.showLoadingBar();
-
-        requestAccess().done(function (grant) {
+        requestData().done(function (response) {
             self.API.hideLoadingBar();
-
-            if (grant.granted) {
-                // Access to data granted.
-                self.API.showLoadingBar();
-                requestData().done(function (response) {
-                    self.API.hideLoadingBar();
-                    data = analyzeProductivity(response.issues)
-                    loadResults(self, context, data);
-                });
-            } else {
-                // Access to data not granted.
-                var $element = this.$element = $(context).find("#leaderboard-access-dialog");
-                $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'leaderboard' }));
-                AJS.dialog2("#leaderboard-no-access-dialog").show();
+            data = analyzeProductivity(response)
+            loadResults(self, context, data);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            self.API.hideLoadingBar();
+            switch (jqXHR.status) {
+                case 403:
+                    var $element = this.$element = $(context).find("#leaderboard-access-dialog");
+                    $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'leaderboard' }));
+                    AJS.dialog2("#leaderboard-no-access-dialog").show();
+                    break;
+                default:
+                    window.alert(textStatus + ": " + errorThrown);
             }
-        });
-    }
-
-    /**
-     * Requests access from the Logging and Access API.
-     *
-     * @returns {*} a grant with granted true or granted false
-     */
-    function requestAccess() {
-        return $.ajax({
-            type: "POST",
-            url: contextPath() + "/rest/jira-analysis-api/1.0/logging-and-access/query/leaderboard",
-            data: JSON.stringify($('#user-multiselect').val()),
-            contentType: "application/json",
         });
     }
 
@@ -101,14 +84,16 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
      * API call requesting all issues with status 'Done' with expanded changelog
      */
     function requestData() {
-       // jql_query = "jql=status%3Ddone";
-       // jql_query += $('#leaderboard-project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#leaderboard-project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
-       // jql_query += $('#leaderboard-type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#leaderboard-type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
-       // jql_query += $('#leaderboard-priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#leaderboard-priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query = "status%3Ddone";
+        jql_query += $('#leaderboard-project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#leaderboard-project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query += $('#leaderboard-type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#leaderboard-type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query += $('#leaderboard-priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#leaderboard-priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        base_url = encodeURIComponent(window.location.protocol + "//" + window.location.host + "/" + window.location.pathname.split('/')[1]);
         return $.ajax({
             method: "GET",
-            // url: contextPath() + "/rest/api/latest/search?" + jql_query + "&expand=changelog"
             url: contextPath() + "/rest/jira-analysis-api/1.0/leaderboard/issues",
+            data: "base_url=" + base_url + "&jql_query=" + jql_query + "&users=" + JSON.stringify($('#leaderboard-user-multiselect').val()).replace(/[\[\]"]+/g,""),
+            contentType: "application/json"
         });
     }
 
@@ -121,10 +106,8 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         data = { users: [], projects: [] };
         issues.forEach(issue => {
             details = getDetails(issue);
-            if ($('#leaderboard-user-multiselect').val() ? $('#leaderboard-user-multiselect').val().includes(details.developer.name) : false) {
-                updateUsers(data.users, details);
-                updateProjects(data.projects, details);
-            }
+            updateUsers(data.users, details);
+            updateProjects(data.projects, details);
         });
         [data.users, data.projects].forEach(function (list) {
             list.forEach(element => element.estimate = formatEstimate(element.estimate));
