@@ -51,6 +51,20 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
             initializeTemplates();
             handleSubmit(self, context)
         });
+
+        // Enable search once user is selected
+        $(context).on("change", "#leaderboard-user-multiselect", function () {
+            $("#leaderboard-filter").removeAttr("disabled");
+        });
+
+        // Toggle event handler
+        $(context).on("change", "#leaderboard-filter-toggle", function () {
+            $('#leaderboard-type-multiselect').children().removeProp('selected');
+            $('#leaderboard-priority-multiselect').children().removeProp('selected');
+            $("#leaderboard-optional-filter").toggle();
+            self.API.resize();
+        });
+
         self.API.resize();
     }
 
@@ -92,7 +106,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         return $.ajax({
             method: "GET",
             url: contextPath() + "/rest/jira-analysis-api/1.0/leaderboard/issues",
-            data: "base_url=" + base_url + "&jql_query=" + jql_query + "&users=" + JSON.stringify($('#leaderboard-user-multiselect').val()).replace(/[\[\]"]+/g,""),
+            data: "base_url=" + base_url + "&jql_query=" + jql_query + "&users=" + JSON.stringify($('#leaderboard-user-multiselect').val()).replace(/[\[\]"]+/g, ""),
             contentType: "application/json"
         });
     }

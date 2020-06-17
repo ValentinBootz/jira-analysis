@@ -11,7 +11,15 @@
 */
 {template .Filters}
     <form class="aui" id="{$type}-filter-form">
-        <h3>Filter Issues</h3>
+        <h3>Search Issues</h3>
+        <div class="field-group">
+            <label for="multiselect">Users<span class="aui-icon icon-required">required</span></label>
+            <select class="multi-select" size="4" multiple="multiple" id="{$type}-user-multiselect" name="user-multiselect">
+            {foreach $user in $users}
+                <option>{$user.name}</option>
+            {/foreach}
+            </select>
+        </div>
         <div class="field-group">
             <label for="multiselect">Projects</label>
             <select class="multi-select" size="4" multiple="multiple" id="{$type}-project-multiselect" name="project-multiselect">
@@ -21,32 +29,34 @@
             </select>
         </div>
         <div class="field-group">
-            <label for="multiselect">Users</label>
-            <select class="multi-select" size="4" multiple="multiple" id="{$type}-user-multiselect" name="user-multiselect">
-            {foreach $user in $users}
-                <option>{$user.name}</option>
-            {/foreach}
-            </select>
+            <label for="filter-toggle">Apply filter</label>
+            <aui-toggle id="{$type}-filter-toggle" label="Apply filter"></aui-toggle>
+            <a data-aui-trigger href="#" aria-controls="{$type}-inline-dialog">
+                <span class="aui-icon icon-inline-help">Help</span>
+            </a>
+            <aui-inline-dialog id="{$type}-inline-dialog" alignment="bottom left">Select issue types and priorities</aui-inline-dialog>
         </div>
-        <div class="field-group">
-            <label for="multiselect">Types</label>
-            <select class="multi-select" size="4" multiple="multiple" id="{$type}-type-multiselect" name="type-multiselect">
-            {foreach $type in $types}
-                <option>{$type.name}</option>
-            {/foreach}
-            </select>
-        </div>
-        <div class="field-group">
-            <label for="multiselect">Priorities</label>
-            <select class="multi-select" size="4" multiple="multiple" id="{$type}-priority-multiselect" name="priority-multiselect">
-            {foreach $priority in $priorities}
-                <option>{$priority.name}</option>
-            {/foreach}
-            </select>
+        <div class="optional-filter" id="{$type}-optional-filter">
+            <div class="field-group">
+                <label for="multiselect">Types</label>
+                <select class="multi-select" size="4" multiple="multiple" id="{$type}-type-multiselect" name="type-multiselect">
+                {foreach $type in $types}
+                    <option>{$type.name}</option>
+                {/foreach}
+                </select>
+            </div>
+            <div class="field-group">
+               <label for="multiselect">Priorities</label>
+                <select class="multi-select" size="4" multiple="multiple" id="{$type}-priority-multiselect" name="priority-multiselect">
+                {foreach $priority in $priorities}
+                    <option>{$priority.name}</option>
+                {/foreach}
+                </select>
+            </div>
         </div>
         <div class="buttons-container">
             <div class="buttons">
-                <input class="aui-button aui-button-primary" type="submit" value="Filter" id="{$type}-filter">
+                <input class="aui-button aui-button-primary" type="submit" value="Search" id="{$type}-filter" disabled>
             </div>
         </div>
     </form>
@@ -71,6 +81,9 @@
                 <th class='table-header' id="{$type}-priorities">Priorities</th>
             </tr>
         </thead>
+        {if length($content) == 0}
+            <td class="no-wrap">No results</td>
+        {else} 
         <tbody>
             {foreach $entity in $content}
             <tr>
@@ -106,6 +119,7 @@
             </tr>
             {/foreach}
         </tbody>
+                {/if}
     </table>
 {/template}
 

@@ -46,6 +46,19 @@ define('jira-dashboard-items/who-needs-help', ['underscore', 'jquery', 'wrm/cont
             handleSubmit(self, context);
         });
 
+        // Enable search once user is selected
+        $(context).on("change", "#help-user-multiselect", function () {
+            $("#help-filter").removeAttr("disabled");
+        });
+
+        // Toggle event handler
+        $(context).on("change", "#help-filter-toggle", function () {
+            $('#help-type-multiselect').children().removeProp('selected');
+            $('#help-priority-multiselect').children().removeProp('selected');
+            $("#help-optional-filter").toggle();
+            self.API.resize();
+        });
+
         self.API.resize();
     }
 
