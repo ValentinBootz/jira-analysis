@@ -43,15 +43,10 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
      * @param data
      */
     function loadFilters(self, context, data) {
-        var $element = this.$element = $(context).find("#filters");
+        var $element = this.$element = $(context).find("#leaderboard-filters");
         [projects, users, types, priorities] = data;
-        $element.empty().html(Dashboard.Plugin.Templates.Filters({
-            projects: projects,
-            users: users,
-            types: types,
-            priorities: priorities
-        }));
-        $element.find("#filter-form").on('submit', function (event) {
+        $element.empty().html(Dashboard.Plugin.Templates.Filters({ type: 'leaderboard', projects: projects, users: users, types: types, priorities: priorities }));
+        $element.find("#leaderboard-filter-form").on('submit', function (event) {
             event.preventDefault();
             initializeTemplates();
             handleSubmit(self, context)
@@ -171,11 +166,8 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
      * @param data
      */
     function loadResults(self, context, data) {
-        var $element = this.$element = $(context).find("#results");
-        $element.empty().html(Leaderboard.Dashboard.Item.Templates.Results({
-            users: data.users,
-            projects: data.projects
-        }));
+        var $element = this.$element = $(context).find("#leaderboard-results");
+        $element.empty().html(Leaderboard.Dashboard.Item.Templates.Results({ users: data.users, projects: data.projects }));
         AJS.tabs.setup();
         self.API.resize();
     }

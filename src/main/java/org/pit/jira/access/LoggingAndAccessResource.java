@@ -35,12 +35,16 @@ public class LoggingAndAccessResource {
     @Consumes({MediaType.APPLICATION_JSON})
     @Path("/query/{itemType}")
     public Response requestQueryAccess(@PathParam("itemType") String itemType, List<String> ownerUsernames) {
-        log.info("Requesting query access for " + itemType + " item.");
+        try {
+            log.info("Requesting query access for " + itemType + " item.");
 
-        Grant grant = loggingAndAccessService.requestQueryAccess(itemType, ownerUsernames);
+            Grant grant = loggingAndAccessService.requestQueryAccess(itemType, ownerUsernames);
 
-        log.info("Received granted \"" + grant.getGranted() + "\" for the " + itemType + " item.");
+            log.info("Received granted \"" + grant.getGranted() + "\" for the " + itemType + " item.");
 
-        return Response.ok(grant).build();
+            return Response.ok(grant).build();
+        } catch (WebApplicationException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        }
     }
 }
