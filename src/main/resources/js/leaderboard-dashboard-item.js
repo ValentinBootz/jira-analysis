@@ -97,7 +97,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         return $.ajax({
             method: "GET",
             url: contextPath() + "/rest/jira-analysis-api/1.0/leaderboard/issues",
-            data: "base_url=" + base_url + "&jql_query=" + jql_query + "&users=" + JSON.stringify($('#user-multiselect').val()),
+            data: "base_url=" + base_url + "&jql_query=" + jql_query + "&users=" + JSON.stringify($('#user-multiselect').val()).replace(/[\[\]"]+/g,""),
             contentType: "application/json"
         });
     }
