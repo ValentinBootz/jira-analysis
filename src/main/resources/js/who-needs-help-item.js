@@ -70,6 +70,19 @@ define('jira-dashboard-items/who-needs-help', ['underscore', 'jquery', 'wrm/cont
             }
 
             self.API.resize();
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            self.API.hideLoadingBar();
+            switch (jqXHR.status) {
+                case 403:
+                    // Display access not granted dialog.
+                    var $element = this.$element = $(context).find("#help-access-dialog");
+                    $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'help' }));
+                    AJS.dialog2("#help-no-access-dialog").show();
+                    break;
+                default:
+                    // Handle other errors.
+                    window.alert(textStatus + ": " + errorThrown);
+            }
         });
     }
 
