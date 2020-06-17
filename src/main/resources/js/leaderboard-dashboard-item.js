@@ -54,7 +54,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
 
         // Enable search once user is selected
         $(context).on("change", "#leaderboard-user-multiselect", function () {
-            $("#leaderboard-filter").removeAttr("disabled");
+            $("#leaderboard-filter").prop('disabled', $("#leaderboard-user-multiselect").val() == null);
         });
 
         // Toggle event handler
