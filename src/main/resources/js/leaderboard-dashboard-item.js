@@ -21,7 +21,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     };
 
     /**
-     * API calls requesting lists of projects, users, issue types and priorities
+     * API calls requesting lists of projects, users, issue types and priorities.
      */
     DashboardItem.prototype.requestMetadata = [
         "/rest/api/latest/project",
@@ -36,7 +36,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     });
 
     /**
-     * Loads filter content dynamically and sets up event handler
+     * Loads filter content dynamically and sets up event handler.
      *
      * @param self
      * @param context
@@ -45,12 +45,32 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     function loadFilters(self, context, data) {
         var $element = this.$element = $(context).find("#leaderboard-filters");
         [projects, users, types, priorities] = data;
-        $element.empty().html(Dashboard.Plugin.Templates.Filters({ type: 'leaderboard', projects: projects, users: users, types: types, priorities: priorities }));
+        $element.empty().html(Dashboard.Plugin.Templates.Filters({
+            type: 'leaderboard',
+            projects: projects,
+            users: users,
+            types: types,
+            priorities: priorities,
+        }));
         $element.find("#leaderboard-filter-form").on('submit', function (event) {
             event.preventDefault();
             initializeTemplates();
             handleSubmit(self, context)
         });
+
+        // Enable search once user is selected
+        $(context).on("change", "#leaderboard-user-multiselect", function () {
+            $("#leaderboard-filter").prop('disabled', $("#leaderboard-user-multiselect").val() == null);
+        });
+
+        // Toggle event handler
+        $(context).on("change", "#leaderboard-filter-toggle", function () {
+            $('#leaderboard-type-multiselect').children().removeProp('selected');
+            $('#leaderboard-priority-multiselect').children().removeProp('selected');
+            $("#leaderboard-optional-filter").toggle();
+            self.API.resize();
+        });
+
         self.API.resize();
     }
 
@@ -81,7 +101,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     }
 
     /**
-     * API call requesting all issues with status 'Done' with expanded changelog
+     * API call requesting all issues with status 'Done' with expanded changelog.
      */
     function requestData() {
         jql_query = "status%3Ddone";
@@ -92,13 +112,13 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         return $.ajax({
             method: "GET",
             url: contextPath() + "/rest/jira-analysis-api/1.0/leaderboard/issues",
-            data: "base_url=" + base_url + "&jql_query=" + jql_query + "&users=" + JSON.stringify($('#leaderboard-user-multiselect').val()).replace(/[\[\]"]+/g,""),
+            data: "base_url=" + base_url + "&jql_query=" + jql_query + "&users=" + JSON.stringify($('#leaderboard-user-multiselect').val()).replace(/[\[\]"]+/g, ""),
             contentType: "application/json"
         });
     }
 
     /**
-     * Analyze productivity for users/projects
+     * Analyze productivity for users/projects.
      *
      * @param issues
      */
@@ -123,13 +143,13 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     }
 
     /**
-     * Update users in productivity data
+     * Update users in productivity data.
      *
      * @param users
      * @param details
      */
     function updateUsers(users, details) {
-        user = users.find(element => element.name == details.developer.name);
+        user = users.find(element => element.name === details.developer.name);
         if (user === undefined) {
             user = new Entity(details.developer);
             users.push(user);
@@ -137,18 +157,18 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
 
         user.count++;
         user.estimate += details.estimate;
-        user.priorities.find(element => element.name == details.priority.name).count++;
-        user.types.find(element => element.name == details.type.name).count++;
+        user.priorities.find(element => element.name === details.priority.name).count++;
+        user.types.find(element => element.name === details.type.name).count++;
     }
 
     /**
-     * Update projects in productivity data
+     * Update projects in productivity data.
      *
      * @param projects
      * @param details
      */
     function updateProjects(projects, details) {
-        project = projects.find(element => element.name == details.project.name);
+        project = projects.find(element => element.name === details.project.name);
         if (project === undefined) {
             project = new Entity(details.project);
             projects.push(project);
@@ -156,24 +176,34 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
 
         project.count++;
         project.estimate += details.estimate;
-        project.priorities.find(element => element.name == details.priority.name).count++;
-        project.types.find(element => element.name == details.type.name).count++;
+        project.priorities.find(element => element.name === details.priority.name).count++;
+        project.types.find(element => element.name === details.type.name).count++;
     }
 
     /**
-     * Dynamically loads productivity data in results template
+     * Dynamically loads productivity data in results template.
      *
      * @param data
      */
     function loadResults(self, context, data) {
         var $element = this.$element = $(context).find("#leaderboard-results");
-        $element.empty().html(Leaderboard.Dashboard.Item.Templates.Results({ users: data.users, projects: data.projects }));
+        $element.empty().html(Leaderboard.Dashboard.Item.Templates.Results({
+            users: data.users,
+            projects: data.projects,
+        }));
         AJS.tabs.setup();
+
+        // Resize on tabSelect
+        $(context).on("tabSelect", "#leaderboard-tabs", function () {
+            self.API.resize();
+        });
+
         self.API.resize();
+
     }
 
     /**
-     *  Class for leaderboard entities
+     *  Class for leaderboard entities.
      */
     class Entity {
         constructor(entity) {
@@ -187,7 +217,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     }
 
     /**
-     * Initialize types/priorities templates
+     * Initialize types/priorities templates.
      */
     function initializeTemplates() {
         prioritiesTemplate = [];
@@ -201,9 +231,9 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     }
 
     /**
-     * Formats time estimation (e.g. 1w 2d 5h 30m) to display readable format with standard workings days/weeks, hours and minutes
+     * Formats time estimation (e.g. 1w 2d 5h 30m) to display readable format with standard workings days/weeks, hours and minutes.
      *
-     * @param seconds
+     * @param timeoriginalestimate the original time estimate
      */
     function formatEstimate(timeoriginalestimate) {
         var res = "";
@@ -226,7 +256,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
             remaining -= hours * 3600;
         }
 
-        if (remaining >= 60 || res == undefined) {
+        if (remaining >= 60 || res === undefined) {
             var minutes = Math.floor(remaining / 60);
             res += " " + minutes + "m";
         }
@@ -235,14 +265,14 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     }
 
     /**
-     * Retrieves issue details
+     * Retrieves issue details.
      *
      * @param issue
      */
     function getDetails(issue) {
         return {
             project: getProject(issue),
-            developer: getDeveloper(issue),
+            developer: issue.developer,
             estimate: getEstimatedTime(issue),
             type: getType(issue),
             priority: getPriority(issue)
@@ -250,21 +280,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     }
 
     /**
-     * Gets developer from issue. Credited is author who last changed status to 'In Progress'
-     *
-     * @param issue
-     */
-    function getDeveloper(issue) {
-        entry = issue.changelog.histories.filter(
-            function (histories) {
-                return histories.items[0].toString == 'In Progress'
-            }
-        ).slice(-1)[0];
-        return entry ? entry.author : undefined;
-    }
-
-    /**
-     * Gets project from issue
+     * Gets project from issue.
      *
      * @param issue
      */
@@ -273,7 +289,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     }
 
     /**
-     * Gets estimated time from issue
+     * Gets estimated time from issue.
      *
      * @param issue
      * @returns time estimate in s or 0 if not specified
@@ -283,7 +299,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     }
 
     /**
-     * Gets prioritiy from issue
+     * Gets prioritiy from issue.
      *
      * @param issue
      */
@@ -292,7 +308,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     }
 
     /**
-     * Gets issue type from issue
+     * Gets issue type from issue.
      *
      * @param issue
      */

@@ -15,7 +15,9 @@ import javax.inject.Inject;
 import org.pit.jira.access.LoggingAndAccessService;
 import org.pit.jira.model.Grant;
 import org.pit.jira.access.ItemType;
+
 import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -35,21 +37,24 @@ public class LeaderboardResource {
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes({MediaType.APPLICATION_JSON})
     @Path("/issues")
-    public Response getCompletedIssues(@CookieParam("JSESSIONID") Cookie cookie, @QueryParam("base_url") String base_url, @QueryParam("jql_query") String jql_query, @QueryParam("users") List<String> users) {
-
+    public Response getCompletedIssues(@CookieParam("JSESSIONID") Cookie cookie,
+                                       @QueryParam("base_url") String base_url,
+                                       @QueryParam("jql_query") String jql_query,
+                                       @QueryParam("users") List<String> users) {
         try {
             log.info("Requesting query access for " + ItemType.LEADERBOARD.getItemType() + " item.");
             Grant grant = loggingAndAccessService.requestQueryAccess(ItemType.LEADERBOARD.getItemType(), users);
-            if(grant.getGranted()) {
-                    log.info("Access to issues granted for " + ItemType.LEADERBOARD.getItemType() + " item.");
-                    return Response.status(Status.OK).entity(leaderboardService.getCompletedIssues(cookie.getValue(), base_url, jql_query, users)).build();
+
+            if (grant.getGranted()) {
+                log.info("Access to issues granted for " + ItemType.LEADERBOARD.getItemType() + " item.");
+                return Response.status(Status.OK).entity(leaderboardService.getCompletedIssues(cookie.getValue(), base_url, jql_query, users)).build();
             } else {
                 log.info("Access to issues not granted for " + ItemType.LEADERBOARD.getItemType() + " item.");
-                return Response.status(Status.FORBIDDEN).build(); 
+                return Response.status(Status.FORBIDDEN).build();
             }
         } catch (Exception e) {
             log.error("Internal server error during data retrieval.", e);
-            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build(); 
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
     }
 }
