@@ -6,6 +6,7 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
         this.searchword = "";
     };
     
+    
     /**
      Called to render the view for a fully configured dashboard item.
      */
@@ -26,39 +27,16 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                 self.API.hideLoadingBar();
                 self.issues = data.issues;
                 
-                var expertNames = [];
-                self.issues.forEach(issue => {
-                    var developer = getDeveloper(issue.changelog);
-                    //... find the developers name, ...
-                    name = developer ? developer.name : "Unspecified"
-                    var index = expertNames.findIndex(element => element == name);
-                    if (index == -1) {
-                        expertNames.push(name);
-                    }
-                });
+                var expertNames = getDeveloperNames(self.issues);
+                
+                self.API.showLoadingBar();
                 
                 //Request Access to the data
                 requestAccess(expertNames).done(function (grant) {
                     // Access to data granted.
                     if (grant.granted) {
-                        //Get issue data and set up expert search table
-                        self.requestData().done(function (data) {
-                            self.API.hideLoadingBar();
-                            self.issues = data.issues;
-                            
-                            //If there are no expert issues found, give out a warning
-                            if(self.issues === undefined || self.issues.length  === 0){
-                                var $element = this.$element = $(context).find("#expert-search-table");
-                                $element.empty().html(Expert.Dashboard.Item.Templates.NoExperts());
-                            }
-                            //Only use expert-search if there are "done" issues
-                            else{
-                                setUpExpertTable(self.API, context, self.issues);
-                            }
-                            
-                            //Resize the window
-                            self.API.resize();
-                        });
+                        //Request expert data and create an expert table
+                        getDataAndCreateTable(self, context);
                     }
                     // Access to data not granted.
                     else {
@@ -79,11 +57,55 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
     
     
     /**
-     Set up and create an expert table
+     Get the names of all the developers in the issues
      */
-    function setUpExpertTable(API, context, expertIssues){
+    function getDeveloperNames(issues){
+        var developerNames = [];
+        issues.forEach(issue => {
+            var developer = getDeveloper(issue.changelog);
+            //... find the developers name, ...
+            name = developer ? developer.name : "Unspecified"
+            var index = developerNames.findIndex(element => element == name);
+            if (index == -1) {
+                developerNames.push(name);
+            }
+        });
+        
+        return developerNames;
+    }
+    
+    
+    /**
+     Request the expert issues (data) and create a table of experts
+     */
+    function getDataAndCreateTable(self, context){
+        //Get issue data and set up expert search table
+        self.requestData().done(function (data) {
+            self.API.hideLoadingBar();
+            self.issues = data.issues;
+            
+            //If there are no expert issues found, give out a warning
+            if(self.issues === undefined || self.issues.length  === 0){
+                var $element = this.$element = $(context).find("#expert-search-table");
+                $element.empty().html(Expert.Dashboard.Item.Templates.NoExperts());
+            }
+            //Only use expert-search if there are "done" issues
+            else{
+                createExpertTable(self.API, context, self.issues);
+            }
+            
+            //Resize the window
+            self.API.resize();
+        });
+    }
+    
+    
+    /**
+     Create an expert table and set up the issue list table for each expert
+     */
+    function createExpertTable(API, context, expertIssues){
         //Call createExpertTable to create an array of all the experts and the issues they have worked on that include the search word
-        var expertList = createExpertTable(expertIssues);
+        var expertList = getExpertTable(expertIssues);
         //Sort expertList by the number of issues the expert worked on
         var sortedExpertList = expertList.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0));
         
@@ -97,9 +119,9 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
     
     
     /**
-     Create an array of all the experts, including name and avatar of the expert, as well as the number of issues they have worked on and a list of the issues, with issue-id, issue-title and issue-summary
+     Return an array of all the experts, including name and avatar of the expert, as well as the number of issues they have worked on and a list of the issues, with issue-id, issue-title and issue-summary
      */
-    function createExpertTable(expertIssues){
+    function getExpertTable(expertIssues){
         var expertAndIssueList = [];
         
         //For all issue entrys that include the search word, ...
@@ -168,20 +190,6 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                 API.resize();
             })
         }
-    }
-    
-    
-    /**
-     Filters the issues that have the keyword in their title
-     */
-    function filterIssuesWithKeyword(unfilteredIssues, keyword){
-        var expertIssues = [];
-        for(fi = 0; fi < unfilteredIssues.length; fi++){
-            if (unfilteredIssues[fi].fields.summary.includes(keyword)){
-                expertIssues.push(unfilteredIssues[fi]);
-            }
-        }
-        return expertIssues;
     }
     
     
