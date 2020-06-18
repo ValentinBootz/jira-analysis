@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import org.json.JSONObject;
 import org.json.JSONArray;
+import org.json.JSONExeption;
 
 @Slf4j
 @Scanned
@@ -92,8 +93,13 @@ public class LeaderboardService {
     private boolean containsInProgressTransition(JSONArray items) {
         for (int i = 0; i < items.length(); i++) {
             JSONObject item = items.getJSONObject(i);
-            if (item.getString("toString").equals("In Progress")) {
-                return true;
+            try {
+                String toString = item.getString("toString");
+                if (toString.equals("In Progress")) {
+                    return true;
+                }
+            } catch (JSONExeption e) {
+                continue;
             }
         }
         return false;
