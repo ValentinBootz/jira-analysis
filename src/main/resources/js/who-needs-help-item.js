@@ -46,6 +46,19 @@ define('jira-dashboard-items/who-needs-help', ['underscore', 'jquery', 'wrm/cont
             handleSubmit(self, context);
         });
 
+        // Enable search once user is selected
+        $(context).on("change", "#help-user-multiselect", function () {
+            $("#help-filter").removeAttr("disabled");
+        });
+
+        // Toggle event handler
+        $(context).on("change", "#help-filter-toggle", function () {
+            $('#help-type-multiselect').children().removeProp('selected');
+            $('#help-priority-multiselect').children().removeProp('selected');
+            $("#help-optional-filter").toggle();
+            self.API.resize();
+        });
+
         self.API.resize();
     }
 
@@ -63,13 +76,22 @@ define('jira-dashboard-items/who-needs-help', ['underscore', 'jquery', 'wrm/cont
             self.API.hideLoadingBar();
             var developers = data;
 
-            if (developers === undefined || developers.length === 0) {
-                $element.empty().html(Who.Needs.Help.Dashboard.Item.Templates.Empty());
-            } else {
-                $element.empty().html(Who.Needs.Help.Dashboard.Item.Templates.Results({ developers: developers }));
-            }
+            $element.empty().html(Who.Needs.Help.Dashboard.Item.Templates.Results({ developers: developers }));
 
             self.API.resize();
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            self.API.hideLoadingBar();
+            switch (jqXHR.status) {
+                case 403:
+                    // Display access not granted dialog.
+                    var $element = this.$element = $(context).find("#help-access-dialog");
+                    $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'help' }));
+                    AJS.dialog2("#help-no-access-dialog").show();
+                    break;
+                default:
+                    // Handle other errors.
+                    window.alert(textStatus + ": " + errorThrown);
+            }
         });
     }
 
