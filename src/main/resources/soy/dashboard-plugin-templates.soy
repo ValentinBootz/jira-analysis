@@ -13,7 +13,7 @@
     <form class="aui" id="{$type}-filter-form">
         <h3>Search Issues</h3>
         <div class="field-group">
-            <label for="multiselect">Users<span class="aui-icon icon-required">required</span></label>
+            <label for="{$type}-multiselect">Users<span class="aui-icon icon-required">required</span></label>
             <select class="multi-select" size="4" multiple="multiple" id="{$type}-user-multiselect" name="user-multiselect">
             {foreach $user in $users}
                 <option>{$user.name}</option>
@@ -21,7 +21,7 @@
             </select>
         </div>
         <div class="field-group">
-            <label for="multiselect">Projects</label>
+            <label for="{$type}-multiselect">Projects</label>
             <select class="multi-select" size="4" multiple="multiple" id="{$type}-project-multiselect" name="project-multiselect">
             {foreach $project in $projects}
                 <option>{$project.name}</option>
@@ -29,7 +29,7 @@
             </select>
         </div>
         <div class="field-group">
-            <label for="filter-toggle">Apply filter</label>
+            <label for="{$type}-filter-toggle">Apply filter</label>
             <aui-toggle id="{$type}-filter-toggle" label="Apply filter"></aui-toggle>
             <a data-aui-trigger href="#" aria-controls="{$type}-inline-dialog">
                 <span class="aui-icon icon-inline-help">Help</span>
@@ -38,7 +38,7 @@
         </div>
         <div class="optional-filter" id="{$type}-optional-filter">
             <div class="field-group">
-                <label for="multiselect">Types</label>
+                <label for="{$type}-multiselect">Types</label>
                 <select class="multi-select" size="4" multiple="multiple" id="{$type}-type-multiselect" name="type-multiselect">
                 {foreach $type in $types}
                     <option>{$type.name}</option>
@@ -46,7 +46,7 @@
                 </select>
             </div>
             <div class="field-group">
-               <label for="multiselect">Priorities</label>
+               <label for="{$type}-multiselect">Priorities</label>
                 <select class="multi-select" size="4" multiple="multiple" id="{$type}-priority-multiselect" name="priority-multiselect">
                 {foreach $priority in $priorities}
                     <option>{$priority.name}</option>

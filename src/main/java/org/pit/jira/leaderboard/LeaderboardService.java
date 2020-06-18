@@ -16,7 +16,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import org.json.JSONObject;
 import org.json.JSONArray;
-import org.json.JSONExeption;
+import org.json.JSONException;
 
 @Slf4j
 @Scanned
