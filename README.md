@@ -1,4 +1,4 @@
-# Team 1 – Jira Analysis Plugins
+# Team 1 – Jira Analysis Plugin
 
 This project consists of a Jira Plugin Application containing custom Dashboard Items for the analysis of the project
 state on Jira.
