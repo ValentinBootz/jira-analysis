@@ -179,6 +179,7 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                 //...B. Or, if the original (only experts and issue count is displayed, no list of issues) table has been displayed before, shows the issue subtable
                 else{
                     var issueTable = expertList[index].issuetable;
+                    var sortedIssueTable = issueTable.sort((a,b) => (a.issue_id > b.issue_id) ? -1 : ((b.issue_id > a.issue_id) ? 1 : 0));
                     var $element = this.$element = $(context).find("#" + expertName + "-issues");
                     $element.empty().html(Expert.Dashboard.Item.Templates.IssueTable({ path: contextPath() + '/browse/', content: issueTable }));
                     
