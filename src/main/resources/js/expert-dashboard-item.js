@@ -3,76 +3,83 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
     var DashboardItem = function (API) {
         this.API = API;
         this.issues = [];
+        this.searchword = "";
     };
     
     /**
      Called to render the view for a fully configured dashboard item.
      */
     DashboardItem.prototype.render = function (context, preferences) {
-        this.API.showLoadingBar();
         var self = this;
-        //Keyword, to search for within issue titles, to find experts
-        var searchword = "";
 
-        
-        //Readin new searchword
+        //Read in new keyword, to search for within issue titles, to find experts
         $(context).on('change','#search-text', function(){
-            searchword = this.value;
+            self.searchword = this.value;
         })
         
-        
-        
-        requestAccess().done(function (grant) {
-            // Access to data granted.
-            if (grant.granted) {
-                //Get issue data and set up expert-search
-                this.requestData().done(function (data) {
-                    self.API.hideLoadingBar();
-                    self.issues = data.issues;
-                    
-                    //On-click event to start search
-                    $(context).on('click', '#search', function(){
-                        
-                        //If there are no issues found, give out a warning TODO: Make this and next if into one
-                        if(self.issues === undefined || self.issues.length  === 0){
-                            $(context).find('#expert-table').html("So far there are no finished dasks. Please finish tasks before you search for experts.");
-                        }
-                        //Only use expert-search if there are "done" issues
-                        else{
-                            //Filter experts TODO: this should be unnecessary
-                            var expertIssues = filterIssuesWithKeyword(self.issues, searchword);
-                            
-                            //If there are no experts, give out a warning ...
-                            if(expertIssues.length === 0 || expertIssues === undefined){
-                                $(context).find('#expert-table').html("No experts for " + searchword + " found.");
-                            }
-                            //... otherwise set up the expert table
-                            else {
-                                setUpExpertTable(self.API, context, expertIssues);
-                            }
-                       }
-                        
-                        //Resize the window
-                        self.API.resize();
-                    });
+        //On-click event to start search
+        $(context).on('click', '#search', function(){
+            self.API.showLoadingBar();
+            
+            //Request Expert data (issue changelog with assignee name and issue status
+            self.requestExperts().done(function (data) {
+                self.API.hideLoadingBar();
+                self.issues = data.issues;
+                
+                var expertNames = [];
+                self.issues.forEach(issue => {
+                    var developer = getDeveloper(issue.changelog);
+                    //... find the developers name, ...
+                    name = developer ? developer.name : "Unspecified"
+                    var index = expertNames.findIndex(element => element == name);
+                    if (index == -1) {
+                        expertNames.push(name);
+                    }
                 });
-            // Access to data not granted.
-            } else {
-                var $element = this.$element = $(context).find("#expert-access-dialog");
-                $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'expert' }));
-                AJS.dialog2("#expert-no-access-dialog").show();
-            }
-        }).fail(function (jqXHR, textStatus, errorThrown) {
-            switch (jqXHR.status) {
-                default:
-                    // Handle errors.
-                    window.alert(textStatus + ": " + errorThrown);
-            }
+                
+                //Request Access to the data
+                requestAccess(expertNames).done(function (grant) {
+                    // Access to data granted.
+                    if (grant.granted) {
+                        //Get issue data and set up expert search table
+                        self.requestData().done(function (data) {
+                            self.API.hideLoadingBar();
+                            self.issues = data.issues;
+                            
+                            //If there are no expert issues found, give out a warning
+                            if(self.issues === undefined || self.issues.length  === 0){
+                                var $element = this.$element = $(context).find("#expert-search-table");
+                                $element.empty().html(Expert.Dashboard.Item.Templates.NoExperts());
+                            }
+                            //Only use expert-search if there are "done" issues
+                            else{
+                                setUpExpertTable(self.API, context, self.issues);
+                            }
+                            
+                            //Resize the window
+                            self.API.resize();
+                        });
+                    }
+                    // Access to data not granted.
+                    else {
+                        var $element = this.$element = $(context).find("#expert-access-dialog");
+                        $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'expert' }));
+                        AJS.dialog2("#expert-no-access-dialog").show();
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    switch (jqXHR.status) {
+                        default:
+                            // Handle errors.
+                            window.alert(textStatus + ": " + errorThrown);
+                    }
+                });
+            });
         });
     };
     
     
     /**
+     Set up and create an expert table
      */
     function setUpExpertTable(API, context, expertIssues){
         //Call createExpertTable to create an array of all the experts and the issues they have worked on that include the search word
@@ -81,7 +88,8 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
         var sortedExpertList = expertList.sort((a,b) => (a.issues > b.issues) ? -1 : ((b.issues > a.issues) ? 1 : 0));
         
         //Display expert table (a table containing all the experts with the number of issues they have worked on
-        $(context).find('#expert-table').html(writeExpertTable(context, expertList));
+        var $element = this.$element = $(context).find("#expert-search-table");
+        $element.empty().html(Expert.Dashboard.Item.Templates.ExpertTable({ content: expertList }));
         
         //Set up and display the issue sublists, a list of issues for each expert that is displayed when clicked on the expert
         setUpIssueLists(API, context, expertList);
@@ -105,9 +113,9 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
             //... the issue title, ...
             issue_title = issue.fields.summary;
             //... the issue description ...
-            issue_description = issue.fields.summary;
+            issue_description = issue.fields.description;
+            //... a boolean parameter to check whether the issue subtable is displayed or not and ...
             issuetableOnDisplay = false;
-            
             
             //... (as well as avatar and nummber of issues the expert worked on and that have the search work in the title) and create a list of experts and their issues
             if (index == -1) {
@@ -122,36 +130,35 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                 expertAndIssueList[index].issuetable.push(new Issue({issue_id, issue_title, issue_description}));
             }
         });
-        
         return expertAndIssueList;
     }
     
     
     /**
-     
+     Create click on events for each expert teable entry, so the entry shows the issue list when clicked on
      */
     function setUpIssueLists(API, context, expertList){
+        
         //For all experts, create ...
         for (var expertCount = 0; expertCount < expertList.length; expertCount++){
-            //... a click on event, that
-            $(context).on('click', '#' + expertCount, function(){
+            //... a click on event, that ...
+            $(context).on('click', '#' + expertList[expertCount].expert_name, function(){
                 var expertName = this.children[0].innerText;
                 var index = expertList.findIndex(element => element.expert_name == expertName);
                 
-                //... if the issue subtable is already displayed, shows the original (only experts and issue count is displayed, no list of issues) table ...
+                //...A. if the issue subtable is already displayed, shows the original (only experts and issue count is displayed, no list of issues) table ...
                 if(expertList[index].issuetableOnDisplay){
-                    //TODO: make this in a nice way
-                    $(context).find('#expert-table').html(writeExpertTable(expertList));
+                    var $element = this.$element = $(context).find("#" + expertName + "-issues");
+                    $element.empty().html(expertList[index].issues);
                     
                     //issuetableOnDisplay_b is a boolean parameter, that is saved in our expert  list and used to check whether the subtable (List of issues) is displayed or not
                     expertList[index].issuetableOnDisplay = false;
                 }
-                //... Or, if the original (only experts and issue count is displayed, no list of issues) table has been displayed before, shows the issue subtable
+                //...B. Or, if the original (only experts and issue count is displayed, no list of issues) table has been displayed before, shows the issue subtable
                 else{
                     var issueTable = expertList[index].issuetable;
-                    
-                    //TODO: make this in a nice way
-                    this.children[1].innerHTML = writeIssueSubTable(issueTable);
+                    var $element = this.$element = $(context).find("#" + expertName + "-issues");
+                    $element.empty().html(Expert.Dashboard.Item.Templates.IssueTable({ path: contextPath() + '/browse/', content: issueTable }));
                     
                     //issuetableOnDisplay_b is a boolean parameter, that is saved in our expert  list and used to check whether the subtable (List of issues) is displayed or not
                     expertList[index].issuetableOnDisplay = true;
@@ -161,38 +168,6 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                 API.resize();
             })
         }
-    }
-    
-    
-    /**
-     Creates a table with the names of the experts and the nummber of issues they solved.
-        Next step: Improve so Table is not written as HTML String
-     */
-    function writeExpertTable(context, expertList){
-        var table = "<thead><tr><th id=" + "name"+ ">User</th><th id=" +"issues"+ ">Completed Issues</th></tr></thead><tbody>";
-        
-        var countExpert = 0;
-        expertList.forEach(expert => {
-            table = table + "<tr id = " + countExpert + "><td headers=" + "name" + "><span class=" + "container" + "><span class=" + "aui-avatar aui-avatar-xsmall" + "><span class=" + "aui-avatar-inner" + "><img src=" + expert.expert_avatar +  " alt=" +" role=" + "presentation"+ "/></span></span>" + expert.expert_name + "</span></td><td headers=" + "issues" + ">" + expert.issues + "</td></tr>";
-            
-            countExpert++;
-        });
-        table = table + "</tbody>";
-        $(table).appendTo('#expert-table');
-    }
-    
-    /**
-     Creates a table with the issue id and summary for the specific expert
-        Next step: Improve so Table is not written as HTML String
-     */
-    function writeIssueSubTable(issueTable){
-        var table = "<td><table id=" + "issue-table" + " class=" + "aui aui-table-sortable" + "><thead><tr><th id=" + "issue"+ ">Issue</th><th id=" +"summary"+ ">Summary</th></tr></thead><tbody>";
-        
-        issueTable.forEach(issue => {
-            table = table + "<tr><td headers=" + "issue" + "><a href=" + contextPath()+ "/browse/"+ issue.issue_id + ">" + issue.issue_id  +"</a></td><td headers=" + "summary" + ">" + issue.issue_title + "</td></tr>";
-        });
-        
-        return table + "</tbody></table></td>";
     }
     
     
@@ -225,14 +200,26 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
      *
      * @returns {*} a grant with granted true or granted false
      */
-    function requestAccess() {
+    function requestAccess(expertNameList) {
         return $.ajax({
             type: "POST",
             url: contextPath() + "/rest/jira-analysis-api/1.0/logging-and-access/query/expert",
-            data: JSON.stringify(["example_username"]),
+            data: JSON.stringify(expertNameList),
             contentType: "application/json",
         });
     }
+    
+    
+    /**
+    REST call requesting all issues with status 'Done' with expanded changelog
+    */
+    DashboardItem.prototype.requestExperts = function () {
+        return $.ajax({
+            method: "GET",
+        url: contextPath() + "/rest/api/latest/search?jql=status%20%3D%20Done%20AND%20text%20~%20%22"+ this.searchword + "%22&expand=changelog&fields=changelog"
+        });
+    };
+    
     
     /**
     REST call requesting all issues with status 'Done' with expanded changelog
@@ -240,7 +227,7 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
     DashboardItem.prototype.requestData = function () {
         return $.ajax({
             method: "GET",
-            url: contextPath() + "/rest/api/latest/search?jql=status%3Ddone&expand=changelog"
+        url: contextPath() + "/rest/api/latest/search?jql=status%20%3D%20Done%20AND%20text%20~%20%22"+ this.searchword + "%22&expand=changelog&fields=id,key,status,summary,description"
         });
     };
     
