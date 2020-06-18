@@ -98,7 +98,7 @@ public class LeaderboardService {
                 if (toString.equals("In Progress")) {
                     return true;
                 }
-            } catch (JSONExeption e) {
+            } catch (JSONEcxeption e) {
                 continue;
             }
         }
