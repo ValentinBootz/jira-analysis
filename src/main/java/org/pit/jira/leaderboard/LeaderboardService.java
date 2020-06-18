@@ -5,15 +5,15 @@ import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.client.utils.URIBuilder;
 import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,18 +24,16 @@ import org.json.JSONException;
 public class LeaderboardService {
 
     /**
-     * Requests completed issues that match JQL query from Jira API and filters issues matching the specified users
+     * Requests completed issues that match JQL query from Jira API and filters issues matching the specified users.
      *
-     * @return completed issues 
+     * @return completed issues
      */
     public String getCompletedIssues(String JSESSIONID, String base_url, String jql_query, List<String> users) throws IOException, URISyntaxException {
-        
-        HttpClient client = HttpClientBuilder.create()
-            .build();
+        HttpClient client = HttpClientBuilder.create().build();
 
         URIBuilder uri_builder = new URIBuilder(base_url + "/rest/api/2/search")
-            .addParameter("jql", jql_query)
-            .addParameter("expand", "changelog");
+                .addParameter("jql", jql_query)
+                .addParameter("expand", "changelog");
 
         HttpGet request = new HttpGet(uri_builder.toString());
         request.setHeader("Cookie", "JSESSIONID=" + JSESSIONID);
@@ -43,7 +41,7 @@ public class LeaderboardService {
         HttpResponse HttpResponse = client.execute(request);
 
         log.info("Received HTTP status: " + HttpResponse.getStatusLine().getStatusCode()
-        + " (" + HttpResponse.getStatusLine().getReasonPhrase() + ")");
+                + " (" + HttpResponse.getStatusLine().getReasonPhrase() + ")");
 
         JSONObject response = new JSONObject(EntityUtils.toString(HttpResponse.getEntity()));
 
@@ -51,25 +49,29 @@ public class LeaderboardService {
     }
 
     /**
-     * Filters issues where users contains the developer
+     * Filters issues where users contains the developer.
      */
     private String filterUsers(JSONObject response, List<String> users) {
         JSONArray result = new JSONArray();
         JSONArray issues = response.getJSONArray("issues");
+
         for (int i = 0; i < issues.length(); i++) {
             JSONObject issue = issues.getJSONObject(i);
-            String developer = getDeveloper(issue.getJSONObject("changelog"));
-            if (developer != null && users.contains(developer)) {
+            JSONObject developer = getDeveloper(issue.getJSONObject("changelog"));
+
+            if (developer != null && users.contains(developer.getString("name"))) {
+                issue.put("developer", developer);
                 result.put(issue);
             }
         }
+
         return result.toString();
     }
 
     /**
-     * Gets developer name from issue changelog
+     * Gets developer name from issue changelog.
      */
-    private String getDeveloper(JSONObject changelog) {
+    private JSONObject getDeveloper(JSONObject changelog) {
         JSONObject last = new JSONObject();
         JSONArray histories = changelog.getJSONArray("histories");
         for (int i = 0; i < histories.length(); i++) {
@@ -79,29 +81,30 @@ public class LeaderboardService {
                 last = history;
             }
         }
-        if(last.has("author")){
-            JSONObject author = last.getJSONObject("author");
-            return author.getString("name");
+        if (last.has("author")) {
+            return last.getJSONObject("author");
         } else {
             return null;
         }
     }
 
     /**
-     * Checks if history items contain transition to 'In Progress'
+     * Checks if history items contain transition to 'In Progress'.
      */
     private boolean containsInProgressTransition(JSONArray items) {
         for (int i = 0; i < items.length(); i++) {
             JSONObject item = items.getJSONObject(i);
+
             try {
                 String toString = item.getString("toString");
                 if (toString.equals("In Progress")) {
                     return true;
                 }
             } catch (JSONException e) {
-                continue;
+                log.info("No toString status found for item: " + item.toString());
             }
         }
+
         return false;
     }
 }
