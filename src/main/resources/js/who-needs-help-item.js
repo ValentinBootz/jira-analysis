@@ -76,11 +76,7 @@ define('jira-dashboard-items/who-needs-help', ['underscore', 'jquery', 'wrm/cont
             self.API.hideLoadingBar();
             var developers = data;
 
-            if (developers === undefined || developers.length === 0) {
-                $element.empty().html(Who.Needs.Help.Dashboard.Item.Templates.Empty());
-            } else {
-                $element.empty().html(Who.Needs.Help.Dashboard.Item.Templates.Results({ developers: developers }));
-            }
+            $element.empty().html(Who.Needs.Help.Dashboard.Item.Templates.Results({ developers: developers }));
 
             self.API.resize();
         }).fail(function (jqXHR, textStatus, errorThrown) {
