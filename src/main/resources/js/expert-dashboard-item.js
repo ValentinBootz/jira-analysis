@@ -33,6 +33,7 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                 
                 //Request Access to the data
                 requestAccess(expertNames).done(function (grant) {
+                    self.API.hideLoadingBar();
                     // Access to data granted.
                     if (grant.granted) {
                         //Request expert data and create an expert table
