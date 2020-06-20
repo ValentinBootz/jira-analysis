@@ -31,22 +31,8 @@ public class AccessRequest implements Serializable {
     private String tool;
 
     @XmlElement()
-    private String userRid;
+    private String user;
 
     @XmlElement()
-    private List<Owner> owners;
-
-    /**
-     * Temporary Owner object. To be removed when the API changes.
-     */
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @XmlRootElement(name = "owner")
-    @XmlAccessorType(XmlAccessType.FIELD)
-    public static class Owner implements Serializable {
-
-        @XmlElement()
-        private String email;
-    }
+    private List<String> owners;
 }
