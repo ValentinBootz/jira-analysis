@@ -29,29 +29,29 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                 
                 var expertNames = getDeveloperNames(self.issues);
                 
-                self.API.showLoadingBar();
+                //self.API.showLoadingBar();
                 
                 //Request Access to the data
-                requestAccess(expertNames).done(function (grant) {
-                    self.API.hideLoadingBar();
+//                requestAccess(expertNames).done(function (grant) {
+//                    self.API.hideLoadingBar();
                     // Access to data granted.
-                    if (grant.granted) {
+//                    if (grant.granted) {
                         //Request expert data and create an expert table
                         getDataAndCreateTable(self, context);
-                    }
+//                    }
                     // Access to data not granted.
-                    else {
-                        var $element = this.$element = $(context).find("#expert-access-dialog");
-                        $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'expert' }));
-                        AJS.dialog2("#expert-no-access-dialog").show();
-                    }
-                }).fail(function (jqXHR, textStatus, errorThrown) {
-                    switch (jqXHR.status) {
-                        default:
+ //                   else {
+ //                       var $element = this.$element = $(context).find("#expert-access-dialog");
+ //                       $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'expert' }));
+ //                       AJS.dialog2("#expert-no-access-dialog").show();
+ //                   }
+ //               }).fail(function (jqXHR, textStatus, errorThrown) {
+//                    switch (jqXHR.status) {
+//                        default:
                             // Handle errors.
-                            window.alert(textStatus + ": " + errorThrown);
-                    }
-                });
+//                            window.alert(textStatus + ": " + errorThrown);
+//                    }
+//                });
             });
         });
     };
@@ -80,11 +80,6 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
      Request the expert issues (data) and create a table of experts
      */
     function getDataAndCreateTable(self, context){
-        //Get issue data and set up expert search table
-        self.requestData().done(function (data) {
-            self.API.hideLoadingBar();
-            self.issues = data.issues;
-            
             //If there are no expert issues found, give out a warning
             if(self.issues === undefined || self.issues.length  === 0){
                 var $element = this.$element = $(context).find("#expert-search-table");
@@ -97,7 +92,6 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
             
             //Resize the window
             self.API.resize();
-        });
     }
     
     
@@ -136,7 +130,12 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
             //... the issue title, ...
             issue_title = issue.fields.summary;
             //... the issue description ...
-            issue_description = issue.fields.description;
+            if(issue.fields.description == null){
+                issue_description = "";
+            }
+            else{
+                issue_description = issue.fields.description;
+            }
             //... a boolean parameter to check whether the issue subtable is displayed or not and ...
             issuetableOnDisplay = false;
             
@@ -200,7 +199,15 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
     */
     function getDeveloper(changelog) {
         entry = changelog.histories.filter(
-            function(histories){ return histories.items[0].toString == 'In Progress' }
+            function(histories){
+            if(histories.items[0] == undefined){
+                return "Unspecified";
+            }
+            else{
+                return histories.items[0].toString == 'In Progress';
+            }
+            
+        }
         ).slice(-1)[0];
         return entry ? entry.author : undefined;
     }
@@ -224,17 +231,6 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
     REST call requesting all issues with status 'Done' with expanded changelog
     */
     DashboardItem.prototype.requestExperts = function () {
-        return $.ajax({
-            method: "GET",
-        url: contextPath() + "/rest/api/latest/search?jql=status%20%3D%20Done%20AND%20text%20~%20%22"+ this.searchword + "%22&expand=changelog&fields=changelog"
-        });
-    };
-    
-    
-    /**
-    REST call requesting all issues with status 'Done' with expanded changelog
-    */
-    DashboardItem.prototype.requestData = function () {
         return $.ajax({
             method: "GET",
         url: contextPath() + "/rest/api/latest/search?jql=status%20%3D%20Done%20AND%20text%20~%20%22"+ this.searchword + "%22&expand=changelog&fields=id,key,status,summary,description"
