@@ -24,12 +24,9 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
             
             //Request Expert data (issue changelog with assignee name and issue status
             self.requestExperts().done(function (data) {
-                self.API.hideLoadingBar();
                 self.issues = data.issues;
                 
                 var expertNames = getDeveloperNames(self.issues);
-                
-                //self.API.showLoadingBar();
                 
                 //Request Access to the data
                 requestAccess(expertNames).done(function (grant) {
@@ -200,13 +197,7 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
     function getDeveloper(changelog) {
         entry = changelog.histories.filter(
             function(histories){
-            if(histories.items[0] == undefined){
-                return "Unspecified";
-            }
-            else{
-                return histories.items[0].toString == 'In Progress';
-            }
-            
+                return histories.items[0] !== undefined && histories.items[0].toString === 'In Progress'
         }
         ).slice(-1)[0];
         return entry ? entry.author : undefined;
