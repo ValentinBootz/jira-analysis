@@ -32,26 +32,26 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                 //self.API.showLoadingBar();
                 
                 //Request Access to the data
-//                requestAccess(expertNames).done(function (grant) {
-//                    self.API.hideLoadingBar();
+                requestAccess(expertNames).done(function (grant) {
+                    self.API.hideLoadingBar();
                     // Access to data granted.
-//                    if (grant.granted) {
+                    if (grant.granted) {
                         //Request expert data and create an expert table
                         getDataAndCreateTable(self, context);
-//                    }
+                    }
                     // Access to data not granted.
- //                   else {
- //                       var $element = this.$element = $(context).find("#expert-access-dialog");
- //                       $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'expert' }));
- //                       AJS.dialog2("#expert-no-access-dialog").show();
- //                   }
- //               }).fail(function (jqXHR, textStatus, errorThrown) {
-//                    switch (jqXHR.status) {
-//                        default:
+                    else {
+                        var $element = this.$element = $(context).find("#expert-access-dialog");
+                        $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'expert' }));
+                        AJS.dialog2("#expert-no-access-dialog").show();
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    switch (jqXHR.status) {
+                        default:
                             // Handle errors.
-//                            window.alert(textStatus + ": " + errorThrown);
-//                    }
-//                });
+                            window.alert(textStatus + ": " + errorThrown);
+                    }
+                });
             });
         });
     };
