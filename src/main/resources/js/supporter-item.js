@@ -120,7 +120,7 @@ define('jira-dashboard-items/supporter', ['underscore', 'jquery', 'wrm/context-p
     function requestData() {
         return $.ajax({
             type: "POST",
-            url: contextPath() + "/rest/jira-analysis-api/1.0/supporter/issues",
+            url: contextPath() + "/rest/jira-analysis-api/1.0/supporter/reviewers",
             data: JSON.stringify({
                 'users': $('#supporter-user-multiselect').val(),
                 'projects': $('#supporter-project-multiselect').val(),

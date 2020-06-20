@@ -19,7 +19,7 @@ import org.pit.jira.help.WhoNeedsHelpService;
  * The resource for Who Needs Help Dashboard Item.
  */
 @Slf4j
-@Path("/who-needs-help")
+@Path("/supporter")
 public class SupporterResource {
 
     private final WhoNeedsHelpService whoNeedsHelpService;
@@ -41,7 +41,7 @@ public class SupporterResource {
     @POST
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes({MediaType.APPLICATION_JSON})
-    @Path("/issues")
+    @Path("/reviewers")
     public Response getDevelopersWithOpenIssues(Filter filter) {
         try {
             Grant grant = loggingAndAccessService.requestQueryAccess(ItemType.HELP.getItemType(), filter.getUsers());
