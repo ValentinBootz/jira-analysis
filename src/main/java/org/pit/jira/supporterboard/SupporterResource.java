@@ -1,30 +1,35 @@
 package org.pit.jira.supporterboard;
 
 import lombok.extern.slf4j.Slf4j;
+import org.pit.jira.access.ItemType;
+import org.pit.jira.access.LoggingAndAccessService;
 import org.pit.jira.model.Developer;
 import org.pit.jira.model.Filter;
+import org.pit.jira.model.Grant;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
+import org.pit.jira.help.WhoNeedsHelpService;
+
 /**
- * The resource for Supporter Dashboard Item.
+ * The resource for Who Needs Help Dashboard Item.
  */
 @Slf4j
 @Path("/who-needs-help")
 public class SupporterResource {
 
-    private final SupporterService supporterService;
+    private final WhoNeedsHelpService whoNeedsHelpService;
+
+    private final LoggingAndAccessService loggingAndAccessService;
 
     @Inject
-    public SupporterResource(SupporterService supporterService) {
-        this.supporterService = supporterService;
+    public SupporterResource(WhoNeedsHelpService whoNeedsHelpService, LoggingAndAccessService loggingAndAccessService) {
+        this.whoNeedsHelpService = whoNeedsHelpService;
+        this.loggingAndAccessService = loggingAndAccessService;
     }
 
     /**
@@ -38,12 +43,25 @@ public class SupporterResource {
     @Consumes({MediaType.APPLICATION_JSON})
     @Path("/issues")
     public Response getDevelopersWithOpenIssues(Filter filter) {
-        log.info("Requesting developers with open issues.");
+        try {
+            Grant grant = loggingAndAccessService.requestQueryAccess(ItemType.HELP.getItemType(), filter.getUsers());
 
-        List<Developer> developers = supporterService.getSortedListOfDevelopersWithOpenIssues(filter);
+            if (grant.getGranted()) {
+                // Access granted.
+                log.info("Item " + ItemType.HELP.getItemType() + " requesting developers with open issues.");
 
-        log.info("Received " + developers.size() + " developers with open issues.");
+                List<Developer> developers = whoNeedsHelpService.getSortedListOfDevelopersWithOpenIssues(filter);
 
-        return Response.ok(developers).build();
+                log.info("Item " + ItemType.HELP.getItemType() + " received " + developers.size() + " developers with open issues.");
+
+                return Response.ok(developers).build();
+            } else {
+                // Access not granted.
+                log.info("Access to developers with open issues not granted for " + ItemType.HELP.getItemType() + " item.");
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+        } catch (WebApplicationException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        }
     }
 }

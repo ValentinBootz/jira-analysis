@@ -4,8 +4,9 @@
  * Container template.
  */
 {template .Container}
-    <div id="help-filters"/>
-    <div id="help-results"/>
+    <div id="supporter-filters"/>
+    <div id="supporter-access-dialog"/>
+    <div id="supporter-results"/>
 {/template}
 
 /**
@@ -15,7 +16,7 @@
  */
 {template .Results}
     {call Dashboard.Plugin.Templates.Table}
-        {param type: 'help' /}
+        {param type: 'supporter' /}
         {param scope: 'User' /}
         {param analysis: 'Open Issues' /}
         {param content: $developers /}

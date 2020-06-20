@@ -30,20 +30,33 @@ define('jira-dashboard-items/supporter', ['underscore', 'jquery', 'wrm/context-p
      * @param data the data to be displayed in the filters
      */
     function loadFilters(self, context, data) {
-        var $element = this.$element = $(context).find("#help-filters");
+        var $element = this.$element = $(context).find("#supporter-filters");
         [projects, users, types, priorities] = data;
 
         $element.empty().html(Dashboard.Plugin.Templates.Filters({
-            type: 'help',
+            type: 'supporter',
             projects: projects,
             users: users,
             types: types,
             priorities: priorities,
         }));
 
-        $element.find("#help-filter-form").on('submit', function (event) {
+        $element.find("#supporter-filter-form").on('submit', function (event) {
             event.preventDefault();
             handleSubmit(self, context);
+        });
+
+        // Enable search once user is selected
+        $(context).on("change", "#supporter-user-multiselect", function () {
+            $("#supporter-filter").removeAttr("disabled");
+        });
+
+        // Toggle event handler
+        $(context).on("change", "#supporter-filter-toggle", function () {
+            $('#supporter-type-multiselect').children().removeProp('selected');
+            $('#supporter-priority-multiselect').children().removeProp('selected');
+            $("#supporter-optional-filter").toggle();
+            self.API.resize();
         });
 
         self.API.resize();
@@ -56,20 +69,29 @@ define('jira-dashboard-items/supporter', ['underscore', 'jquery', 'wrm/context-p
      * @param context the HTML context
      */
     function handleSubmit(self, context) {
-        var $element = this.$element = $(context).find("#help-results");
+        var $element = this.$element = $(context).find("#supporter-results");
         self.API.showLoadingBar();
 
         requestData().done(function (data) {
             self.API.hideLoadingBar();
             var developers = data;
 
-            if (developers === undefined || developers.length === 0) {
-                $element.empty().html(Who.Needs.Help.Dashboard.Item.Templates.Empty());
-            } else {
-                $element.empty().html(Who.Needs.Help.Dashboard.Item.Templates.Results({ developers: developers }));
-            }
+            $element.empty().html(Supporter.Dashboard.Item.Templates.Results({ developers: developers }));
 
             self.API.resize();
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            self.API.hideLoadingBar();
+            switch (jqXHR.status) {
+                case 403:
+                    // Display access not granted dialog.
+                    var $element = this.$element = $(context).find("#supporter-access-dialog");
+                    $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'supporter' }));
+                    AJS.dialog2("#supporter-no-access-dialog").show();
+                    break;
+                default:
+                    // Handle other errors.
+                    window.alert(textStatus + ": " + errorThrown);
+            }
         });
     }
 
@@ -98,12 +120,12 @@ define('jira-dashboard-items/supporter', ['underscore', 'jquery', 'wrm/context-p
     function requestData() {
         return $.ajax({
             type: "POST",
-            url: contextPath() + "/rest/jira-analysis-api/1.0/who-needs-help/issues",
+            url: contextPath() + "/rest/jira-analysis-api/1.0/supporter/issues",
             data: JSON.stringify({
-                'users': $('#help-user-multiselect').val(),
-                'projects': $('#help-project-multiselect').val(),
-                'types': $('#help-type-multiselect').val(),
-                'priorities': $('#help-priority-multiselect').val(),
+                'users': $('#supporter-user-multiselect').val(),
+                'projects': $('#supporter-project-multiselect').val(),
+                'types': $('#supporter-type-multiselect').val(),
+                'priorities': $('#supporter-priority-multiselect').val(),
             }),
             contentType: "application/json",
         });
