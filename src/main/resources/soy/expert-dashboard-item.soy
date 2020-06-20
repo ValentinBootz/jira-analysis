@@ -4,18 +4,86 @@
 *   Container template with the search bar
 */
 {template .Container}
-        <form class="aui">
-            <div class="field-group">
-                <label for="search-text">Expert Search</label>
-                <input class="text" type="text" id="search-text" name="search-text">
-                <div class="aui-button aui-button-primary" id="search">Search</button>
-                </div>
+    <form class="aui">
+        <div class="field-group">
+            <label for="search-text">Expert Search</label>
+            <input class="text" type="text" id="search-text" name="search-text">
+            <div class="aui-button aui-button-primary" id="search">Search</button>
             </div>
-            
-            //Expert table
-            <table id="expert-table" class="aui aui-table-sortable">
-            </table>
-            
-        </form>
+        </div>
+        <div id="expert-access-dialog"/>
+        <div id="expert-search-table"/>
+    </form>
 {/template}
 
+/**
+* NoExperts template, to be used if there were no experts found
+*
+*/
+{template .NoExperts}
+No Experts found.
+{/template}
+
+/**
+* ExpertTable template, that creates a table of experts
+*
+* @param content table content (template expects expert_avatar, expert_name and issues)
+*/
+{template .ExpertTable}
+    <table id="expert-table" class="aui aui-table-sortable">
+        <thead>
+            <tr>
+                <th class='table-header' style="width:100px" id="name">Expert</th>
+                <th class='table-header' id="issues">Completed Issues</th>
+            </tr>
+        </thead>
+        <tbody>
+            {foreach $expert in $content}
+            <tr id="{$expert.expert_name}">
+                <td headers="name">
+                    <span class="container">
+                        <span class="aui-avatar aui-avatar-xsmall">
+                            <span class="aui-avatar-inner">
+                                <img src={$expert.expert_avatar} alt="" role="presentation"/>
+                            </span>
+                        </span>
+                        {$expert.expert_name}
+                    </span>
+                </td>
+                <td id="{$expert.expert_name}-issues" "class="issues" headers="issues">{$expert.issues}</td>
+            </tr>
+            {/foreach}
+        </tbody>
+    </table>
+{/template}
+
+/**
+* IssueTable template, that creates the subtable of all the issues the expert has worked on
+*
+* @param path context path
+* @param content table content (template expects issue_id, issue_title and issue_description)
+*/
+{template .IssueTable}
+    <table id="issue-table" class="aui aui-table-sortable">
+        <thead>
+            <tr>
+                <th class='table-header' style="width:40px" id="issueID">ID</th>
+                <th class='table-header' id="summary">Summary</th>
+                <th class='table-header' id="description">Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {foreach $issue in $content}
+            <tr class={$issue.issue_id}>
+                <td <td class="issues" headers="issueID">
+                    <a href="{$path}{$issue.issue_id}">
+                        {$issue.issue_id}
+                    </a>
+                </td>
+                <td class="issues" headers="summary">{$issue.issue_title}</td>
+                <td class="issues" headers="description">{$issue.issue_description}</td>
+            </tr>
+            {/foreach}
+        </tbody>
+    </table>
+{/template}
