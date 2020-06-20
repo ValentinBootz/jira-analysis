@@ -22,10 +22,6 @@
         <resource type="download" location="soy/dashboard-plugin-templates.soy"
                   name="soy/dashboard-plugin-templates.soy.js"/>
 
-        <!-- Suuporter Dashboard Item resources -->
-        <resource type="download" location="soy/supporter-dashboard-item.soy" name="soy/supporter-dashboard-item.soy.js" />
-        <resource type="soy" location="/soy/supporter-dashboard-item.soy" name="Supporter.Dashboard.Item.Templates.Static" />
-
         <!-- Leaderboard Dashboard Item resources -->
         <resource type="download" name="leaderboard-dashboard-item.js" location="/js/leaderboard-dashboard-item.js"/>
         <resource type="download" location="soy/leaderboard-dashboard-item.soy"
@@ -45,6 +41,13 @@
         <resource type="soy" location="/soy/who-needs-help-dashboard-item.soy"
                   name="Who.Needs.Help.Dashboard.Item.Templates.Static"/>
 
+        <!-- Suuporter Dashboard Item resources -->
+        <resource type="download" name="supporter-item.js" location="/js/supporter-item.js"/>
+        <resource type="download" location="soy/supporter-dashboard-item.soy"
+                  name="soy/supporter-dashboard-item.soy.js"/>
+        <resource type="soy" location="/soy/supporter-dashboard-item.soy"
+                  name="Supporter.Dashboard.Item.Templates.Static"/>
+
         <context>atl.dashboard</context>
         <context>dashboard-plugin</context>
     </web-resource>
@@ -53,23 +56,6 @@
     <rest name="Jira Analysis Rest Resource" key="jira-analysis-rest-resource" path="/jira-analysis-api" version="1.0">
         <description>Jira Analysis Rest Resource Plugin</description>
     </rest>
-
-    <!-- Supporter Dashboard Item -->
-    <dashboard-item key="supporter-dashboard-item" i18n-name-key="supporter.dashboard.item.title">
-        <definition>
-            <title key="supporter.dashboard.item.title" />
-            <categories>
-                <category>Jira</category>
-            </categories>
-            <author>
-                <name>Ali Gharaee</name>
-            </author>
-            <thumbnail location="/download/resources/${atlassian.plugin.key}:dashboard-plugin-resources/images/pluginLogo.png" />
-        </definition>
-        <description key="supporter.dashboard.item.description" />
-        <resource name="view" type="soy" location=":dashboard-plugin-resources/Supporter.Dashboard.Item.Templates.Static" />
-        <context-provider class="org.pit.jira.SupporterDashboardItemContextProvider" />
-    </dashboard-item>
 
     <!-- Leaderboard Dashboard Item -->
     <dashboard-item key="leaderboard-dashboard-item" i18n-name-key="leaderboard.dashboard.item.title">
@@ -127,6 +113,25 @@
                   location=":dashboard-plugin-resources/Who.Needs.Help.Dashboard.Item.Templates.Container"/>
         <amd-module>jira-dashboard-items/who-needs-help</amd-module>
     </dashboard-item>
+
+    <!-- Supporter Dashboard Item -->
+    <dashboard-item key="supporter-dashboard-item" i18n-name-key="supporter.dashboard.item.title">
+        <definition>
+            <title key="supporter.dashboard.item.title" />
+            <categories>
+                <category>Jira</category>
+            </categories>
+            <author>
+                <name>Ali Gharaee</name>
+            </author>
+            <thumbnail location="/download/resources/${atlassian.plugin.key}:dashboard-plugin-resources/images/pluginLogo.png" />
+        </definition>
+        <description key="supporter.dashboard.item.description" />
+        <resource name="view" type="soy" location=":dashboard-plugin-resources/Supporter.Dashboard.Item.Templates.Container" />
+<!--        <context-provider class="org.pit.jira.supporterboard.SupporterDashboardItemContextProvider" />-->
+        <amd-module>jira-dashboard-items/supporter</amd-module>
+    </dashboard-item>
+
 
 </atlassian-plugin>
 

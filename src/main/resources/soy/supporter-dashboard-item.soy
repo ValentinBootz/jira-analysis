@@ -1,14 +1,30 @@
 {namespace Supporter.Dashboard.Item.Templates}
 
 /**
- * An example dashboard item.
- *
- * @param pluginName
- * @param version
- * @param issueCount
+ * Container template.
  */
-{template .Static}
-    <div>Welcome to <span class="aui-lozenge aui-lozenge-success">{$pluginName}</span> v{$version}!</div>
-    <div>The current issue count is {$issueCount}</div>
-    <div>Ali Gharaee</div>
+{template .Container}
+    <div id="help-filters"/>
+    <div id="help-results"/>
+{/template}
+
+/**
+ * The Who Needs Help Dashboard Item.
+ *
+ * @param developers the list of assignees and their open issues
+ */
+{template .Results}
+    {call Dashboard.Plugin.Templates.Table}
+        {param type: 'help' /}
+        {param scope: 'User' /}
+        {param analysis: 'Open Issues' /}
+        {param content: $developers /}
+    {/call}
+{/template}
+
+/**
+ * Use this template if there are no issues in the response.
+ */
+{template .Empty}
+    <div class="no-content">No results found.</div>
 {/template}
