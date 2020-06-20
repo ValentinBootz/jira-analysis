@@ -144,18 +144,10 @@ public class LoggingAndAccessService {
     private AccessRequest constructAccessRequest(String itemType, List<String> ownerUsernames) {
         AccessRequest accessRequest = new AccessRequest();
         List<String> ownerEmails = getOwnerEmails(ownerUsernames);
-
-        // Temporary. To be removed when the API changes.
-        List<AccessRequest.Owner> owners = new ArrayList<>();
-        ownerEmails.forEach(ownerEmail -> {
-            AccessRequest.Owner owner = new AccessRequest.Owner();
-            owner.setEmail(ownerEmail);
-            owners.add(owner);
-        });
-
         ApplicationUser currentUser = jiraAuthenticationContext.getLoggedInUser();
-        accessRequest.setUserRid(currentUser.getEmailAddress());
-        accessRequest.setOwners(owners);
+
+        accessRequest.setUser(currentUser.getEmailAddress());
+        accessRequest.setOwners(ownerEmails);
         accessRequest.setTool(JIRA);
 
         List<String> dataTypes = new ArrayList<>();
