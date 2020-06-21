@@ -89,7 +89,7 @@ public class SupporterService {
         });
 
         // Sort developer list.
-        developers.sort(Comparator.comparing(Developer::getCount));
+        developers.sort(Comparator.comparing(Developer::getCount).reversed());
 
         // Remove empty issue categories.
         developers.forEach(developer -> developer.getTypes().removeIf(type -> type.getCount() == 0));
