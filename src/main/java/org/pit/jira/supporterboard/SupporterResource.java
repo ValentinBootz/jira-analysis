@@ -22,13 +22,13 @@ import org.pit.jira.help.WhoNeedsHelpService;
 @Path("/supporter")
 public class SupporterResource {
 
-    private final WhoNeedsHelpService whoNeedsHelpService;
+    private final SupporterService supporterService;
 
     private final LoggingAndAccessService loggingAndAccessService;
 
     @Inject
-    public SupporterResource(WhoNeedsHelpService whoNeedsHelpService, LoggingAndAccessService loggingAndAccessService) {
-        this.whoNeedsHelpService = whoNeedsHelpService;
+    public SupporterResource(SupporterService supporterService, LoggingAndAccessService loggingAndAccessService) {
+        this.supporterService = supporterService;
         this.loggingAndAccessService = loggingAndAccessService;
     }
 
@@ -48,16 +48,16 @@ public class SupporterResource {
 
             if (grant.getGranted()) {
                 // Access granted.
-                log.info("Item " + ItemType.HELP.getItemType() + " requesting developers with open issues.");
+                log.info("Item " + ItemType.HELP.getItemType() + " requesting developers with the most reviewed issues.");
 
-                List<Developer> developers = whoNeedsHelpService.getSortedListOfDevelopersWithOpenIssues(filter);
+                List<Developer> developers = supporterService.getSortedListOfDevelopersWithMostReviewedIssues(filter);
 
-                log.info("Item " + ItemType.HELP.getItemType() + " received " + developers.size() + " developers with open issues.");
+                log.info("Item " + ItemType.HELP.getItemType() + " received " + developers.size() + " developers with the most reviewed issues.");
 
                 return Response.ok(developers).build();
             } else {
                 // Access not granted.
-                log.info("Access to developers with open issues not granted for " + ItemType.HELP.getItemType() + " item.");
+                log.info("Access to developers with the most reviewed issues not granted for " + ItemType.HELP.getItemType() + " item.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
         } catch (WebApplicationException e) {

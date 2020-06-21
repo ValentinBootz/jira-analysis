@@ -59,14 +59,14 @@ public class SupporterService {
     }
 
     /**
-     * Constructs a sorted list of developers with open issues.
+     * Constructs a sorted list of developers with the most reviewed issues.
      *
      * @param filter the filter object
      * @return sorted list of developers
      */
-    public List<Developer> getSortedListOfDevelopersWithOpenIssues(Filter filter) {
+    public List<Developer> getSortedListOfDevelopersWithMostReviewedIssues(Filter filter) {
         List<Developer> developers = new ArrayList<>();
-        List<Issue> issues = searchOpenAssignedIssues(filter);
+        List<Issue> issues = searchAllIssues(filter);
 
         issues.forEach(issue -> {
             ApplicationUser assignee = issue.getAssignee();
@@ -127,6 +127,37 @@ public class SupporterService {
 
         return issues;
     }
+
+    /**
+     * Searches for all issues. If the filter has been defined, apply it to the search query.
+     *
+     * @param filter the filter object
+     * @return a list of all issues
+     */
+    private List<Issue> searchAllIssues(Filter filter) {
+        List<Issue> issues;
+
+        // Construct the JQL query.
+        JqlQueryBuilder queryBuilder = JqlQueryBuilder.newBuilder();
+        JqlClauseBuilder clauseBuilder = queryBuilder.where();
+        clauseBuilder
+//                .not().assigneeIsEmpty()
+//                .and()
+                .status().toString().toLowerCase().contains("review");
+        applyFilter(clauseBuilder, filter);
+        clauseBuilder.endWhere();
+
+        try {
+            SearchResults result = searchService.searchOverrideSecurity(null, queryBuilder.buildQuery(), PagerFilter.getUnlimitedFilter());
+            issues = result.getIssues();
+        } catch (SearchException e) {
+            log.error("Failed to search for open assigned issues", e);
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+
+        return issues;
+    }
+
 
     /**
      * Apply the filter to the JQL query.
