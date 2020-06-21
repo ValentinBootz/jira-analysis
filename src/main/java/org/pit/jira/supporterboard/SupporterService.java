@@ -3,21 +3,24 @@ package org.pit.jira.supporterboard;
 import com.atlassian.jira.avatar.Avatar;
 import com.atlassian.jira.avatar.AvatarService;
 import com.atlassian.jira.bc.issue.search.SearchService;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.IssueTypeManager;
 import com.atlassian.jira.config.PriorityManager;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.changehistory.ChangeHistory;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.issue.priority.Priority;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchResults;
-import com.atlassian.jira.issue.status.category.StatusCategory;
 import com.atlassian.jira.jql.builder.JqlClauseBuilder;
 import com.atlassian.jira.jql.builder.JqlQueryBuilder;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import lombok.extern.slf4j.Slf4j;
+import org.ofbiz.core.entity.GenericValue;
 import org.pit.jira.model.Developer;
 import org.pit.jira.model.Filter;
 import org.pit.jira.model.IssueCategory;
@@ -30,6 +33,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The service for Supporter Dashboard Item.
@@ -47,11 +51,12 @@ public class SupporterService {
 
     private final IssueTypeManager issueTypeManager;
 
+
     @Inject
     public SupporterService(@ComponentImport SearchService searchService,
-                          @ComponentImport AvatarService avatarService,
-                          @ComponentImport PriorityManager priorityManager,
-                          @ComponentImport IssueTypeManager issueTypeManager) {
+                            @ComponentImport AvatarService avatarService,
+                            @ComponentImport PriorityManager priorityManager,
+                            @ComponentImport IssueTypeManager issueTypeManager) {
         this.searchService = searchService;
         this.avatarService = avatarService;
         this.priorityManager = priorityManager;
@@ -64,29 +69,46 @@ public class SupporterService {
      * @param filter the filter object
      * @return sorted list of developers
      */
+
+
     public List<Developer> getSortedListOfDevelopersWithMostReviewedIssues(Filter filter) {
         List<Developer> developers = new ArrayList<>();
-        List<Issue> issues = searchAllIssues(filter);
+        List<Issue> issues = searchAllAssignedIssues(filter);
+        boolean foundUser = false;
 
-        issues.forEach(issue -> {
-            ApplicationUser assignee = issue.getAssignee();
-            Developer developer = developers.stream()
-                    .filter(dev -> assignee.getName().equals(dev.getName()))
-                    .findAny()
-                    .orElse(null);
+        for (Issue issue : issues) {
+            List<ChangeHistory> changeHistories = ComponentAccessor.getChangeHistoryManager().getChangeHistories(issue);
+            for (ChangeHistory change : changeHistories) {
+                List<GenericValue> changeItems = change.getChangeItems();
+                for (GenericValue item : changeItems) {
+                    if (item.getString("oldstring") != null && item.getString("oldstring").toString().toLowerCase().contains("review")) {
+                        String authorDisplayName = change.getAuthorDisplayName();
 
-            if (developer != null) {
-                // Update data for existing developer.
-                developer.setCount(developer.getCount() + 1);
-                setIssueType(developer, issue);
-                setIssuePriority(developer, issue);
-                developer.setTotalEstimateSeconds(developer.getTotalEstimateSeconds() + getEstimate(issue));
-            } else {
-                // Create and add new developer.
-                developer = createNewDeveloper(assignee, issue);
-                developers.add(developer);
+                        for (Developer developer : developers) {
+                            if (authorDisplayName.toString().toLowerCase().equals(developer.getName())) {
+                                foundUser = true;
+                                // Update data for existing developer.
+                                developer.setCount(developer.getCount() + 1);
+                                setIssueType(developer, issue);
+                                setIssuePriority(developer, issue);
+                                developer.setTotalEstimateSeconds(developer.getTotalEstimateSeconds() + getEstimate(issue));
+                            }
+                        }
+                        if (foundUser == false) {
+                            // Create and add new developer.
+                            UserManager userManager = ComponentAccessor.getComponent(UserManager.class);
+                            ApplicationUser applicationUser = userManager.getUserByName(authorDisplayName);
+
+                            Developer developer = createNewDeveloper(applicationUser, issue);
+                            developers.add(developer);
+                        }
+                    }
+
+                }
+
             }
-        });
+
+        }
 
         // Sort developer list.
         developers.sort(Comparator.comparing(Developer::getCount).reversed());
@@ -104,16 +126,12 @@ public class SupporterService {
      * @param filter the filter object
      * @return a list of reviewed issues
      */
-    private List<Issue> searchAllIssues(Filter filter) {
+    private List<Issue> searchAllAssignedIssues(Filter filter) {
         List<Issue> issues;
 
         // Construct the JQL query.
         JqlQueryBuilder queryBuilder = JqlQueryBuilder.newBuilder();
         JqlClauseBuilder clauseBuilder = queryBuilder.where();
-        clauseBuilder
-//                .not().assigneeIsEmpty()
-//                .and()
-                .status().toString().toLowerCase().contains("review");
         applyFilter(clauseBuilder, filter);
         clauseBuilder.endWhere();
 
