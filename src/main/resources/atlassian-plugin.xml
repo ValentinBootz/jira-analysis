@@ -41,7 +41,7 @@
         <resource type="soy" location="/soy/who-needs-help-dashboard-item.soy"
                   name="Who.Needs.Help.Dashboard.Item.Templates.Static"/>
 
-        <!-- Suuporter Dashboard Item resources -->
+        <!-- Supporter Dashboard Item resources -->
         <resource type="download" name="supporter-item.js" location="/js/supporter-item.js"/>
         <resource type="download" location="soy/supporter-dashboard-item.soy"
                   name="soy/supporter-dashboard-item.soy.js"/>
@@ -128,7 +128,6 @@
         </definition>
         <description key="supporter.dashboard.item.description" />
         <resource name="view" type="soy" location=":dashboard-plugin-resources/Supporter.Dashboard.Item.Templates.Container" />
-<!--        <context-provider class="org.pit.jira.supporterboard.SupporterDashboardItemContextProvider" />-->
         <amd-module>jira-dashboard-items/supporter</amd-module>
     </dashboard-item>
 

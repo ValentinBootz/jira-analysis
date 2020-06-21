@@ -32,7 +32,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * The service for Who Needs Help Dashboard Item.
+ * The service for Supporter Dashboard Item.
  */
 @Slf4j
 @Scanned
@@ -99,40 +99,10 @@ public class SupporterService {
     }
 
     /**
-     * Searches for open assigned issues. If the filter has been defined, apply it to the search query.
+     * Searches for Reviewed issues. If the filter has been defined, apply it to the search query.
      *
      * @param filter the filter object
-     * @return a list of open assigned issues
-     */
-    private List<Issue> searchOpenAssignedIssues(Filter filter) {
-        List<Issue> issues;
-
-        // Construct the JQL query.
-        JqlQueryBuilder queryBuilder = JqlQueryBuilder.newBuilder();
-        JqlClauseBuilder clauseBuilder = queryBuilder.where();
-        clauseBuilder
-                .not().assigneeIsEmpty()
-                .and()
-                .not().status(StatusCategory.COMPLETE);
-        applyFilter(clauseBuilder, filter);
-        clauseBuilder.endWhere();
-
-        try {
-            SearchResults result = searchService.searchOverrideSecurity(null, queryBuilder.buildQuery(), PagerFilter.getUnlimitedFilter());
-            issues = result.getIssues();
-        } catch (SearchException e) {
-            log.error("Failed to search for open assigned issues", e);
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-        }
-
-        return issues;
-    }
-
-    /**
-     * Searches for all issues. If the filter has been defined, apply it to the search query.
-     *
-     * @param filter the filter object
-     * @return a list of all issues
+     * @return a list of reviewed issues
      */
     private List<Issue> searchAllIssues(Filter filter) {
         List<Issue> issues;

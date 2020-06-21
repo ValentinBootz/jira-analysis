@@ -13,10 +13,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-import org.pit.jira.help.WhoNeedsHelpService;
-
 /**
- * The resource for Who Needs Help Dashboard Item.
+ * The resource for Supporter Dashboard Item.
  */
 @Slf4j
 @Path("/supporter")
@@ -33,10 +31,10 @@ public class SupporterResource {
     }
 
     /**
-     * Searches for developers and their open issues.
+     * Searches for developers and number of issues they've reviewed.
      *
      * @param filter the filter object
-     * @return a sorted list of developers with their open issues
+     * @return a sorted list of developers with number of issues they've reviewed
      */
     @POST
     @Produces({MediaType.APPLICATION_JSON})
@@ -44,20 +42,20 @@ public class SupporterResource {
     @Path("/reviewers")
     public Response getDevelopersWithOpenIssues(Filter filter) {
         try {
-            Grant grant = loggingAndAccessService.requestQueryAccess(ItemType.HELP.getItemType(), filter.getUsers());
+            Grant grant = loggingAndAccessService.requestQueryAccess(ItemType.SUPPORTER.getItemType(), filter.getUsers());
 
             if (grant.getGranted()) {
                 // Access granted.
-                log.info("Item " + ItemType.HELP.getItemType() + " requesting developers with the most reviewed issues.");
+                log.info("Item " + ItemType.SUPPORTER.getItemType() + " requesting developers with the most reviewed issues.");
 
                 List<Developer> developers = supporterService.getSortedListOfDevelopersWithMostReviewedIssues(filter);
 
-                log.info("Item " + ItemType.HELP.getItemType() + " received " + developers.size() + " developers with the most reviewed issues.");
+                log.info("Item " + ItemType.SUPPORTER.getItemType() + " received " + developers.size() + " developers with the most reviewed issues.");
 
                 return Response.ok(developers).build();
             } else {
                 // Access not granted.
-                log.info("Access to developers with the most reviewed issues not granted for " + ItemType.HELP.getItemType() + " item.");
+                log.info("Access to developers with the most reviewed issues not granted for " + ItemType.SUPPORTER.getItemType() + " item.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
         } catch (WebApplicationException e) {
