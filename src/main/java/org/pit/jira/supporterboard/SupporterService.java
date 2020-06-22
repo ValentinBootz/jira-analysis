@@ -85,7 +85,7 @@ public class SupporterService {
                         String authorDisplayName = change.getAuthorDisplayName();
 
                         String userName = authorDisplayName.toString().toLowerCase();
-                        if (!filter.getUsers().contains(userName))
+                        if (filter.getUsers() != null && filter.getUsers().size() > 0 && !filter.getUsers().contains(userName))
                             continue;
                         for (Developer developer : developers) {
                             if (userName.equals(developer.getName())) {
@@ -157,9 +157,6 @@ public class SupporterService {
      * @param filter  the filter object
      */
     private void applyFilter(JqlClauseBuilder builder, Filter filter) {
-        if (filter.getUsers() != null && filter.getUsers().size() > 0) {
-            builder.and().assignee().inStrings(filter.getUsers());
-        }
 
         if (filter.getProjects() != null && filter.getProjects().size() > 0) {
             builder.and().project().inStrings(filter.getProjects());
