@@ -41,6 +41,13 @@
         <resource type="soy" location="/soy/who-needs-help-dashboard-item.soy"
                   name="Who.Needs.Help.Dashboard.Item.Templates.Static"/>
 
+        <!-- Supporter Dashboard Item resources -->
+        <resource type="download" name="supporter-item.js" location="/js/supporter-item.js"/>
+        <resource type="download" location="soy/supporter-dashboard-item.soy"
+                  name="soy/supporter-dashboard-item.soy.js"/>
+        <resource type="soy" location="/soy/supporter-dashboard-item.soy"
+                  name="Supporter.Dashboard.Item.Templates.Static"/>
+
         <context>atl.dashboard</context>
         <context>dashboard-plugin</context>
     </web-resource>
@@ -106,6 +113,24 @@
                   location=":dashboard-plugin-resources/Who.Needs.Help.Dashboard.Item.Templates.Container"/>
         <amd-module>jira-dashboard-items/who-needs-help</amd-module>
     </dashboard-item>
+
+    <!-- Supporter Dashboard Item -->
+    <dashboard-item key="supporter-dashboard-item" i18n-name-key="supporter.dashboard.item.title">
+        <definition>
+            <title key="supporter.dashboard.item.title" />
+            <categories>
+                <category>Jira</category>
+            </categories>
+            <author>
+                <name>Ali Gharaee</name>
+            </author>
+            <thumbnail location="/download/resources/${atlassian.plugin.key}:dashboard-plugin-resources/images/pluginLogo.png" />
+        </definition>
+        <description key="supporter.dashboard.item.description" />
+        <resource name="view" type="soy" location=":dashboard-plugin-resources/Supporter.Dashboard.Item.Templates.Container" />
+        <amd-module>jira-dashboard-items/supporter</amd-module>
+    </dashboard-item>
+
 
 </atlassian-plugin>
 

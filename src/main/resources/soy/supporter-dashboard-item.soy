@@ -1,0 +1,24 @@
+{namespace Supporter.Dashboard.Item.Templates}
+
+/**
+ * Container template.
+ */
+{template .Container}
+    <div id="supporter-filters"/>
+    <div id="supporter-access-dialog"/>
+    <div id="supporter-results"/>
+{/template}
+
+/**
+ * The Supporter Dashboard Item.
+ *
+ * @param developers with the number of reviewed issues
+ */
+{template .Results}
+    {call Dashboard.Plugin.Templates.Table}
+        {param type: 'supporter' /}
+        {param scope: 'User' /}
+        {param analysis: 'Reviewed Issues' /}
+        {param content: $developers /}
+    {/call}
+{/template}
