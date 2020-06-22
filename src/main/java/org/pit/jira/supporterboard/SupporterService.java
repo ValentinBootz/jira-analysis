@@ -74,9 +74,9 @@ public class SupporterService {
     public List<Developer> getSortedListOfDevelopersWithMostReviewedIssues(Filter filter) {
         List<Developer> developers = new ArrayList<>();
         List<Issue> issues = searchAllAssignedIssues(filter);
-        boolean foundUser = false;
 
         for (Issue issue : issues) {
+            boolean foundUser = false;
             List<ChangeHistory> changeHistories = ComponentAccessor.getChangeHistoryManager().getChangeHistories(issue);
             for (ChangeHistory change : changeHistories) {
                 List<GenericValue> changeItems = change.getChangeItems();
@@ -84,8 +84,11 @@ public class SupporterService {
                     if (item.getString("oldstring") != null && item.getString("oldstring").toString().toLowerCase().contains("review")) {
                         String authorDisplayName = change.getAuthorDisplayName();
 
+                        String userName = authorDisplayName.toString().toLowerCase();
+                        if (!filter.getUsers().contains(userName))
+                            continue;
                         for (Developer developer : developers) {
-                            if (authorDisplayName.toString().toLowerCase().equals(developer.getName())) {
+                            if (userName.equals(developer.getName())) {
                                 foundUser = true;
                                 // Update data for existing developer.
                                 developer.setCount(developer.getCount() + 1);
@@ -94,10 +97,10 @@ public class SupporterService {
                                 developer.setTotalEstimateSeconds(developer.getTotalEstimateSeconds() + getEstimate(issue));
                             }
                         }
-                        if (foundUser == false) {
+                        if (Boolean.FALSE.equals(foundUser)) {
                             // Create and add new developer.
                             UserManager userManager = ComponentAccessor.getComponent(UserManager.class);
-                            ApplicationUser applicationUser = userManager.getUserByName(authorDisplayName);
+                            ApplicationUser applicationUser = userManager.getUserByName(userName);
 
                             Developer developer = createNewDeveloper(applicationUser, issue);
                             developers.add(developer);
