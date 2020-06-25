@@ -28,7 +28,7 @@ public class LoggingAndAccessServiceUnitTest {
 
     private static final String ITEM_TYPE = ItemType.HELP.getItemType();
     private static final String NON_EXISTENT_ITEM_TYPE = "non_existent_item_type";
-    private static final String USER_RID = "test@test.de";
+    private static final String USER_RID = "demo@example.com";
     private static final String USERNAME = "username";
 
     @Mock
