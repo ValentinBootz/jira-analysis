@@ -16,13 +16,14 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
         //Read in new keyword, to search for within issue titles, to find experts
         $(context).on('change','#search-text', function(){
             self.searchword = this.value;
-            if(self.searchword === ""){
+            
+            if(/\S/.test(self.searchword)){
                 var $element = this.$element = $(context).find("#search");
-                $element.attr("disabled", "disabled");
+                $element.removeAttr("disabled");
             }
             else{
                 var $element = this.$element = $(context).find("#search");
-                $element.removeAttr("disabled");
+                $element.attr("disabled", "disabled");
             }
         })
         
