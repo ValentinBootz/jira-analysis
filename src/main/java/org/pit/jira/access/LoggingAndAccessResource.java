@@ -1,6 +1,7 @@
 package org.pit.jira.access;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.pit.jira.model.Grant;
 
 import javax.inject.Inject;
@@ -44,7 +45,8 @@ public class LoggingAndAccessResource {
 
             return Response.ok(grant).build();
         } catch (WebApplicationException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+            log.error("Internal server error during data retrieval.", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionUtils.getFullStackTrace(e)).build();
         }
     }
 }

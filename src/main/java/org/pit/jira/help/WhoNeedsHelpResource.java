@@ -1,6 +1,7 @@
 package org.pit.jira.help;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.pit.jira.access.ItemType;
 import org.pit.jira.access.LoggingAndAccessService;
 import org.pit.jira.model.Developer;
@@ -59,7 +60,8 @@ public class WhoNeedsHelpResource {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
         } catch (WebApplicationException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+            log.error("Internal server error during data retrieval.", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionUtils.getFullStackTrace(e)).build();
         }
     }
 }
