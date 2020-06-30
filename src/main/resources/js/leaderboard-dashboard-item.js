@@ -82,28 +82,49 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
      */
     function handleSubmit(self, context) {
         self.API.showLoadingBar();
-        requestData().done(function (response) {
-            self.API.hideLoadingBar();
-            data = analyzeProductivity(response)
-            loadResults(self, context, data);
-        }).fail(function (jqXHR, textStatus, errorThrown) {
-            self.API.hideLoadingBar();
-            switch (jqXHR.status) {
-                case 403:
-                    var $element = this.$element = $(context).find("#leaderboard-access-dialog");
-                    $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'leaderboard' }));
-                    AJS.dialog2("#leaderboard-no-access-dialog").show();
-                    break;
-                default:
-                    window.alert(textStatus + ": " + errorThrown);
-            }
+
+        requestDataFromJiraAPI().done(function (response) {
+            console.log(response)
+
+            requestDataFromBackend().done(function (response) {
+                self.API.hideLoadingBar();
+                data = analyzeProductivity(response)
+                loadResults(self, context, data);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                self.API.hideLoadingBar();
+                switch (jqXHR.status) {
+                    case 403:
+                        var $element = this.$element = $(context).find("#leaderboard-access-dialog");
+                        $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'leaderboard' }));
+                        AJS.dialog2("#leaderboard-no-access-dialog").show();
+                        break;
+                    default:
+                        window.alert(textStatus + ": " + errorThrown);
+                }
+            });
+            
         });
     }
 
     /**
+    * Jira API call requesting all issues with status 'Done' with expanded changelog
+    */
+    function requestDataFromJiraAPI() {
+        jql_query = "jql=status%3Ddone";
+        jql_query += $('#project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query += $('#type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query += $('#priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        return $.ajax({
+            method: "GET",
+            url: contextPath() + "/rest/api/latest/search?" + jql_query + "&expand=changelog"
+        });
+    };
+
+
+    /**
      * API call requesting all issues with status 'Done' with expanded changelog.
      */
-    function requestData() {
+    function requestDataFromBackend() {
         jql_query = "status%3Ddone";
         jql_query += $('#leaderboard-project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#leaderboard-project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
         jql_query += $('#leaderboard-type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#leaderboard-type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
