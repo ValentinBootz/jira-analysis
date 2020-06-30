@@ -62,7 +62,7 @@ public class WhoNeedsHelpServiceUnitTest {
     private IssueTypeManager issueTypeManager;
 
     @Mock
-    private SearchResults searchResults;
+    private SearchResults<Issue> searchResults;
 
     @Mock
     private TimeZoneManager timeZoneManager;
@@ -121,7 +121,7 @@ public class WhoNeedsHelpServiceUnitTest {
         issueTypeList.add(issueType1);
 
         when(searchService.searchOverrideSecurity(any(), any(), any())).thenReturn(searchResults);
-        when(searchResults.getIssues()).thenReturn(issueList);
+        when(searchResults.getResults()).thenReturn(issueList);
 
         when(issueTypeManager.getIssueTypes()).thenReturn(issueTypeList);
         when(priorityManager.getPriorities()).thenReturn(new ArrayList<>());
