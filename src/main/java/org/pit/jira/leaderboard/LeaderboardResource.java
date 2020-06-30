@@ -54,7 +54,7 @@ public class LeaderboardResource {
             }
         } catch (Exception e) {
             log.error("Internal server error during data retrieval.", e);
-            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.printStackTrace()).build();
         }
     }
 }
