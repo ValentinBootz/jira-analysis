@@ -111,9 +111,9 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     */
     function requestDataFromJiraAPI() {
         jql_query = "jql=status%3Ddone";
-        jql_query += $('#project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
-        jql_query += $('#type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
-        jql_query += $('#priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query += $('#leaderboard-project-multiselect').val() ? encodeURIComponent(" AND project in (" + $('#leaderboard-project-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query += $('#leaderboard-type-multiselect').val() ? encodeURIComponent(" AND issuetype in (" + $('#leaderboard-type-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
+        jql_query += $('#leaderboard-priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#leaderboard-priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
         return $.ajax({
             method: "GET",
             url: contextPath() + "/rest/api/latest/search?" + jql_query + "&expand=changelog"
