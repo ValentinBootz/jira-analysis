@@ -47,11 +47,18 @@ Use the command `atlas-clean` to remove the target folder (be aware that all Jir
 
 ### Adjusting log levels
 
+The local JIRA log file can be found at `../target/jira/home/log/atlassian-jira.log`.
+
 To adjust the log level of the Jira plugin:
  1. Navigate to `Administration -> System -> Logging and profiling`
  2. Scroll down and click `Configure logging level for another package`
  3. In the dialog insert `org.pit.jira` as the `Package name` and select the desired log level
  4. Click `Add`
+ 
+### Setting up the PIT tool-chain
+
+By default, the local account will have an email address, that has not been registered by the PIT tool-chain. In order
+to test the Dashboard Items, navigate to `Profile -> Edit details` and change it to `demo@example.com`.
 
 ## Installing Dashboard Items
 

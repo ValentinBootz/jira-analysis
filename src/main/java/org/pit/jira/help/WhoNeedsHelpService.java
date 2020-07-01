@@ -118,8 +118,8 @@ public class WhoNeedsHelpService {
         clauseBuilder.endWhere();
 
         try {
-            SearchResults result = searchService.searchOverrideSecurity(null, queryBuilder.buildQuery(), PagerFilter.getUnlimitedFilter());
-            issues = result.getIssues();
+            SearchResults<Issue> result = searchService.searchOverrideSecurity(null, queryBuilder.buildQuery(), PagerFilter.getUnlimitedFilter());
+            issues = result.getResults();
         } catch (SearchException e) {
             log.error("Failed to search for open assigned issues", e);
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);

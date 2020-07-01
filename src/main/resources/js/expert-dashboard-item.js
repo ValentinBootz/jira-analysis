@@ -40,11 +40,11 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                     if(self.issues === undefined || self.issues.length  === 0){
                         var $element = this.$element = $(context).find("#expert-search-table");
                         $element.empty().html(Expert.Dashboard.Item.Templates.NoExperts());
+                        self.API.resize();
                     }
                     else{
                         requestAccessAndCreateTable(self, context);
                     }
-                    self.API.resize();
                 });
             }
             else{
@@ -88,12 +88,14 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
                     //Request expert data and create an expert table
                     createExpertTable(self.API, context, self.issues);
                     //Resize the window
+                    self.API.resize();
                 }
                 // Access to data not granted.
                 else {
                     var $element = this.$element = $(context).find("#expert-access-dialog");
                     $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'expert' }));
                     AJS.dialog2("#expert-no-access-dialog").show();
+                    self.API.resize();
                 }
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 switch (jqXHR.status) {
