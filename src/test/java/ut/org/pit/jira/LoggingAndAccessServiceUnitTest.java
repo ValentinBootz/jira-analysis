@@ -66,6 +66,7 @@ public class LoggingAndAccessServiceUnitTest {
     public void testRequestQueryAccessWithFilter() {
         when(jiraAuthenticationContext.getLoggedInUser()).thenReturn(currentUser);
         when(currentUser.getEmailAddress()).thenReturn(USER_RID);
+        when(userManager.getUserByName(USERNAME)).thenReturn(currentUser);
 
         Grant result = service.requestQueryAccess(ITEM_TYPE, Collections.singletonList(USERNAME));
 

@@ -8,7 +8,7 @@
         <div class="field-group">
             <label for="search-text">Expert Search</label>
             <input class="text" type="text" id="search-text" name="search-text">
-            <div class="aui-button aui-button-primary" id="search">Search</button>
+            <div class="aui-button aui-button-primary" id="search" disabled="disabled">Search</button>
             </div>
         </div>
         <div id="expert-access-dialog"/>
@@ -22,6 +22,14 @@
 */
 {template .NoExperts}
 No Experts found.
+{/template}
+
+/**
+* EmptySearch template, to be used if there is no search parameter
+*
+*/
+{template .EmptySearch}
+
 {/template}
 
 /**

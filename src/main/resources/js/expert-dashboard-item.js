@@ -16,40 +16,44 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
         //Read in new keyword, to search for within issue titles, to find experts
         $(context).on('change','#search-text', function(){
             self.searchword = this.value;
+            
+            if(/\S/.test(self.searchword)){
+                var $element = this.$element = $(context).find("#search");
+                $element.removeAttr("disabled");
+            }
+            else{
+                var $element = this.$element = $(context).find("#search");
+                $element.attr("disabled", "disabled");
+            }
         })
         
         //On-click event to start search
         $(context).on('click', '#search', function(){
-            self.API.showLoadingBar();
-            
-            //Request Expert data (issue changelog with assignee name and issue status
-            self.requestExperts().done(function (data) {
-                self.issues = data.issues;
+            if(this.attributes.disabled === undefined){
+                self.API.showLoadingBar();
                 
-                var expertNames = getDeveloperNames(self.issues);
-                
-                //Request Access to the data
-                requestAccess(expertNames).done(function (grant) {
+                //Request Expert data (issue changelog with assignee name and issue status
+                self.requestExperts().done(function (data) {
                     self.API.hideLoadingBar();
-                    // Access to data granted.
-                    if (grant.granted) {
-                        //Request expert data and create an expert table
-                        getDataAndCreateTable(self, context);
+                    self.issues = data.issues;
+                    
+                    if(self.issues === undefined || self.issues.length  === 0){
+                        var $element = this.$element = $(context).find("#expert-search-table");
+                        $element.empty().html(Expert.Dashboard.Item.Templates.NoExperts());
+                        
+                        //Resize the window
+                        self.API.resize();
                     }
-                    // Access to data not granted.
-                    else {
-                        var $element = this.$element = $(context).find("#expert-access-dialog");
-                        $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'expert' }));
-                        AJS.dialog2("#expert-no-access-dialog").show();
-                    }
-                }).fail(function (jqXHR, textStatus, errorThrown) {
-                    switch (jqXHR.status) {
-                        default:
-                            // Handle errors.
-                            window.alert(textStatus + ": " + errorThrown);
+                    else{
+                        requestAccessAndCreateTable(self, context);
                     }
                 });
-            });
+            }
+            else{
+                var $element = this.$element = $(context).find("#expert-search-table");
+                $element.empty().html(Expert.Dashboard.Item.Templates.EmptySearch());
+                self.API.resize();
+            }
         });
     };
     
@@ -74,21 +78,37 @@ define('jira-dashboard-items/expert', ['underscore', 'jquery', 'wrm/context-path
     
     
     /**
-     Request the expert issues (data) and create a table of experts
+     Requests access to the data in case there are any issues with the keyword founs and creates a table of experts
      */
-    function getDataAndCreateTable(self, context){
-            //If there are no expert issues found, give out a warning
-            if(self.issues === undefined || self.issues.length  === 0){
-                var $element = this.$element = $(context).find("#expert-search-table");
-                $element.empty().html(Expert.Dashboard.Item.Templates.NoExperts());
-            }
-            //Only use expert-search if there are "done" issues
-            else{
-                createExpertTable(self.API, context, self.issues);
-            }
-            
-            //Resize the window
-            self.API.resize();
+    function requestAccessAndCreateTable(self, context){
+            var expertNames = getDeveloperNames(self.issues);
+
+            //Request Access to the data
+            requestAccess(expertNames).done(function (grant) {
+                // Access to data granted.
+                if (grant.granted) {
+                    //Request expert data and create an expert table
+                    createExpertTable(self.API, context, self.issues);
+                    
+                    //Resize the window
+                    self.API.resize();
+                }
+                // Access to data not granted.
+                else {
+                    var $element = this.$element = $(context).find("#expert-access-dialog");
+                    $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'expert' }));
+                    AJS.dialog2("#expert-no-access-dialog").show();
+                    
+                    //Resize the window
+                    self.API.resize();
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                switch (jqXHR.status) {
+                    default:
+                        // Handle errors.
+                        window.alert(textStatus + ": " + errorThrown);
+                }
+            });
     }
     
     
