@@ -82,32 +82,42 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
      */
     function handleSubmit(self, context) {
         self.API.showLoadingBar();
-
-        requestDataFromJiraAPI().done(function (response) {
+        requestAccess().done(function (grant) {
+            if (grant.granted) {
+                requestDataFromJiraAPI().done(function (response) {
+                    self.API.hideLoadingBar();
+                    data = analyzeProductivity(response.issues)
+                    loadResults(self, context, data);
+                });
+            } else {
+                var $element = this.$element = $(context).find("#leaderboard-access-dialog");
+                $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'leaderboard' }));
+                AJS.dialog2("#leaderboard-no-access-dialog").show();
+                self.API.hideLoadingBar();
+            }
+        });
+        requestDataFromBackend().done(function (response) {
             console.log(response)
-
-            requestDataFromBackend().done(function (response) {
-                self.API.hideLoadingBar();
-                data = analyzeProductivity(response)
-                loadResults(self, context, data);
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-                self.API.hideLoadingBar();
-                switch (jqXHR.status) {
-                    case 403:
-                        var $element = this.$element = $(context).find("#leaderboard-access-dialog");
-                        $element.empty().html(Dashboard.Plugin.Templates.AccessDialog({ type: 'leaderboard' }));
-                        AJS.dialog2("#leaderboard-no-access-dialog").show();
-                        break;
-                    default:
-                        window.alert(textStatus + ": " + errorThrown);
-                }
-            });
-            
         });
     }
 
     /**
-    * Jira API call requesting all issues with status 'Done' with expanded changelog
+     * Requests access from the Logging and Access API.
+     *
+     * @returns {*} a grant with granted true or granted false
+     */
+    function requestAccess() {
+        return $.ajax({
+            type: "POST",
+            url: contextPath() + "/rest/jira-analysis-api/1.0/logging-and-access/query/leaderboard",
+            data: JSON.stringify($('#leaderboard-user-multiselect').val()),
+            contentType: "application/json",
+        });
+    }
+
+
+    /**
+     * Jira API call requesting all issues with status 'Done' with expanded changelog
     */
     function requestDataFromJiraAPI() {
         jql_query = "jql=status%3Ddone";
@@ -116,9 +126,9 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         jql_query += $('#leaderboard-priority-multiselect').val() ? encodeURIComponent(" AND priority in (" + $('#leaderboard-priority-multiselect').val().map(element => "\'" + element + "\'").join() + ")") : "";
         return $.ajax({
             method: "GET",
-            url: contextPath() + "/rest/api/latest/search?" + jql_query + "&expand=changelog"
+            url: contextPath() + "/rest/api/latest/search?" + jql_query + "&maxResults=1000" + "&expand=changelog"
         });
-    };
+    }
 
 
     /**
@@ -147,8 +157,10 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         data = { users: [], projects: [] };
         issues.forEach(issue => {
             details = getDetails(issue);
-            updateUsers(data.users, details);
-            updateProjects(data.projects, details);
+            if ($('#leaderboard-user-multiselect').val() ? $('#leaderboard-user-multiselect').val().includes(details.developer ? details.developer.name : undefined) : false) {
+                updateUsers(data.users, details);
+                updateProjects(data.projects, details);
+            }
         });
         [data.users, data.projects].forEach(function (list) {
             list.forEach(element => element.estimate = formatEstimate(element.estimate));
@@ -293,7 +305,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     function getDetails(issue) {
         return {
             project: getProject(issue),
-            developer: issue.developer,
+            developer: getDeveloper(issue),
             estimate: getEstimatedTime(issue),
             type: getType(issue),
             priority: getPriority(issue)
@@ -307,6 +319,20 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
      */
     function getProject(issue) {
         return issue.fields.project;
+    }
+
+    /**
+     * Gets developer from issue. Credited is author who last changed status to 'In Progress'
+     *
+     * @param issue
+     */
+    function getDeveloper(issue) {
+        entry = issue.changelog.histories.filter(
+            function (histories) {
+                return histories.items[0].toString == 'In Progress'
+            }
+        ).slice(-1)[0];
+        return entry ? entry.author : undefined;
     }
 
     /**
