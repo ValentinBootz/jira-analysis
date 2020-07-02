@@ -157,7 +157,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
         data = { users: [], projects: [] };
         issues.forEach(issue => {
             details = getDetails(issue);
-            if ($('#leaderboard-user-multiselect').val() ? $('#leaderboard-user-multiselect').val().includes(details.developer.name) : false) {
+            if ($('#leaderboard-user-multiselect').val() ? $('#leaderboard-user-multiselect').val().includes(details.developer ? details.developer.name : undefined) : false) {
                 updateUsers(data.users, details);
                 updateProjects(data.projects, details);
             }
