@@ -311,6 +311,13 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                 return histories.items[0].toString == 'In Progress'
             }
         ).slice(-1)[0];
+        if(!entry) {
+            entry = issue.changelog.histories.filter(
+                function (histories) {
+                    return histories.items[0].toString == 'Done'
+                }
+            ).slice(-1)[0];
+        }
         return entry ? entry.author : undefined;
     }
 
