@@ -102,7 +102,22 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
     }
 
     /**
-    * Jira API call requesting all issues with status 'Done' with expanded changelog
+     * Requests access from the Logging and Access API.
+     *
+     * @returns {*} a grant with granted true or granted false
+     */
+    function requestAccess() {
+        return $.ajax({
+            type: "POST",
+            url: contextPath() + "/rest/jira-analysis-api/1.0/logging-and-access/query/leaderboard",
+            data: JSON.stringify($('#leaderboard-user-multiselect').val()),
+            contentType: "application/json",
+        });
+    }
+
+
+    /**
+     * Jira API call requesting all issues with status 'Done' with expanded changelog
     */
     function requestDataFromJiraAPI() {
         jql_query = "jql=status%3Ddone";
