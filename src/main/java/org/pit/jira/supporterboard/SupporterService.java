@@ -33,7 +33,6 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The service for Supporter Dashboard Item.
@@ -139,8 +138,8 @@ public class SupporterService {
         clauseBuilder.endWhere();
 
         try {
-            SearchResults result = searchService.searchOverrideSecurity(null, queryBuilder.buildQuery(), PagerFilter.getUnlimitedFilter());
-            issues = result.getIssues();
+            SearchResults<Issue> result = searchService.searchOverrideSecurity(null, queryBuilder.buildQuery(), PagerFilter.getUnlimitedFilter());
+            issues = result.getResults();
         } catch (SearchException e) {
             log.error("Failed to search for open assigned issues", e);
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
