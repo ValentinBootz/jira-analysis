@@ -33,6 +33,7 @@ public class LeaderboardService {
 
         URIBuilder uri_builder = new URIBuilder(base_url + "/rest/api/2/search")
                 .addParameter("jql", jql_query)
+                .addParameter("maxResults", "1000");
                 .addParameter("expand", "changelog");
 
         HttpGet request = new HttpGet(uri_builder.toString());
@@ -43,9 +44,11 @@ public class LeaderboardService {
         log.info("Received HTTP status: " + HttpResponse.getStatusLine().getStatusCode()
                 + " (" + HttpResponse.getStatusLine().getReasonPhrase() + ")");
 
-        JSONObject response = new JSONObject(EntityUtils.toString(HttpResponse.getEntity()));
+        return EntityUtils.toString(HttpResponse.getEntity())
 
-        return filterUsers(response, users);
+        // JSONObject response = new JSONObject(EntityUtils.toString(HttpResponse.getEntity()));
+
+        // return filterUsers(response, users);
     }
 
     /**
