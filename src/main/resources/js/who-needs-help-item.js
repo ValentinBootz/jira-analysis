@@ -59,6 +59,12 @@ define('jira-dashboard-items/who-needs-help', ['underscore', 'jquery', 'wrm/cont
             self.API.resize();
         });
 
+        // Remove unregistered users
+        var list = ["admin1", "frauke", "Jan_Gogoll", "mapi", "Niina", "severin", "valentin"];
+        $('help-user-multiselect option').filter(function () {
+            return $.inArray(this.value, list) !== -1
+        }).remove();
+
         self.API.resize();
     }
 

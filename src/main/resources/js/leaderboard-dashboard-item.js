@@ -71,6 +71,12 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
             self.API.resize();
         });
 
+        // Remove unregistered users
+        var list = ["admin1", "frauke", "Jan_Gogoll", "mapi", "Niina", "severin", "valentin"];
+        $('leaderboard-user-multiselect option').filter(function () {
+            return $.inArray(this.value, list) !== -1
+        }).remove();
+
         self.API.resize();
     }
 
@@ -311,7 +317,7 @@ define('jira-dashboard-items/leaderboard', ['underscore', 'jquery', 'wrm/context
                 return histories.items[0].toString == 'In Progress'
             }
         ).slice(-1)[0];
-        if(!entry) {
+        if (!entry) {
             entry = issue.changelog.histories.filter(
                 function (histories) {
                     return histories.items[0].toString == 'Done'
